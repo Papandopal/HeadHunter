@@ -1,0 +1,13 @@
+﻿<script>
+	if("@Context.Items["Alert"]" != ""){
+		const alertDiv = document.createElement('div');
+		let type = String("@Context.Items["AlertType"]");
+		type = type.toLowerCase();
+		alertDiv.className = 'alert alert-'+type;
+		alertDiv.textContent = "@Context.Items["Alert"]";
+			document.body.prepend(alertDiv);
+			setTimeout(() => {alertDiv.remove();}, 3000);
+		let a = "@Context.Items.Remove("Alert")";
+		let b = "@Context.Items.Remove("AlertType")";
+	}
+</script>

@@ -1,0 +1,43 @@
+﻿@model ViewPositionPageDTO
+@{
+
+}
+<div class="row">
+	<label>Title:</label>
+	<label>@Model.Position.Title</label>
+	<label>Description</label>
+	<label>@Model.Position.Description</label>
+	<table>
+		<tbody>
+			<tr>
+				<td>
+					<label>Skills:</label>
+					@foreach (var skill in Model.Position.PositionSkills)
+					{
+						<partial name="Skills/View/@skill.Skill.Type" model="new ViewSkillPartialDTO{ Skill = skill.Skill}" />
+					}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>Access Rules(Filters):</label>
+					@foreach (var rule in Model.Position.AccessRules)
+					{
+						<partial name="AccessRules/View/@rule.Skill.Type" model="new ViewAccessRulePartialDTO{ AccessRule = rule}" />
+					}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>Max count of projects: @Model.Position.MaxCountOfProject</label>
+					<label>Project tags:</label>
+					@foreach (var projectTag in Model.Position.ProjectTags)
+					{
+						<label>@projectTag.Name</label>
+					}
+				</td>
+			</tr>
+		</tbody>
+
+	</table>
+</div>

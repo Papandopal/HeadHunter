@@ -1,0 +1,10 @@
+﻿@model ViewAccessRulePartialDTO
+@{
+	
+}
+<div class="row">
+	<label>@Model.AccessRule.Skill.Name:</label>
+	<label>@Model.AccessRule.Operator</label>
+	<input type="checkbox" style="pointer-events: none;" tabindex="-1" @(Model.AccessRule.Value == "on" ? "checked" : "") />
+</div>
+

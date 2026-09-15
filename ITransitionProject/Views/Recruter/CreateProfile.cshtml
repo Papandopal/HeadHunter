@@ -1,0 +1,30 @@
+﻿@model CreateRecruterProfilePageDTO
+@{
+	string submitButtonId = "submitButtonId";
+}
+<form asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" method="post">
+	<div>
+		<label for="Name">Name:</label>
+		<input id="Name" asp-for="Name" onchange="addProperty('Name')" />
+		<button id="@submitButtonId" disabled type="submit">Save</button>
+	</div>
+</form>
+
+<script>
+	let propsCount = 1;
+	if(propsCount==0) activateSubmitButton();
+	let data = [];
+
+	function activateSubmitButton(){
+		document.getElementById("@submitButtonId").disabled = false;
+	}
+
+	function addProperty(propName) {
+		let item = data.find(item => item === propName);
+		if (typeof item === 'undefined') {
+			propsCount--;
+			data.push(propName);
+		}
+		if(propsCount==0) activateSubmitButton();
+	}
+</script>

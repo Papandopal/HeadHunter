@@ -1,0 +1,6 @@
+﻿@model ViewValuedSkillPartialDTO
+@{
+
+}
+<label>@Model.ValuedSkill.Skill.Name</label>
+<label>@Html.Raw(MarkdownTextFormater.Render(Model.ValuedSkill.Value))</label>

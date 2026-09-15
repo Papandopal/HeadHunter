@@ -1,0 +1,17 @@
+﻿@model ViewSkillsPageDTO
+@{
+	IEnumerable<ViewSkillPartialDTO> partialDTOs = Model.Skills
+	.Select(x => new ViewSkillPartialDTO
+			{
+				Skill = x
+			});
+}
+
+<div class="w-100 h-100">
+
+	@foreach(var partialDTO in partialDTOs)
+	{
+		<partial name="Skills/View/@partialDTO.Skill.Type" model="@partialDTO"/>
+	}
+	
+</div>

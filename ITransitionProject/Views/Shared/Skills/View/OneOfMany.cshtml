@@ -1,0 +1,11 @@
+﻿@model ViewSkillPartialDTO
+@{
+
+}
+<label>@Model.Skill.Name:</label>
+<select>
+	@foreach (var item in OneOfManyFormater.Render(Model.Skill.PotentialValue))
+	{
+		<!option>@item</!option>
+	}
+</select>

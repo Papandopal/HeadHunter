@@ -1,0 +1,17 @@
+﻿@inject IConfiguration configuration
+@{
+    bool rememberMe = configuration["RememberMe"] is not null && configuration["RememberMe"] == "True";
+}
+<script>
+    if (!@rememberMe.ToString().ToLower()) {
+        if (!sessionStorage.getItem('session')) {
+            fetch('/Auth/RemoteLogout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => {
+                sessionStorage.setItem('session', 'true');
+                window.location.replace(window.location.href);
+            });
+        }
+    }
+</script>

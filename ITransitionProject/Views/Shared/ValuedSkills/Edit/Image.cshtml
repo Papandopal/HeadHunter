@@ -1,0 +1,6 @@
+﻿@model EditAccessRulePartialDTO
+@{
+
+}
+<label for="@Model.AccessRule.Id">@Model.AccessRule.Skill.Name</label>
+<input id="@Model.AccessRule.Id" type="text" oninput="onTextChanged2(this.value, '@Model.AccessRule.Id')" value="@Model.AccessRule.Id" />

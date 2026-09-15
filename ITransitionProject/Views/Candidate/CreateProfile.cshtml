@@ -1,0 +1,36 @@
+﻿@using ITransitionProject.PagesDTOs.Candidate.Profile
+@model CreateCandidateProfilePageDTO
+@{
+	string submitButtonId = "submitButtonId";
+}
+
+<form asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" method="post">
+	<div>
+		<label for="firstName">First Name:</label>
+		<input id="firstName" asp-for="FirstName" onchange="addProperty('FirstName')"/>
+		<label for="lastName">Last Name:</label>
+		<input id="lastName" asp-for="LastName" onchange="addProperty('LastName')" />
+		<label for="birthDay">Birth Day:</label>
+		<input id="birthDay" type="date" asp-for="BirthDay" value="@DateTime.Today.ToString("yyyy-MM-dd")" onchange="addProperty('BirthDay')" />
+		<button id="submitButtonId" type="submit" disabled>Save</button>
+	</div>
+</form>
+
+<script>
+	let propsCount = 3;
+	if(propsCount==0) activateSubmitButton();
+	let data = [];
+
+	function activateSubmitButton(){
+		document.getElementById("@submitButtonId").disabled = false;
+	}
+
+	function addProperty(propName) {
+		let item = data.find(item => item === propName);
+		if (typeof item === 'undefined') {
+			propsCount--;
+			data.push(propName);
+		}
+		if(propsCount==0) activateSubmitButton();
+	}
+</script>

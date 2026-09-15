@@ -1,0 +1,10 @@
+﻿@model AddCategoryPageDTO
+@{
+
+}
+
+<form action="/@Model.ControllerForSubmit/@Model.ActionForSubmit" method="post">
+	<label for="Name">Name:</label>
+	<input required id="Name" asp-for="Name" />
+	<button type="submit">Save</button>
+</form>

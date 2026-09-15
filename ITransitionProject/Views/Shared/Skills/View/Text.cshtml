@@ -1,0 +1,6 @@
+﻿@model ViewSkillPartialDTO
+@{
+
+}
+<label>@Model.Skill.Name</label>
+<label>@Html.Raw(MarkdownTextFormater.Render(Model.Skill.PotentialValue))</label>

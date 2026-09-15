@@ -1,0 +1,6 @@
+﻿@model AddAccessRulePartialDTO
+@{
+
+}
+<label for="@Model.Skill.Id">@Model.Skill.Name</label>
+<input id="@Model.Skill.Id" type="number" oninput="@(Model.EventHandlers["addUpdateInBuffer2"])(this.value, '@Model.Skill.Id')" placeholder="@Model.Skill.PotentialValue" />

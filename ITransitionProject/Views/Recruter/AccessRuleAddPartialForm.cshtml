@@ -1,0 +1,18 @@
+﻿@model AddAccessRulePageDTO
+@{
+	Model.EventHandlers.Add("AddAccessRuleRecord3", "AddAccessRuleRecord3");
+	Model.EventHandlers.Add("AddExtraValueForOneOfManyRule2", "AddExtraValueForOneOfManyRule2");
+	Model.EventHandlers.Add("ChangeExtraValueForOneOfMany3", "ChangeExtraValueForOneOfMany3");
+	Model.EventHandlers.Add("RemoveExtraValueForOneOfMany2", "RemoveExtraValueForOneOfMany2");
+	Model.EventHandlers.Add("RemoveAccessRule1", "RemoveAccessRule1");
+	var partialModel = new AddAccessRulePartialDTO
+			{
+				Skill = Model.Skill,
+				EventHandlers = Model.EventHandlers
+			};
+}
+
+<div class="w-100 h-100 d-flex flex-row">
+	<button type="button" class="btn btn-sm btn-outline-danger" onclick="@(Model.EventHandlers["RemoveAccessRule1"])('@Model.Skill.Name')">-</button>
+	<partial name="AccessRules/Add/@Model.Skill.Type.ToString()" model="@partialModel" />
+</div>

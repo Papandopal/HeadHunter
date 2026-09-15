@@ -1,0 +1,14 @@
+﻿@model EditAccessRulePartialDTO
+@{
+
+}
+<label for="@Model.AccessRule.Id">@Model.AccessRule.Skill.Name</label>
+<select id="@Model.AccessRule.Id" onchange="@(Model.EventHandlers["addUpdateInBuffer2"])(this.options[this.selectedIndex].text, '@Model.AccessRule.Id')">
+	@foreach (var item in Model.AccessRule.Skill.PotentialValue.Split(";"))
+	{
+		@if (!string.IsNullOrEmpty(item))
+		{
+			<!option @(Model.AccessRule.Value == item ? "selected" : "")>@item</!option>
+		}
+	}
+</select>

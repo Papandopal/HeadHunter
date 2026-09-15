@@ -1,0 +1,31 @@
+﻿@model ViewReadOnlyPositionsPageDTO
+@{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>@(nameof(Position.Title))</th>
+				<th>@(nameof(Position.Description))</th>
+				<th>@(nameof(Position.PositionSkills))</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var position in Model.Positions)
+			{
+				<tr>
+					<td>
+						<a asp-controller="@Model.ControllerForViewPosition" asp-action="@Model.ActionForViewPosition" asp-route-positionId="@position.Id">@position.Title</a>
+					</td>
+					<td>
+						<label>@position.Description</label>
+					</td>
+					<td>
+						@foreach (var skill in position.PositionSkills.Take(10))
+						{
+							<label>@skill.Skill.Name</label>
+						}
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

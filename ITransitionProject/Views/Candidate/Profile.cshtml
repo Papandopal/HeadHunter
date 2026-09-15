@@ -1,0 +1,7 @@
+﻿@model CandidateProfilePageDTO
+@{
+	var partialDTO = new ViewCandidateSkillsPageDTO { CandidateSkills = Model.CandidateSkills }; 
+}
+<h3>@Model.FirstName   @Model.LastName</h3>
+<partial name="CandidateSkillsView" model="@partialDTO"/>
+

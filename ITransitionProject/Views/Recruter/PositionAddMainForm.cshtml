@@ -1,0 +1,389 @@
+﻿@model AddPositionPageMainFormDTO
+@inject SupportedAccessRuleSkillTypes supportedAccessRuleSkillTypes
+@{
+	string mainFormId = "mainFormId";
+	string bufferForSkillsInputName = nameof(Model.PostedModel.BufferForSkills);
+	string buttonForSubmitId = "buttonForSubmitId";
+	string skillTypeSelectorId = "SkillTypeSelector";
+	string skillFormsId = "skillFormsId";
+	string skillTypeInputId = "skillTypeInputId";
+	string accessRulesFormsId = "accessRulesFormsId";
+	string accessRulesTypeSelectorId = "accessRulesTypeSelectorId";
+	string bufferForAccessRulesInputName = nameof(Model.PostedModel.BufferForAccessRules);
+	string projectTagsRowId = "projectTagsRowId";
+	string projectTagsSelectorId = "projectTagsSelectorId";
+	string bufferForProjectTagsName = nameof(Model.PostedModel.BufferForProjectTags);
+	string projectTagsInputId = "projectTagsInputId";
+}
+
+<form id="@mainFormId" asp-action="@Model.ActionForSubmit" asp-controller="@Model.ControllerForSubmit" onsubmit="saveBufferInHiddenInput()" method="post">
+	<div class="d-flex flex-column justify-content-center">
+		<div>
+			<label for="@Model.PostedModel.Title">Title:</label>
+			<input required name="Title" type="text" />
+		</div>
+		<div>
+			<label for="@Model.PostedModel.Description">Description:</label>
+			<input required name="Description" type="text" />
+		</div>
+		<div>
+			<label for="@Model.PostedModel.MaxCountOfProject">Max count of projects</label>
+			<input name="MaxCountOfProject" type="number" min="0" step="1" />
+		</div>
+		<input id="@bufferForSkillsInputName" name="@bufferForSkillsInputName" type="hidden" value="{}" />
+		<input id="@bufferForAccessRulesInputName" name="@bufferForAccessRulesInputName" type="hidden" value="{}" />
+		<input id="@bufferForProjectTagsName" name="@bufferForProjectTagsName" type="hidden" value="{}" />
+	</div>
+</form>
+
+<table class="table">
+	<thead>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+				<label for="@skillTypeInputId">Skills:</label>
+				<input id="@skillTypeInputId" type="text" oninput="loadSkills(this.value)" />
+				<select id="@skillTypeSelectorId" onchange="loadSkillView(this.value)">
+					<option hidden disabled selected>Skills</option>
+				</select>
+				<div class="d-flex flex-row list-unstyled" id="@skillFormsId" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label for="@accessRulesTypeSelectorId">Access Rules/Filters</label>
+				<select id="@accessRulesTypeSelectorId" onchange="loadAccessRuleForm(this.value)">
+					<option hidden disabled selected>Access Rules</option>
+				</select>
+				<div class="d-flex flex-row list-unstyled" id="@accessRulesFormsId" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="d-flex flex-row list-unstyled" id="@projectTagsRowId">
+					<label for="@projectTagsInputId">Project tags:</label>
+					<input id="@projectTagsInputId" type="text" oninput="onProjectTagsInputChange(this.value)" />
+					<select id="@projectTagsSelectorId" onchange="addProjectTag(this.value)">
+						<!option selected hidden disabled>Project tags</!option>
+					</select>
+				</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<button form="@mainFormId" id="@buttonForSubmitId" type="submit" disabled> Save</button>
+
+<script>
+	let bufferFoProjectTags = [];
+	function onProjectTagsInputChange(prefix) {
+		clearTimeout(timeout);
+
+		timeout = setTimeout(() => {
+
+			loadProjectTags(prefix)
+
+		}, 1000);
+	}
+
+	function loadProjectTags(prefix){
+		fetch(`/@Model.ControllerForGetProjectTags/@Model.ActionForGetProjectTags?prefix=${encodeURIComponent(prefix)}`,  {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			let select = document.getElementById('@projectTagsSelectorId');
+
+			let filteredData = [];
+
+			for(item of data){
+				if(typeof(bufferFoProjectTags.find(x=>x === item)) === 'undefined'){
+					filteredData.push(item);
+				}
+			}
+
+			select.innerHTML = '<option selected hidden disabled>Project tags</option>' + filteredData
+			.map(item => `<option value="${item}">${item}</option>`)
+			.join('');
+		})
+		.catch(error=>console.log(error));
+	}
+
+	function addProjectTag(tagName){
+		let projectTagsSelector = document.getElementById('@projectTagsSelectorId');
+		let newProjectTag = document.createElement('label')
+		newProjectTag.textContent = tagName;
+		let projectTagsRowId = document.getElementById('@projectTagsRowId');
+		projectTagsRowId.appendChild(newProjectTag);
+		let option = projectTagsSelector.querySelector(`option:checked`);
+		projectTagsSelector.removeChild(option);
+		bufferFoProjectTags.push(tagName);
+	}
+</script>
+
+<script>
+	class AccessRuleRecord{
+		SkillId;
+		PropName;
+		PropValue;
+
+		constructor(skillId, propName, propValue){
+			this.SkillId = skillId;
+			this.PropName = propName;
+			this.PropValue = propValue;
+		}
+	}
+
+	let bufferForAccessRules = [];
+	let supportedAccessRuleSkillTypes = @Html.Raw(Json.Serialize(supportedAccessRuleSkillTypes.Types().Select(x => x.ToString())));
+	let accessRuleIdPrefix = 'access rule';
+	let accessRules = [];
+
+	function RebuildAccessRulesSelector(){
+		let selector = document.getElementById('@accessRulesTypeSelectorId');
+		selector.innerHTML = '';
+		let newInnerHTML = '';
+		for(rule of accessRules){
+			newInnerHTML += `<option value='${rule}'>${rule}</option>`;
+		}
+		newInnerHTML += '<option selected disabled hidden>Rule</option>';
+		selector.innerHTML = newInnerHTML;
+	}
+
+	function AddAccessRule(skillName)
+	{
+		accessRules.push(skillName);
+		RebuildAccessRulesSelector();
+	}
+
+	function RemoveAccessRule(skillName)
+	{
+		accessRules = accessRules.filter(x=>x !== skillName);
+		RebuildAccessRulesSelector();
+	}
+
+	function loadAccessRuleForm(skillName)
+	{
+		if (!skillName) {
+			return;
+		}
+
+		fetch(`/@Model.ControllerForGetAccessRuleForm/@Model.ActionForGetAccessRuleForm?skillName=${encodeURIComponent(skillName)}`)
+		.then(response => response.text())
+		.then(html => {
+			let form = document.getElementById('@accessRulesFormsId');
+			let newDiv = document.createElement('div');
+			newDiv.id = accessRuleIdPrefix + skillName;
+			newDiv.innerHTML = html;
+			form.append(newDiv);
+			RemoveAccessRule(skillName);
+			executeScriptsInContainer(form);
+		})
+		.catch(error => console.log('Error:', error));
+	}
+
+	function executeScriptsInContainer(container) {
+		const scripts = container.querySelectorAll('script');
+
+		scripts.forEach(oldScript => {
+			const newScript = document.createElement('script');
+
+			for (let attr of oldScript.attributes) {
+				newScript.setAttribute(attr.name, attr.value);
+			}
+			if (oldScript.textContent) {
+				newScript.textContent = oldScript.textContent;
+			}
+			oldScript.parentNode.replaceChild(newScript, oldScript);
+		});
+	}
+
+	function AddAccessRuleRecord3(skillId, propName, propValue){
+		let item = bufferForAccessRules.find(x=>x.SkillId == skillId && x.PropName == propName);
+		if(typeof(item)==='undefined'){
+			bufferForAccessRules.push(new AccessRuleRecord(skillId, propName, propValue));
+		}
+		else{
+			item.PropValue = propValue;
+		}
+	}
+
+	function AddExtraValueForOneOfManyRule2(skillId, extraValue){
+		let item = bufferForAccessRules.find(x=>x.SkillId === skillId && x.PropName === 'Value');
+		if(typeof(item) !== 'undefined'){
+			item.PropValue += ";"+extraValue;
+		}
+	}
+
+	function ChangeExtraValueForOneOfMany3(skillId, changedRuleIndex, value){
+		let item = bufferForAccessRules.find(x=>x.SkillId === skillId && x.PropName === 'Value');
+		if(typeof(item) !== 'undefined'){
+			let parts = item.PropValue.split(';');
+			parts[changedRuleIndex] = value;
+			item.PropValue = parts.join(';');
+		}
+	}
+
+	function RemoveExtraValueForOneOfMany2(skillId, value){
+		let item = bufferForAccessRules.find(x=>x.SkillId === skillId && x.PropName === 'Value');
+		if(typeof(item) !== 'undefined'){
+			let parts = item.PropValue.split(';');
+			parts = parts.filter(x=>x !== value);
+			item.PropValue = parts.join(';');
+		}
+	}
+
+	function RemoveAccessRule1(skillName){
+		let item = document.getElementById(accessRuleIdPrefix+skillName);
+		if(typeof(item) !== 'undefined'){
+			item.remove();
+			RebuildAccessRulesSelector();
+			let accessRuleTypeSelector = document.getElementById('@accessRulesTypeSelectorId');
+			if(accessRuleTypeSelector.value === skillName){
+
+			}
+			fetch(`/@Model.ControllerForGetSkillIdBySkillName/@Model.ActionForGetSkillIdBySkillName?skillName=${skillName}`, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+			})
+			.then(response => response.json())
+			.then(data=>{
+				bufferForAccessRules = bufferForAccessRules.filter(x=>x.skillId !== data);
+			})
+			.catch(error=>console.log(error));
+		}
+	}
+</script>
+
+<script>
+
+	let countOfRequiredProperties = 0;
+	if(countOfRequiredProperties == 0) activateSubmitButton();
+	let bufferForSkills = [];
+	let curLoadSkills = [];
+	let selectedSkills = [];
+	let timeout = null;
+	let partsOfPeriodSet = [false, false];
+	let partsOfPeriod = ['', ''];
+
+	function activateSubmitButton(){
+		document.getElementById("@buttonForSubmitId").disabled = false;
+	}
+
+	function deactivateSubmitButton(){
+		document.getElementById("@buttonForSubmitId").disabled = true;
+	}
+
+	function saveBufferInHiddenInput(){
+		document.getElementById("@bufferForSkillsInputName").value = JSON.stringify(bufferForSkills);
+		document.getElementById("@bufferForAccessRulesInputName").value = JSON.stringify(bufferForAccessRules);
+		document.getElementById("@bufferForProjectTagsName").value = JSON.stringify(bufferFoProjectTags);
+	}
+
+	function RebuildSkillSelector(){
+		let selector = document.getElementById('@skillTypeSelectorId');
+		selector.innerHTML = '';
+		let newInnerHTML = '<option selected disabled hidden value="">Skill</option>';
+		for(let skill of curLoadSkills){
+			if(selectedSkills.indexOf(skill) === -1){
+				newInnerHTML += `<option value='${skill}'>${skill}</option>`;
+			}
+		}
+		selector.innerHTML = newInnerHTML;
+	}
+
+	function AddSkill(skillName)
+	{
+		selectedSkills.push(skillName);
+		RebuildSkillSelector();
+	}
+
+	function RemoveSkill(skillName)
+	{
+		selectedSkills = selectedSkills.filter(x=>x !== skillName);
+		RebuildSkillSelector();
+	}
+
+	function addUpdateInBuffer2(newValue, skillId) {
+
+		let currentData = {
+			SkillId: skillId,
+			Value: newValue
+		};
+
+		let item = buffer.find(item=>item.SkillId === skillId);
+		if(typeof item !== 'undefined'){
+			item.value = newValue;
+		}
+		else{
+			countOfRequiredProperties--;
+			buffer.push(currentData);
+			console.log(buffer);
+			if(countOfRequiredProperties == 0) activateSubmitButton();
+		}
+	}
+	function loadSkills(prefix){
+		fetch(`/@Model.ControllerForGetSkillsNames/@Model.ActionForGetSkillsNames?prefix=${prefix}`, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			curLoadSkills = data;
+			RebuildSkillSelector();
+		})
+		.catch(error=>console.log(error));
+	}
+	function loadSkillView(skillName) {
+		if (!skillName) {
+			return;
+		}
+
+		fetch(`/@Model.ControllerForGetSkillForm/@Model.ActionForGetSkillForm?skillName=${encodeURIComponent(skillName)}`)
+		.then(response => response.text())
+		.then(html => {
+			let form = document.getElementById('@skillFormsId');
+			let newDiv = document.createElement('div');
+			newDiv.innerHTML = html;
+			AddSkill(skillName);
+			form.append(newDiv);
+		})
+		.catch(error => console.log('Error:', error));
+
+		let currentData = {
+			SkillName: skillName
+		};
+		bufferForSkills.push(currentData);
+
+		fetch(`/@Model.ControllerForGetSkillTypeBySkillName/@Model.ActionForGetSkillTypeBySkillName?skillName=${skillName}`, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			if(supportedAccessRuleSkillTypes.find(item=>item == data)){
+				AddAccessRule(skillName);
+			}
+		})
+		.catch(error=>console.log(error));
+	}
+
+	function RemoveSkill2(divId, skillName)
+	{
+		document.getElementById(divId).remove();
+		bufferForSkills = bufferForSkills.filter(x=>x.SkillName !== skillName);
+		RemoveSkill(skillName);
+		RemoveAccessRule(skillName);
+		RemoveAccessRule1(skillName);
+	}
+</script>

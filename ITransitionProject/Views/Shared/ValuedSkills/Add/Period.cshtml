@@ -1,0 +1,7 @@
+﻿@model AddAccessRulePartialDTO
+@{
+
+}
+<label for="@Model.Skill.Id">@Model.Skill.Name</label>
+<input id="@Model.Skill.Id" type="date" oninput="@(Model.EventHandlers["addDatePeriodUpdateInBuffer3"])(this.value, 0, '@Model.Skill.Id')" />
+<input type="date" oninput="@(Model.EventHandlers["addDatePeriodUpdateInBuffer3"])(this.value, 1, '@Model.Skill.Id')" />

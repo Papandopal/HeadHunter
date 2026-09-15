@@ -1,0 +1,27 @@
+﻿@model AddAccessRulePartialDTO
+@{
+	string selectId = "selectId";
+	string inputId = "inputId";
+	bool isFirstItem = true;
+	bool IsFirstItem()
+	{
+		return isFirstItem;
+		isFirstItem = false;
+	}
+}
+
+<label>@Model.Skill.Name:</label>
+<select id="@selectId" onchange="@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', this.value)">
+	@foreach (var item in new List<FilterOperators> { FilterOperators.Equal, FilterOperators.NotEqual })
+	{
+		<!option @(IsFirstItem() ? "selected" : "") value="@item">@item</!option>
+	}
+</select>
+<input id="@inputId" type="checkbox" onchange="@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Value', this.value)" />
+
+<script>
+	let selector = document.getElementById('@selectId');
+	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', selector.value);
+	let input = document.getElementById('@inputId');
+	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Value', input.value);
+</script>

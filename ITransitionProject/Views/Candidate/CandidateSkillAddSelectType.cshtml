@@ -1,0 +1,64 @@
+﻿@using ITransitionProject.PagesDTOs.Candidate.CandidateSkills
+@model AddCandidateSkillSelectTypePageDTO
+@{
+	string CandidateSkillTypeSelectorId = "CandidateSkillTypeSelector";
+	string CandidateSkillFormId = "CandidateSkillFormId";
+}
+<input type="text" oninput="loadSkills(this.value)" />
+<select id="@CandidateSkillTypeSelectorId" onchange="loadForm(this.value)">
+	<option hidden disabled selected>Элементы</option>
+</select>
+<div id="@CandidateSkillFormId">
+</div>
+
+<script>
+	function loadSkills(prefix){
+		fetch(`/@Model.ControllerForGetSkillsNames/@Model.ActionForGetSkillsNames?prefix=${prefix}`, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			let select = document.getElementById('@CandidateSkillTypeSelectorId');
+
+			select.innerHTML = '<option value="">Элементы</option>' + data
+			.map(item => `<option value="${item}">${item}</option>`)
+			.join('');
+		})
+		.catch(error=>console.log(error));
+	}
+        function loadForm(skillName) {
+        if (!skillName) {
+            document.getElementById('@CandidateSkillFormId').innerHTML = '';
+            return;
+        }
+
+        fetch(`/@Model.ControllerForGetForm/@Model.ActionForGetForm?skillName=${encodeURIComponent(skillName)}`)
+        .then(response => response.text())
+        .then(html => {
+            let form = document.getElementById('@CandidateSkillFormId');
+            form.innerHTML = html;
+
+            executeScriptsInContainer(form);
+        })
+        .catch(error => console.log('Error:', error));
+    }
+
+    function executeScriptsInContainer(container) {
+        const scripts = container.querySelectorAll('script');
+
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+
+            for (let attr of oldScript.attributes) {
+                newScript.setAttribute(attr.name, attr.value);
+            }
+            if (oldScript.textContent) {
+                newScript.textContent = oldScript.textContent;
+            }
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+    }
+</script>

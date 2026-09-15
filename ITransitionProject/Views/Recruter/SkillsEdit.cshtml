@@ -1,0 +1,52 @@
+﻿@model EditSkillsPageDTO
+@{
+	string inputForSubmitId = "inputForSubmitId";
+}
+@foreach (var skill in Model.Skills)
+{
+	<input value="@skill.Name" onchange="addProperty('@skill.Id', 'Name', this.value)" />
+	<input value="@skill.PotentialValue" onchange="addProperty('@skill.Id', 'PotentialValue', this.value)"
+		   data-bs-toggle="tooltip" data-bs-placement="top"
+		   data-bs-title='For OneOfMany potencial value is list of options(example: "first;second;...;last").
+				   For other types is placeholder.' />
+
+	<select onchange="addProperty('@skill.Id', 'Category', this.options[this.selectedIndex].text)">
+		@foreach (var category in Model.Categories)
+		{
+			<!option value="@category">@category.Name</!option>
+		}
+	</select>
+}
+<form action="/@Model.ControllerToSubmit/@Model.ActionToSubmit" onsubmit="saveDataInInput()" method="post">
+	<input id="@inputForSubmitId" name="json" type="hidden" value="{}" />
+	<button type="submit">Save</button>
+</form>
+<script>
+	class Record{
+		SkillId;
+		PropName;
+		PropValue;
+
+		constructor(skillId, propName, propValue){
+			this.SkillId = skillId;
+			this.PropName = propName;
+			this.PropValue = propValue;
+		}
+
+	}
+	let data = [];
+	function addProperty(skillId, propName, propValue) {
+		let item = data.find(item => item.SkillId === skillId && item.PropName === propName);
+		if (typeof item !== 'undefined') {
+			item.PropValue = propValue;
+		}
+		else {
+			data.push(new Record(skillId, propName, propValue));
+		}
+	}
+	function saveDataInInput() {
+		let input = document.getElementById('@inputForSubmitId');
+		input.value = JSON.stringify(data);
+	}
+</script>
+

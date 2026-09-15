@@ -1,0 +1,14 @@
+﻿@model AddAccessRulePartialDTO
+@{
+
+}
+<select id="@Model.Skill.Id" onchange="@(Model.EventHandlers["addUpdateInBuffer2"])(this.options[this.selectedIndex].text, '@Model.Skill.Id')">
+	<!option hidden disabled selected>Value</!option>
+	@foreach (var item in OneOfManyFormater.Render(Model.Skill.PotentialValue))
+	{
+		@if (!string.IsNullOrEmpty(item))
+		{
+			<!option value="@item">@item</!option>
+		}
+	}
+</select>

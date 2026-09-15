@@ -1,0 +1,11 @@
+﻿@{
+	Layout = "_Layout";
+}
+ <main>
+	@RenderBody() 
+</main>
+
+@section Scripts {
+	@await RenderSectionAsync("Scripts", required: false)
+}
+<partial name="General/_CheckAuthCookiePartialScript" />

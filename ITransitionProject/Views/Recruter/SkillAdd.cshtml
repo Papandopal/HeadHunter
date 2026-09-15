@@ -1,0 +1,51 @@
+﻿@model AddSkillPageDTO
+@{
+	string submitButtonId = "submitButtonId";
+}
+<form action="/@Model.ControllerToSubmit/@Model.ActionToSubmit" method="post">
+
+	<input id="Name" name="Name" onchange="addProperty('Name')" placeholder="Skill name"/>
+
+	<input name="PotencialValue" onchange="addProperty('PotencialValue')"
+		   data-bs-toggle="tooltip" data-bs-placement="top"
+		   data-bs-title='For OneOfMany potencial value is list of options(example: "first;second;...;last").
+		   For other types is placeholder.' 
+		   placeholder="Potencial value" />
+
+	<select name="CategoryName" onchange="addProperty('Category')">
+		<!option disabled selected hidden>Category name</!option>
+		@foreach (var category in Model.Categories)
+		{
+			<!option value="@category.Name">@category.Name</!option>
+		}
+	</select>
+
+	<select name="TypeName" onchange="addProperty('Type')">
+		<!option disabled selected hidden>Type name</!option>
+		@foreach (var type in Enum.GetNames<SkillTypes>())
+		{
+			<!option value="@type">@type</!option>
+		}
+	</select>
+
+	<button id="@submitButtonId" type="submit" disabled>Add</button>
+</form>
+
+<script>
+	let propsCount = @Model.CountOfRequiredProperties;
+	if(propsCount==0) activateSubmitButton();
+	let data = [];
+
+	function activateSubmitButton(){
+		document.getElementById("@submitButtonId").disabled = false;
+	}
+
+	function addProperty(propName) {
+		let item = data.find(item => item === propName);
+		if (typeof item === 'undefined') {
+			propsCount--;
+			data.push(propName);
+		}
+		if(propsCount==0) activateSubmitButton();
+	}
+</script>

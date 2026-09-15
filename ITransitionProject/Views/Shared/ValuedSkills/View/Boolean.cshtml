@@ -1,0 +1,6 @@
+﻿@model ViewValuedSkillPartialDTO
+@{
+
+}
+<label for="@Model.ValuedSkill.Id">@Model.ValuedSkill.Skill.Name</label>
+<input id="@Model.ValuedSkill.Id" type="checkbox" @(Model.ValuedSkill.Value == "on" ? "checked" : "") style="pointer-events: none;" tabindex="-1" />
