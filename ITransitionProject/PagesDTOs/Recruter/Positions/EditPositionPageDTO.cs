@@ -1,6 +1,6 @@
 ﻿using Domain.Entities;
 
-namespace ITransitionProject.PagesDTOs.Recruter
+namespace ITransitionProject.PagesDTOs.Recruter.Positions
 {
     public class EditPositionPageDTO
     {

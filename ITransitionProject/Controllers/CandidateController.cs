@@ -38,9 +38,9 @@ namespace ITransitionProject.Controllers
                     ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName,
                     ActionForSubmit = "CreateProfile",
                 };
-                return View("CreateProfile", dto);
+                return View("Profile/CreateProfile", dto);
             }
-            return View();
+            return View("/Profile/Home");
         }
 
         [HttpPost]
@@ -70,7 +70,7 @@ namespace ITransitionProject.Controllers
                 LastName = candidate.LastName,
                 CandidateSkills = candidate.Skills
             };
-            return View("Profile", dto);
+            return View("Profile/Profile", dto);
         }
 
         [HttpGet]
@@ -80,7 +80,7 @@ namespace ITransitionProject.Controllers
             var candidate = Candidate();
             if (candidate is null) return RedirectToAction("Home");
             var skills = candidateSkillService.GetCandidateSkillsByOwnerId(candidate.Id);
-            return View("CandidateSkillsEdit",
+            return View("CandidateSkills/CandidateSkillsEdit",
                 new EditCandidateSkillsPageDTO
                 {
                     CandidateSkills = skills,
@@ -108,7 +108,7 @@ namespace ITransitionProject.Controllers
                 ActionForGetForm = "GetAddingForm",
                 ControllerForGetForm = $"{ControllerContext.ActionDescriptor.ControllerName}"
             };
-            return View("CandidateSkillAddSelectType", model);
+            return View("CandidateSkills/CandidateSkillAddSelectType", model);
         }
 
         [HttpGet]
@@ -130,7 +130,7 @@ namespace ITransitionProject.Controllers
                 ControllerForSubmit = $"{ControllerContext.ActionDescriptor.ControllerName}",
                 CountOfRequiredProperties = CandidateSkill.Skill.Type == SkillTypes.Period ? 2 : 1
             };
-            return PartialView("CandidateSkillAddForm", dto);
+            return PartialView("CandidateSkills/CandidateSkillAddForm", dto);
         }
 
         [HttpPost]
@@ -158,22 +158,44 @@ namespace ITransitionProject.Controllers
             var dto = new ViewReadOnlyPositionsPageDTO
             {
                 Positions = positions,
-                ActionForViewPosition
+                ActionForViewPosition = "ViewPosition",
+                ControllerForViewPosition = ControllerContext.ActionDescriptor.ControllerName
             };
-            return View("ViewPositons", dto);
+            return View("Positions/PositionsReadOnlyView", dto);
         }
 
         [HttpGet]
         public IActionResult ViewPosition(Guid positionId)
         {
             var position = positionService.GetById(positionId);
-            var dto = new ViewReadOnlyPositionPageDTO {  Position =  position };
-            return View("ViewPosition", dto);
+            var dto = new ViewReadOnlyPositionPageDTO
+            {
+                Position = position,
+                ActionForGenerateCV = "GenerateCV",
+                ControllerForGenerateCV = ControllerContext.ActionDescriptor.ControllerName
+            };
+            return View("Positions/PositionReadOnlyView", dto);
         }
         [HttpGet]
         public IActionResult GenerateCV(Guid positionId)
         {
-            var dto = new AddCVPageDTO { };
+            Position position = positionService.GetById(positionId);
+            IEnumerable<PositionSkill> positionSkills = position.PositionSkills;
+            IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(Candidate().Id);
+            var valuedSkills = new List<CandidateSkill>();
+            var notValuedSkills = new List<Skill>();
+            foreach (var skill in positionSkills)
+            {
+                CandidateSkill? candidateSkill = candidateSkills.FirstOrDefault(x => x.SkillId == skill.SkillId);
+                if (candidateSkill is not null) valuedSkills.Add(candidateSkill);
+                else notValuedSkills.Add(skill.Skill);
+            }
+            var dto = new AddCVPageDTO
+            {
+                ValuedSkills = valuedSkills,
+                NotValuedSkills = notValuedSkills
+            };
+            return View("");
         }
     }
 }

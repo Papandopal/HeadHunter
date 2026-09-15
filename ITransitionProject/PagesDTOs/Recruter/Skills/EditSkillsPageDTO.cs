@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
 
-namespace ITransitionProject.PagesDTOs.Recruter
+namespace ITransitionProject.PagesDTOs.Recruter.Skills
 {
     public class EditSkillsPageDTO
     {

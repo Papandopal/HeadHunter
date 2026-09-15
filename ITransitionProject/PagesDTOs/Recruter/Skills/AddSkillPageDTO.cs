@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Enums;
 
-namespace ITransitionProject.PagesDTOs.Recruter
+namespace ITransitionProject.PagesDTOs.Recruter.Skills
 {
     public class AddSkillPageDTO
     {

@@ -4,6 +4,11 @@ using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using ITransitionProject.PagesDTOs.Recruter;
+using ITransitionProject.PagesDTOs.Recruter.AccessRules;
+using ITransitionProject.PagesDTOs.Recruter.Categories;
+using ITransitionProject.PagesDTOs.Recruter.Positions;
+using ITransitionProject.PagesDTOs.Recruter.Profile;
+using ITransitionProject.PagesDTOs.Recruter.Skills;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.Services;
 using UseCases.Services.AuthServices.Interfaces;
@@ -39,9 +44,9 @@ namespace ITransitionProject.Controllers
                     ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName,
                     ActionForSubmit = "CreateProfile",
                 };
-                return View("CreateProfile", dto);
+                return View("Profile/CreateProfile", dto);
             }
-            return View();
+            return View("/Profile/Home");
         }
 
         [HttpPost]
@@ -65,7 +70,7 @@ namespace ITransitionProject.Controllers
                 Name = recruterService.GetItemOrDefaultByOwnerId(authService.User().Id).Name,
                 Skills = skills,
             };
-            return View("Profile", dto);
+            return View("Profile/Profile", dto);
         }
 
         [HttpGet]
@@ -78,7 +83,7 @@ namespace ITransitionProject.Controllers
                 Categories = categoryService.GetAll(),
                 CountOfRequiredProperties = 4
             };
-            return View("SkillAdd", dto);
+            return View("Skills/SkillAdd", dto);
         }
 
         [HttpPost]
@@ -109,7 +114,7 @@ namespace ITransitionProject.Controllers
                 ActionToSubmit = ControllerContext.ActionDescriptor.ActionName,
                 ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
             };
-            return View("SkillsEdit", dto);
+            return View("Skills/SkillsEdit", dto);
         }
 
         [HttpPost]
@@ -129,7 +134,7 @@ namespace ITransitionProject.Controllers
                 ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
             };
 
-            return View("CategoryAdd", dto);
+            return View("Categories/CategoryAdd", dto);
         }
 
         [HttpPost]
@@ -160,7 +165,7 @@ namespace ITransitionProject.Controllers
                 ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
                 ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
             };
-            return View("PositionAddMainForm", dto);
+            return View("Positions/PositionAddMainForm", dto);
         }
 
         [HttpGet]
@@ -201,7 +206,7 @@ namespace ITransitionProject.Controllers
             {
                 Skill = skill
             };
-            return PartialView("PositionSkillAddPartialForm", dto);
+            return PartialView("Positions/PositionSkillAddPartialForm", dto);
         }
 
         [HttpGet]
@@ -211,7 +216,7 @@ namespace ITransitionProject.Controllers
             {
                 Skill = skillService.GetByName(skillName)
             };
-            return PartialView("AccessRuleAddPartialForm", dto);
+            return PartialView("AccessRules/AccessRuleAddPartialForm", dto);
         }
 
         [HttpPost]
@@ -231,14 +236,14 @@ namespace ITransitionProject.Controllers
                 ActionForDeletePositions = "DeletePositions",
                 ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName
             };
-            return View("PositionsView", dto);
+            return View("Positions/PositionsView", dto);
         }
         [HttpGet]
         public IActionResult ViewPosition(Guid id)
         {
             var position = positionService.GetById(id);
             var dto = new ViewPositionPageDTO { Position = position };
-            return View("PositionView", dto);
+            return View("Positions/PositionView", dto);
         }
         [HttpGet]
         public IActionResult DeletePositions(IEnumerable<Guid> positions)

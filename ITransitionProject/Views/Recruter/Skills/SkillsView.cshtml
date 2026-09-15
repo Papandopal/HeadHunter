@@ -1,4 +1,5 @@
-﻿@model ViewSkillsPageDTO
+﻿@using ITransitionProject.PagesDTOs.Recruter.Skills
+@model ViewSkillsPageDTO
 @{
 	IEnumerable<ViewSkillPartialDTO> partialDTOs = Model.Skills
 	.Select(x => new ViewSkillPartialDTO

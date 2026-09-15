@@ -1,6 +1,6 @@
 ﻿using UseCases.Services.PositionServices.DTOs;
 
-namespace ITransitionProject.PagesDTOs.Recruter
+namespace ITransitionProject.PagesDTOs.Recruter.Positions
 {
     public class AddPositionPageMainFormDTO
     {
