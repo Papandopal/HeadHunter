@@ -36,7 +36,7 @@ namespace Infrastructure.Database.Repositories
 
         Position IRepository<Position>.GetById(Guid id)
         {
-            return positions.First(x=>x.Id == id);
+            return positions.Include(x=>x.ProjectTags).Include(x=>x.AccessRules).Include(x=>x.PositionSkills).ThenInclude(y=>y.Skill).First(x=>x.Id == id);
         }
 
         bool IRepository<Position>.IsExists(Position entity)

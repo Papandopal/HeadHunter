@@ -1,5 +1,4 @@
-﻿@using ITransitionProject.PagesDTOs.Candidate.CandidateSkills
-@model AddCandidateSkillFormPageDTO
+﻿@model AddCandidateSkillFormPageDTO
 @{
 	string bufferInputName = "buffer";
 	string buttonForSubmitId = "buttonForSubmitId";
@@ -7,7 +6,7 @@
 	Model.EventsHandlers.Add("addUpdateInBuffer2", "addUpdateInBuffer2");
 	Model.EventsHandlers.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInBuffer3");
 
-	var partialModel = new AddAccessRulePartialDTO
+	var partialModel = new AddValuedSkillPartialDTO
 			{
 				EventHandlers = Model.EventsHandlers,
 				Skill = Model.Skill
@@ -15,7 +14,7 @@
 }
 <div class="w-100 h-100">
 	<label for="@Model.Skill.Id">@Model.Skill.Name: </label>
-	<partial name="AccessRules/Add/@Model.Skill.Type.ToString()" model="@partialModel" />
+	<partial name="ValuedSkills/Add/@Model.Skill.Type.ToString()" model="@partialModel" />
 
 	<form asp-action="@Model.ActionForSubmit" asp-controller="@Model.ControllerForSubmit" onsubmit="saveBufferInHiddenInput()" method="post">
 		<input id="@bufferInputName" name="@bufferInputName" type="hidden" value="{}" />
@@ -29,7 +28,6 @@
 	if(countOfRequiredProperties == 0) activateSubmitButton();
 	let buffer = [];
 	let timeout = null;
-	let partsOfPeriodSet = [false, false];
 	let partsOfPeriod = ['', ''];
 
 	function activateSubmitButton(){
@@ -51,12 +49,12 @@
 	}
 
 	function addDatePeriodUpdateInBuffer3(newValue, index, skillId){
-		console.log(index);
 		let item = buffer.find(item=>item.SkillId === skillId);
 		if(typeof item !== 'undefined'){
+			if(partsOfPeriod[index] === '') countOfRequiredProperties--;
 			partsOfPeriod[index] = newValue;
 			item.Value = partsOfPeriod.join(';');
-			activateSubmitButton();
+			if(countOfRequiredProperties == 0) activateSubmitButton();
 		}
 		else{
 			partsOfPeriod[index] = newValue;
@@ -64,7 +62,6 @@
 				SkillId: skillId,
 				Value: partsOfPeriod.join(';')
 			};
-			countOfRequiredProperties--;
 			buffer.push(currentData);
 		}
 	}
@@ -83,7 +80,6 @@
 		else{
 			countOfRequiredProperties--;
 			buffer.push(currentData);
-			console.log(buffer);
 			if(countOfRequiredProperties == 0) activateSubmitButton();
 		}
 	}

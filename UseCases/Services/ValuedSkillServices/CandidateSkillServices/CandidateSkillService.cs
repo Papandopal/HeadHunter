@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Domain;
 using Domain.Entities;
 using UseCases.Database;
+using UseCases.Services.SkillServices;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.GeneralDTOs;
 
@@ -13,10 +14,39 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
 {
     public class CandidateSkillService(IUnitOfWork unitOfWork) : ICandidateSkillService
     {
-        void ICandidateSkillService.Add(CandidateSkill skill)
+        void ICandidateSkillService.Add(AddValuedSkillDTO skillDTO, Guid candidateId)
         {
+            var skill = unitOfWork.SkillRepository.GetById(skillDTO.SkillId);
+            CandidateSkill newCandidateSkill = new CandidateSkill
+            {
+                CandidateId = candidateId,
+                Skill = skill,
+                SkillId = skill.Id,
+                Value = skillDTO.Value
+            };
             unitOfWork.StartTransaction();
-            unitOfWork.CandidateSkillRepository.Add(skill);
+            unitOfWork.CandidateSkillRepository.Add(newCandidateSkill);
+            unitOfWork.Commit();
+        }
+
+        void ICandidateSkillService.AddRange(IEnumerable<AddValuedSkillDTO> skillDTOs, Guid candidateId)
+        {
+            List<CandidateSkill> newCandidateSkills = new();
+            var skills = unitOfWork.SkillRepository.GetByIdRange(skillDTOs.Select(x => x.SkillId)).ToDictionary(x=>x.Id);
+            foreach(var dto in skillDTOs)
+            {
+                var skill = skills[dto.SkillId];
+                CandidateSkill newCandidateSkill = new CandidateSkill
+                {
+                    CandidateId = candidateId,
+                    Skill = skill,
+                    SkillId = skill.Id,
+                    Value = dto.Value
+                };
+                newCandidateSkills.Add(newCandidateSkill);
+            }
+            unitOfWork.StartTransaction();
+            unitOfWork.CandidateSkillRepository.AddRange(newCandidateSkills);
             unitOfWork.Commit();
         }
 

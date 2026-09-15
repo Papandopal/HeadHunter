@@ -29,7 +29,7 @@ namespace UseCases.Services.SkillServices
         IEnumerable<string> ISkillService.GetAllSkillsNamesByPrefix(string? prefix)
         {
             var skills = unitOfWork.SkillRepository.GetAll();
-            if (prefix is null) return skills.Select(x => x.Name);
+            if (prefix is null || string.IsNullOrEmpty(prefix.Trim())) return skills.Select(x => x.Name);
             return skills.Where(x => x.Name.ToLower().StartsWith(prefix.ToLower())).Select(x => x.Name);
         }
 

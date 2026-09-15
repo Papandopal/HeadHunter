@@ -1,5 +1,4 @@
-﻿@using ITransitionProject.PagesDTOs.Candidate.CandidateSkills
-@model AddCandidateSkillSelectTypePageDTO
+﻿@model AddCandidateSkillSelectTypePageDTO
 @{
 	string CandidateSkillTypeSelectorId = "CandidateSkillTypeSelector";
 	string CandidateSkillFormId = "CandidateSkillFormId";
@@ -13,7 +12,7 @@
 
 <script>
 	function loadSkills(prefix){
-		fetch(`/@Model.ControllerForGetSkillsNames/@Model.ActionForGetSkillsNames?prefix=${prefix}`, {
+        fetch(`/@Model.ControllerForGetSkillsNames/@Model.ActionForGetSkillsNames?prefix=${encodeURIComponent(prefix)}`, {
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json'
@@ -23,7 +22,7 @@
 		.then(data=>{
 			let select = document.getElementById('@CandidateSkillTypeSelectorId');
 
-			select.innerHTML = '<option value="">Элементы</option>' + data
+			select.innerHTML = '<option hidden disapbled selected value="">Элементы</option>' + data
 			.map(item => `<option value="${item}">${item}</option>`)
 			.join('');
 		})

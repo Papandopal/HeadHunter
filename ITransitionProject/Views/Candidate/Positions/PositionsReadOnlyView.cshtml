@@ -16,7 +16,7 @@
 						<a asp-controller="@Model.ControllerForViewPosition" asp-action="@Model.ActionForViewPosition" asp-route-positionId="@position.Id">@position.Title</a>
 					</td>
 					<td>
-						<label>@position.Description</label>
+						@MarkdownTextFormater.Render(position.Description)
 					</td>
 					<td>
 						@foreach (var skill in position.PositionSkills.Take(10))

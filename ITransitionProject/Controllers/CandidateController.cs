@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
@@ -10,6 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 using UseCases.Services.AuthServices.Interfaces;
 using UseCases.Services.CandidateServices.DTOs;
 using UseCases.Services.CandidateServices.Interfaces;
+using UseCases.Services.CVServices.DTOs;
+using UseCases.Services.CVServices.Interfaces;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.SkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
@@ -19,7 +22,7 @@ namespace ITransitionProject.Controllers
 {
     [EnumAuthorize(UserRoles.Candidate)]
     public class CandidateController(IAuthService authService, ICandidateSkillService candidateSkillService, ISkillService skillService,
-        ICandidateService candidateService, IPositionService positionService) : Controller
+        ICandidateService candidateService, IPositionService positionService, ICVService cVService) : Controller
     {
 
         private Candidate? Candidate()
@@ -40,7 +43,7 @@ namespace ITransitionProject.Controllers
                 };
                 return View("Profile/CreateProfile", dto);
             }
-            return View("/Profile/Home");
+            return View("Profile/Home");
         }
 
         [HttpPost]
@@ -112,10 +115,11 @@ namespace ITransitionProject.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<string> GetSkillsNames(string prefix)
+        public IEnumerable<string> GetSkillsNames(string? prefix)
         {
             authService.Validate();
-            var skills = skillService.GetAllSkillsNamesByPrefix(prefix);
+            var i = HttpContext.Request.Query["prefix"];
+            var skills = skillService.GetAllSkillsNamesByPrefix(i).ToList();
             return skills;
         }
 
@@ -128,26 +132,16 @@ namespace ITransitionProject.Controllers
                 Skill = CandidateSkill.Skill,
                 ActionForSubmit = "AddCandidateSkill",
                 ControllerForSubmit = $"{ControllerContext.ActionDescriptor.ControllerName}",
-                CountOfRequiredProperties = CandidateSkill.Skill.Type == SkillTypes.Period ? 2 : 1
+                CountOfRequiredProperties = 1
             };
             return PartialView("CandidateSkills/CandidateSkillAddForm", dto);
         }
 
         [HttpPost]
         public IActionResult AddCandidateSkill(string buffer)
-        {//to service
+        {
             IEnumerable<AddValuedSkillDTO> dto = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(buffer);
-            var item = dto.First();
-            var skill = skillService.GetById(item.SkillId);
-            var candidate = Candidate();
-            CandidateSkill newCandidateSkill = new CandidateSkill
-            {
-                CandidateId = candidate.Id,
-                Skill = skill,
-                SkillId = skill.Id,
-                Value = item.Value
-            };
-            candidateSkillService.Add(newCandidateSkill);
+            candidateSkillService.Add(dto.First(), Candidate().Id);
             return RedirectToAction("AddCandidateSkill");
         }
 
@@ -181,7 +175,7 @@ namespace ITransitionProject.Controllers
         {
             Position position = positionService.GetById(positionId);
             IEnumerable<PositionSkill> positionSkills = position.PositionSkills;
-            IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(Candidate().Id);
+            IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(Candidate().Id).ToList();
             var valuedSkills = new List<CandidateSkill>();
             var notValuedSkills = new List<Skill>();
             foreach (var skill in positionSkills)
@@ -192,10 +186,35 @@ namespace ITransitionProject.Controllers
             }
             var dto = new AddCVPageDTO
             {
+                PositionId = positionId,
+                ActionForSubmit = "GenerateCV",
                 ValuedSkills = valuedSkills,
-                NotValuedSkills = notValuedSkills
+                NotValuedSkills = notValuedSkills,
+                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
             };
-            return View("");
+            return View("CVs/CVAdd", dto);
+        }
+
+        [HttpPost]
+        public IActionResult GenerateCV(AddCVDTO addCVDTO)
+        {
+            IEnumerable<AddValuedSkillDTO> newSkills = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(addCVDTO.BufferForNotValuedSkills);
+            IEnumerable<UpdateValuedSkillDTO> updatedSkillDTOs = JsonSerializer.Deserialize<IEnumerable<UpdateValuedSkillDTO>>(addCVDTO.BufferForValuedSkills);
+
+            if (updatedSkillDTOs.Count() != 0) candidateSkillService.UpdateCandidateSkills(updatedSkillDTOs);
+
+            candidateSkillService.AddRange(newSkills, Candidate().Id);
+            cVService.AddCV(Candidate().Id, addCVDTO.PositionId);
+            return RedirectToAction("ViewCVs");
+        }
+
+        [HttpGet]
+        public IActionResult ViewCVs()
+        {
+            var cvs = cVService.GetByOwnerId(Candidate().Id);
+            //add positions to dto
+            var dto = new ViewCVsPageDTO { CVs = cvs };
+            return View("CVs/CVsView", dto);
         }
     }
 }

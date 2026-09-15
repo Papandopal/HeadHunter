@@ -33,6 +33,11 @@ namespace Infrastructure.Database.Repositories
             return cvs.First(x=>x.Id == id);
         }
 
+        IEnumerable<CV> ICVRepository.GetByOwnerId(Guid ownerId)
+        {
+            return cvs.Where(x=>x.CandidateId == ownerId);
+        }
+
         bool IRepository<CV>.IsExists(CV entity)
         {
             return cvs.FirstOrDefault(x=>x.Id == entity.Id) is not null;

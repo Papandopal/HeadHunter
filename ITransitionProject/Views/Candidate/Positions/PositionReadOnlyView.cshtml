@@ -3,10 +3,11 @@
 
 }
 <div class="row">
-	<label>Title:</label>
-	<label>@Model.Position.Title</label>
+	<label>Title: @Model.Position.Title</label>
 	<label>Description</label>
-	<label>@Model.Position.Description</label>
+	<div>
+		@MarkdownTextFormater.Render(Model.Position.Description)
+	</div>
 	<table>
 		<tbody>
 			<tr>
@@ -29,7 +30,9 @@
 			</tr>
 			<tr>
 				<td>
-					<label>Max count of projects: @Model.Position.MaxCountOfProject</label>
+					<div>
+						<label>Max count of projects: @Model.Position.MaxCountOfProject</label>
+					</div>
 					<label>Project tags:</label>
 					@foreach (var projectTag in Model.Position.ProjectTags)
 					{
@@ -40,5 +43,5 @@
 		</tbody>
 
 	</table>
-	<a class="btn" type="submit" asp-controller="@Model.ControllerForGenerateCV" action="@Model.ActionForGenerateCV" asp-route-positionId="@Model.Position.Id">Generate CV</a>
+	<a class="btn" type="submit" asp-controller="@Model.ControllerForGenerateCV" asp-action="@Model.ActionForGenerateCV" asp-route-positionId="@Model.Position.Id">Generate CV</a>
 </div>

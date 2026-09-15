@@ -46,7 +46,7 @@ namespace ITransitionProject.Controllers
                 };
                 return View("Profile/CreateProfile", dto);
             }
-            return View("/Profile/Home");
+            return View("Profile/Home");
         }
 
         [HttpPost]
@@ -234,14 +234,16 @@ namespace ITransitionProject.Controllers
             {
                 Positions = positons,
                 ActionForDeletePositions = "DeletePositions",
-                ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName
+                ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForEditPosition = " EditPosition",
+                ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName
             };
             return View("Positions/PositionsView", dto);
         }
         [HttpGet]
-        public IActionResult ViewPosition(Guid id)
+        public IActionResult ViewPosition(Guid positionId)
         {
-            var position = positionService.GetById(id);
+            var position = positionService.GetById(positionId);
             var dto = new ViewPositionPageDTO { Position = position };
             return View("Positions/PositionView", dto);
         }
@@ -250,6 +252,14 @@ namespace ITransitionProject.Controllers
         {
             positionService.DeleteRange(positions);
             return RedirectToAction("ViewPositions");
+        }
+
+        [HttpGet]
+        public IActionResult EditPosition(Guid positionId)
+        {
+            var position = positionService.GetById(positionId);
+            var dto = new EditPositionPageDTO { Position = position };
+            return View("Positions/PositionEdit", dto);
         }
     }
 }

@@ -30,10 +30,10 @@
 					<input type="checkbox" class="item" name="positions" value="@position.Id" />
 				</td>
 				<td>
-					<a asp-controller="@Model.ControllerForEditPosition" asp-action="@Model.ActionForEditPosition" asp-route-id="@position.Id">@position.Title</a>
+					<a asp-controller="@Model.ControllerForEditPosition" asp-action="@Model.ActionForEditPosition" asp-route-positionId="@position.Id">@position.Title</a>
 				</td>
 				<td>
-					<label>@position.Description</label>
+					@MarkdownTextFormater.Render(position.Description)
 				</td>
 				<td>
 					@foreach (var skill in position.PositionSkills.Take(10))

@@ -1,14 +1,14 @@
-﻿@model EditAccessRulePartialDTO
+﻿@model EditValuedSkillPartialDTO
 @{
 
 }
-<label for="@Model.AccessRule.Id">@Model.AccessRule.Skill.Name</label>
-<select id="@Model.AccessRule.Id" onchange="@(Model.EventHandlers["addUpdateInBuffer2"])(this.options[this.selectedIndex].text, '@Model.AccessRule.Id')">
-	@foreach (var item in Model.AccessRule.Skill.PotentialValue.Split(";"))
+<label for="@Model.ValuedSkill.Id">@Model.ValuedSkill.Skill.Name</label>
+<select id="@Model.ValuedSkill.Id" onchange="@(Model.EventHandlers["addUpdateInBuffer2"])(this.options[this.selectedIndex].text, '@Model.ValuedSkill.Id')">
+	@foreach (var item in Model.ValuedSkill.Skill.PotentialValue.Split(";"))
 	{
 		@if (!string.IsNullOrEmpty(item))
 		{
-			<!option @(Model.AccessRule.Value == item ? "selected" : "")>@item</!option>
+			<!option @(Model.ValuedSkill.Value == item ? "selected" : "")>@item</!option>
 		}
 	}
 </select>

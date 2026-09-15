@@ -9,5 +9,6 @@ namespace UseCases.Database.Repositories
 {
     public interface ICVRepository : IRepository<CV>
     {
+        public IEnumerable<CV> GetByOwnerId(Guid ownerId);
     }
 }

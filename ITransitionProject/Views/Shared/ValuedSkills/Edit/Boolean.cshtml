@@ -1,6 +1,6 @@
-﻿@model EditAccessRulePartialDTO
+﻿@model EditValuedSkillPartialDTO
 @{
 
 }
-<label for="@Model.AccessRule.Id">@Model.AccessRule.Skill.Name</label>
-<input id="@Model.AccessRule.Id" onchange="@(Model.EventHandlers["addUpdateInBuffer2"])(this.value, '@Model.AccessRule.Id')" type="checkbox" @(Model.AccessRule.Value == "on" ? "checked" : "") />
+<label for="@Model.ValuedSkill.Id">@Model.ValuedSkill.Skill.Name</label>
+<input id="@Model.ValuedSkill.Id" onchange="@(Model.EventHandlers["addUpdateInBuffer2"])(this.value, '@Model.ValuedSkill.Id')" type="checkbox" @(Model.ValuedSkill.Value == "on" ? "checked" : "") />

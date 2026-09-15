@@ -10,5 +10,6 @@ namespace UseCases.Database.Repositories
     public interface IPositionSkillRepositiry  : IRepository<PositionSkill>
     {
         public void AddRange(IEnumerable<PositionSkill> skills);
+        public IEnumerable<PositionSkill> GetByPositionId(Guid positionId);
     }
 }

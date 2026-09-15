@@ -28,7 +28,7 @@
 		</div>
 		<div>
 			<label for="@Model.PostedModel.MaxCountOfProject">Max count of projects</label>
-			<input name="MaxCountOfProject" type="number" min="0" step="1" />
+			<input required name="MaxCountOfProject" type="number" min="0" step="1" />
 		</div>
 		<input id="@bufferForSkillsInputName" name="@bufferForSkillsInputName" type="hidden" value="{}" />
 		<input id="@bufferForAccessRulesInputName" name="@bufferForAccessRulesInputName" type="hidden" value="{}" />
@@ -262,15 +262,10 @@
 </script>
 
 <script>
-
-	let countOfRequiredProperties = 0;
-	if(countOfRequiredProperties == 0) activateSubmitButton();
+	activateSubmitButton();
 	let bufferForSkills = [];
 	let curLoadSkills = [];
 	let selectedSkills = [];
-	let timeout = null;
-	let partsOfPeriodSet = [false, false];
-	let partsOfPeriod = ['', ''];
 
 	function activateSubmitButton(){
 		document.getElementById("@buttonForSubmitId").disabled = false;

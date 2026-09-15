@@ -33,6 +33,11 @@ namespace Infrastructure.Database.Repositories
             return skills.Include(x => x.Category).First(x=>x.Id == id);
         }
 
+        IEnumerable<Skill> ISkillRepository.GetByIdRange(IEnumerable<Guid> ids)
+        {
+            return skills.Where(x => ids.Contains(x.Id)).Select(x=>x);
+        }
+
         Skill ISkillRepository.GetByName(string name)
         {
             return skills.Include(x => x.Category).First(x=>x.Name==name);

@@ -20,8 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\CVServices\Interfaces\" />
-    <Folder Include="Services\CVServices\DTOs\" />
     <Folder Include="Services\ValuedSkillServices\CandidateSkillServices\DTOs\" />
   </ItemGroup>
 

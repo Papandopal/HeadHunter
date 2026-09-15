@@ -1,6 +1,181 @@
 ﻿@model AddCVPageDTO
 @{
-
+	var NotValuedEventHandlers = new Dictionary<string, string> {
+		{ "onTextChanged2", "onTextChanged2NotValued" },
+		{ "addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInBuffer3NotValued" },
+		{ "addUpdateInBuffer2", "addUpdateInBuffer2NotValued"}
+	};
+	var ValuedEventHandlers = new Dictionary<string, string>{
+		{ "onTextChanged2", "onTextChanged2Valued" },
+		{ "addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInBuffer3Valued" },
+		{ "addUpdateInBuffer2", "addUpdateInBuffer2Valued"}
+	};
+	var bufferForNotValuedSkillsName = nameof(Model.PostedModel.BufferForNotValuedSkills);
+	var bufferForValuedSkillsName = nameof(Model.PostedModel.BufferForValuedSkills);
+	var positionIdInputName = nameof(Model.PostedModel.PositionId);
+	var buttonForSubmitId = "buttonForSubmitId";
+	var valuedSkillDTOs = Model.ValuedSkills.Select(x =>
+		new EditValuedSkillPartialDTO
+				{
+					ValuedSkill = new ValuedSkillDTO
+					{
+						Id = x.Id,
+						Skill = x.Skill,
+						Value = x.Value, 
+					},
+					EventHandlers = ValuedEventHandlers
+				});
+	var notValuedSkillDTOs = Model.NotValuedSkills.Select(x =>
+		new AddValuedSkillPartialDTO
+				{
+					Skill = x,
+					EventHandlers = NotValuedEventHandlers
+				});
 }
+<table>
+	<thead>
+		<tr>
+			<th>Profile Skills</th>
+			<th>Missed Skills</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+				<div class="d-flex flex-row">
+					@foreach (var valuedSkill in valuedSkillDTOs)
+					{
+						<partial name="ValuedSkills/Edit/@valuedSkill.ValuedSkill.Skill.Type" model="@valuedSkill" />
+					}
+				</div>
+			</td>
+			<td>
+				<div class="d-flex flex-row">
+					@foreach (var notValuedSkill in notValuedSkillDTOs)
+					{
+						<partial name="ValuedSkills/Add/@notValuedSkill.Skill.Type" model="@notValuedSkill" />
+					}
+				</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
 
+<form method="post" asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" onsubmit="saveBufferInHiddenInput()">
+	<input id="@bufferForNotValuedSkillsName" name="@bufferForNotValuedSkillsName" type="hidden" />
+	<input id="@bufferForValuedSkillsName" name="@bufferForValuedSkillsName" type="hidden" />
+	<input id="@positionIdInputName" name="@positionIdInputName" type="hidden" value="@Model.PositionId" />
+	<button id="@buttonForSubmitId" type="submit" disabled>Publish</button>
+</form>
+
+<script>
+	let countOfRequiredProperties = @Model.CountOfRequiredProperties;
+	if(countOfRequiredProperties == 0) activateSubmitButton();
+	let bufferForNotValuedSkills = [];
+	let bufferForValuedSkills = [];
+	let timeout = null;
+	let partsOfPeriod = ['', ''];
+
+	function activateSubmitButton(){
+		document.getElementById("@buttonForSubmitId").disabled = false;
+	}
+
+	function onTextChanged2NotValued(newValue, skillId) {
+		clearTimeout(timeout);
+
+		timeout = setTimeout(() => {
+
+			addUpdateInBuffer2NotValued(newValue, skillId)
+
+		}, 500);
+	}
+
+	function onTextChanged2Valued(newValue, skillId) {
+		clearTimeout(timeout);
+
+		timeout = setTimeout(() => {
+
+			addUpdateInBuffer2Valued(newValue, skillId)
+
+		}, 500);
+	}
+
+
+	function saveBufferInHiddenInput(){
+		document.getElementById("@bufferForNotValuedSkillsName").value = JSON.stringify(bufferForNotValuedSkills);
+		document.getElementById('@bufferForValuedSkillsName').value = JSON.stringify(bufferForValuedSkills);
+	}
+
+	function addDatePeriodUpdateInBuffer3NotValued(newValue, index, skillId){
+		let item = bufferForNotValuedSkills.find(item=>item.SkillId === skillId);
+		if(typeof item !== 'undefined'){
+			if(partsOfPeriod[index] === '') countOfRequiredProperties--;
+			partsOfPeriod[index] = newValue;
+			item.Value = partsOfPeriod.join(';');
+			if(countOfRequiredProperties == 0) activateSubmitButton();
+		}
+		else{
+			partsOfPeriod[index] = newValue;
+			let currentData = {
+				SkillId: skillId,
+				Value: partsOfPeriod.join(';')
+			};
+			bufferForNotValuedSkills.push(currentData);
+		}
+	}
+
+	function addUpdateInBuffer2NotValued(newValue, skillId) {
+
+		let currentData = {
+			SkillId: skillId,
+			Value: newValue
+		};
+
+		let item = bufferForNotValuedSkills.find(item=>item.SkillId === skillId);
+		if(typeof item !== 'undefined'){
+			item.value = newValue;
+		}
+		else{
+			countOfRequiredProperties--;
+			bufferForNotValuedSkills.push(currentData);
+			if(countOfRequiredProperties == 0) activateSubmitButton();
+		}
+	}
+
+	function addDatePeriodUpdateInBuffer3Valued(newValue, index, skillId){
+		let item = bufferForValuedSkills.find(item=>item.SkillId === skillId);
+		if(typeof item !== 'undefined'){
+			if(partsOfPeriod[index] === '') countOfRequiredProperties--;
+			partsOfPeriod[index] = newValue;
+			item.Value = partsOfPeriod.join(';');
+			if(countOfRequiredProperties == 0) activateSubmitButton();
+		}
+		else{
+			partsOfPeriod[index] = newValue;
+			let currentData = {
+				ValuedSkillId: skillId,
+				Value: partsOfPeriod.join(';')
+			};
+			bufferForValuedSkills.push(currentData);
+		}
+	}
+
+	function addUpdateInBuffer2Valued(newValue, skillId) {
+
+		let currentData = {
+			ValuedSkillId: skillId,
+			Value: newValue
+		};
+
+		let item = bufferForValuedSkills.find(item=>item.SkillId === skillId);
+		if(typeof item !== 'undefined'){
+			item.value = newValue;
+		}
+		else{
+			countOfRequiredProperties--;
+			bufferForValuedSkills.push(currentData);
+			if(countOfRequiredProperties == 0) activateSubmitButton();
+		}
+	}
+</script>
 

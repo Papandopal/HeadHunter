@@ -39,6 +39,11 @@ namespace Infrastructure.Database.Repositories
             return positionSkills.First(x=>x.Id==id);
         }
 
+        IEnumerable<PositionSkill> IPositionSkillRepositiry.GetByPositionId(Guid positionId)
+        {
+            return positionSkills.Where(x=>x.PositionId==positionId);
+        }
+
         bool IRepository<PositionSkill>.IsExists(PositionSkill entity)
         {
             return positionSkills.FirstOrDefault(x=>x.Id ==  entity.Id) is not null;

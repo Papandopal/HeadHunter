@@ -17,6 +17,11 @@ namespace Infrastructure.Database.Repositories
             skills.Add(entity);
         }
 
+        void ICandidateSkillRepository.AddRange(IEnumerable<CandidateSkill> items)
+        {
+            skills.AddRange(items);
+        }
+
         void IRepository<CandidateSkill>.Delete(Guid id)
         {
             skills.Remove(skills.First(x => x.Id == id));
