@@ -10,6 +10,7 @@ namespace Domain.Entities
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public IEnumerable<Position> Positions { get; set; } = new List<Position>();    
+        public IEnumerable<Position> Positions { get; set; } = new List<Position>(); 
+        public IEnumerable<Project> Projects { get; set; } = new List<Project>();
     }
 }

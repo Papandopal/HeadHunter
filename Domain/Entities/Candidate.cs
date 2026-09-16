@@ -14,5 +14,6 @@ namespace Domain.Entities
         public string LastName { get; set; } = string.Empty;
         public DateOnly Birthday { get; set; }
         public IEnumerable<CandidateSkill> Skills { get; set; }  = new List<CandidateSkill>();
+        public IEnumerable<Project> Projects { get; set; } = new List<Project>();
     }
 }

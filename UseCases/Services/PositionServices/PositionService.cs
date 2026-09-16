@@ -63,5 +63,10 @@ namespace UseCases.Services.PositionServices
         {
             return unitOfWork.PositionRepository.GetById(id);
         }
+
+        IEnumerable<Position> IPositionService.GetByIds(IEnumerable<Guid> ids)
+        {
+            return unitOfWork.PositionRepository.GetByIds(ids);
+        }
     }
 }

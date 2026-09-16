@@ -3,17 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain;
 using Domain.Entities;
-using UseCases.Services.ProjectTagServices.DTOs;
+using UseCases.Database;
 using UseCases.Services.ProjectTagServices.Interfaces;
 
 namespace UseCases.Services.ProjectTagServices
 {
-    public class ProjectTagService : IProjectTagService
+    public class ProjectTagService(IUnitOfWork unitOfWork) : IProjectTagService
     {
-        ProjectTag IProjectTagService.GetFromRecord(ProjectTagRecord projectTagRecord)
+        IEnumerable<string> IProjectTagService.GetNamesByPrefix(string? prefix)
         {
-            return new ProjectTag { Name = projectTagRecord.Name };
+            return unitOfWork.ProjectTagRepository.GetNamesByPrefix(prefix);
+        }
+
+        IEnumerable<ProjectTag> IProjectTagService.GetFromJSON(string json)
+        {
+            var names = json.Split(Separators.ProjectTagsSeparator);
+            return names.Select(x => new ProjectTag { Name = x });
         }
     }
 }

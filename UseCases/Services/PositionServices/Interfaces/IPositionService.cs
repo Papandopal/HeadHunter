@@ -13,6 +13,7 @@ namespace UseCases.Services.PositionServices.Interfaces
         public void AddPosition(AddPositionDTO positionDTO, Guid ownerId);
         public void DeleteRange(IEnumerable<Guid> ids);
         public Position GetById(Guid id);
+        public IEnumerable<Position> GetByIds(IEnumerable<Guid> ids);
         public IEnumerable<Position> GetAll();
     }
 }

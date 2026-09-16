@@ -35,7 +35,7 @@ namespace Infrastructure.Database.Repositories
 
         IEnumerable<CV> ICVRepository.GetByOwnerId(Guid ownerId)
         {
-            return cvs.Where(x=>x.CandidateId == ownerId);
+            return cvs.Include(x=>x.ValuedSkills).Where(x=>x.CandidateId == ownerId);
         }
 
         bool IRepository<CV>.IsExists(CV entity)

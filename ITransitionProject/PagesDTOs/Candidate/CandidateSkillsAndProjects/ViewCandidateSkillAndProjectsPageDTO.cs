@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
 
-namespace ITransitionProject.PagesDTOs.Candidate.CandidateSkills
+namespace ITransitionProject.PagesDTOs.Candidate.CandidateSkillsAndProjects
 {
-    public class ViewCandidateSkillsPageDTO
+    public class ViewCandidateSkillsAndProjectsPageDTO
     {
         public IEnumerable<CandidateSkill> CandidateSkills { get; set; }
+        public IEnumerable<Project> Projects { get; set; }
     }
 }

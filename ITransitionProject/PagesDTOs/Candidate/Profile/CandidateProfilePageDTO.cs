@@ -12,5 +12,6 @@ namespace ITransitionProject.PagesDTOs.Candidate.Profile
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public required IEnumerable<CandidateSkill> CandidateSkills { get; set; }
+        public required IEnumerable<Project> Projects { get; set; }
     }
 }

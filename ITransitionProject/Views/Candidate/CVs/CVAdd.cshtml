@@ -111,14 +111,14 @@
 		if(typeof item !== 'undefined'){
 			if(partsOfPeriod[index] === '') countOfRequiredProperties--;
 			partsOfPeriod[index] = newValue;
-			item.Value = partsOfPeriod.join(';');
+			item.Value = partsOfPeriod.join('@Separators.DatePeriodSeparator');
 			if(countOfRequiredProperties == 0) activateSubmitButton();
 		}
 		else{
 			partsOfPeriod[index] = newValue;
 			let currentData = {
 				SkillId: skillId,
-				Value: partsOfPeriod.join(';')
+				Value: partsOfPeriod.join('@Separators.DatePeriodSeparator')
 			};
 			bufferForNotValuedSkills.push(currentData);
 		}
@@ -147,14 +147,14 @@
 		if(typeof item !== 'undefined'){
 			if(partsOfPeriod[index] === '') countOfRequiredProperties--;
 			partsOfPeriod[index] = newValue;
-			item.Value = partsOfPeriod.join(';');
+			item.Value = partsOfPeriod.join('@Separators.DatePeriodSeparator');
 			if(countOfRequiredProperties == 0) activateSubmitButton();
 		}
 		else{
 			partsOfPeriod[index] = newValue;
 			let currentData = {
 				ValuedSkillId: skillId,
-				Value: partsOfPeriod.join(';')
+				Value: partsOfPeriod.join('@Separators.DatePeriodSeparator')
 			};
 			bufferForValuedSkills.push(currentData);
 		}

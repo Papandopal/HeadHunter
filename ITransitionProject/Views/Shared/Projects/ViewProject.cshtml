@@ -1,0 +1,7 @@
+﻿@model ViewProjectPartialDTO
+@{
+
+}
+<label>@Model.Project.Title</label>
+<label>@Html.Raw(MarkdownTextFormater.Render(Model.Project.Description))</label>
+<label>@DatePeriodFormater.Render(Model.Project.DatePeroid)</label>

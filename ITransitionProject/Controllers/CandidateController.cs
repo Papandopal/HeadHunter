@@ -1,9 +1,8 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
-using ITransitionProject.PagesDTOs.Candidate.CandidateSkills;
+using ITransitionProject.PagesDTOs.Candidate.CandidateSkillsAndProjects;
 using ITransitionProject.PagesDTOs.Candidate.CVs;
 using ITransitionProject.PagesDTOs.Candidate.Positions;
 using ITransitionProject.PagesDTOs.Candidate.Profile;
@@ -14,7 +13,11 @@ using UseCases.Services.CandidateServices.Interfaces;
 using UseCases.Services.CVServices.DTOs;
 using UseCases.Services.CVServices.Interfaces;
 using UseCases.Services.PositionServices.Interfaces;
+using UseCases.Services.ProjectServices.DTOs;
+using UseCases.Services.ProjectServices.Interfaces;
+using UseCases.Services.ProjectTagServices.Interfaces;
 using UseCases.Services.SkillServices.Interfaces;
+using UseCases.Services.ValuedSkillServices.CandidateSkillServices.DTOs;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.GeneralDTOs;
 
@@ -22,7 +25,8 @@ namespace ITransitionProject.Controllers
 {
     [EnumAuthorize(UserRoles.Candidate)]
     public class CandidateController(IAuthService authService, ICandidateSkillService candidateSkillService, ISkillService skillService,
-        ICandidateService candidateService, IPositionService positionService, ICVService cVService) : Controller
+        ICandidateService candidateService, IPositionService positionService, ICVService cVService, IProjectTagService projectTagService,
+        IProjectService projectService) : Controller
     {
 
         private Candidate? Candidate()
@@ -64,14 +68,16 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IActionResult Profile()
         {
-            var currentUser = authService.User();
             var candidate = Candidate();
+            var candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(candidate.Id);
+            var projects = projectService.GetByOwnerId(candidate.Id).ToList();
             if (candidate is null) return RedirectToAction("Home");
             var dto = new CandidateProfilePageDTO
             {
                 FirstName = candidate.FirstName,
                 LastName = candidate.LastName,
-                CandidateSkills = candidate.Skills
+                CandidateSkills = candidateSkills,
+                Projects = projects
             };
             return View("Profile/Profile", dto);
         }
@@ -83,10 +89,12 @@ namespace ITransitionProject.Controllers
             var candidate = Candidate();
             if (candidate is null) return RedirectToAction("Home");
             var skills = candidateSkillService.GetCandidateSkillsByOwnerId(candidate.Id);
-            return View("CandidateSkills/CandidateSkillsEdit",
-                new EditCandidateSkillsPageDTO
+            var projects = projectService.GetByOwnerId(candidate.Id);
+            return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsEdit",
+                new EditCandidateSkillsAndProjectsPageDTO
                 {
                     CandidateSkills = skills,
+                    Projects = projects,
                     ActionToSubmit = "UpdateCandidateSkills",
                     ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName,
                     CountOfRequiredProperties = 0
@@ -102,16 +110,20 @@ namespace ITransitionProject.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddCandidateSkill()
+        public IActionResult AddCandidateSkillsAndProjects()
         {
-            var model = new AddCandidateSkillSelectTypePageDTO
+            var model = new AddCandidateSkillsAndProjectsPageDTO
             {
                 ActionForGetSkillsNames = "GetSkillsNames",
-                ControllerForGetSkillsNames = $"{ControllerContext.ActionDescriptor.ControllerName}",
-                ActionForGetForm = "GetAddingForm",
-                ControllerForGetForm = $"{ControllerContext.ActionDescriptor.ControllerName}"
+                ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetSkillForm = "GetAddingSkillForm",
+                ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetProjectForm = "GetAddingProjectForm",
+                ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForSubmit = "AddCandidateSkillsAndProjects",
+                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
             };
-            return View("CandidateSkills/CandidateSkillAddSelectType", model);
+            return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsAddMainForm", model);
         }
 
         [HttpGet]
@@ -124,25 +136,46 @@ namespace ITransitionProject.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAddingForm(string skillName)
+        public IEnumerable<string> GetProjectTagsNames(string? prefix)
+        {
+            authService.Validate();
+            var i = HttpContext.Request.Query["prefix"];
+            var projectTags = projectTagService.GetNamesByPrefix(i);
+            return projectTags;
+        }
+
+        [HttpGet]
+        public IActionResult GetAddingSkillForm(string skillName)
         {
             CandidateSkill CandidateSkill = new CandidateSkill { Skill = skillService.GetByName(skillName) };
             var dto = new AddCandidateSkillFormPageDTO
             {
-                Skill = CandidateSkill.Skill,
-                ActionForSubmit = "AddCandidateSkill",
-                ControllerForSubmit = $"{ControllerContext.ActionDescriptor.ControllerName}",
-                CountOfRequiredProperties = 1
+                Skill = CandidateSkill.Skill
             };
-            return PartialView("CandidateSkills/CandidateSkillAddForm", dto);
+            return PartialView("CandidateSkillsAndProjects/CandidateSkillAddPartialForm", dto);
+        }
+
+        [HttpGet]
+        public IActionResult GetAddingProjectForm(int projectIndex)
+        {
+            var dto = new AddProjectFormPageDTO
+            {
+                ProjectIndex = projectIndex,
+                ActionForGetProjectTags = "GetProjectTagsNames",
+                ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName
+            };
+            return PartialView("CandidateSkillsAndProjects/CandidateProjectAddPartialForm", dto);
         }
 
         [HttpPost]
-        public IActionResult AddCandidateSkill(string buffer)
+        public IActionResult AddCandidateSkillsAndProjects(AddCandidateSkillsAndProjectsDTO addCandidateSkillsAndProjectsDTO)
         {
-            IEnumerable<AddValuedSkillDTO> dto = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(buffer);
-            candidateSkillService.Add(dto.First(), Candidate().Id);
-            return RedirectToAction("AddCandidateSkill");
+            IEnumerable<AddValuedSkillDTO> skillDTOs = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(addCandidateSkillsAndProjectsDTO.BufferForSkills);
+            IEnumerable<ProjectRecordDTO> projectsRecordDTOs = JsonSerializer.Deserialize<IEnumerable<ProjectRecordDTO>>(addCandidateSkillsAndProjectsDTO.BufferForProjects);
+            IEnumerable<AddProjectDTO> projectDTOs = projectService.Deserialize(projectsRecordDTOs);
+            candidateSkillService.AddRange(skillDTOs, Candidate().Id);
+            projectService.AddRange(projectDTOs, Candidate().Id);
+            return RedirectToAction("Profile");
         }
 
         [HttpGet]
@@ -211,10 +244,24 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IActionResult ViewCVs()
         {
-            var cvs = cVService.GetByOwnerId(Candidate().Id);
-            //add positions to dto
-            var dto = new ViewCVsPageDTO { CVs = cvs };
+            IEnumerable<CV> cvs = cVService.GetByOwnerId(Candidate().Id);
+            IEnumerable<Position> positions = positionService.GetByIds(cvs.Select(x => x.PositionId));
+            var dto = new ViewCVsPageDTO
+            {
+                CVs = cvs,
+                Positions = positions,
+                ActionForViewCV = "ViewCV",
+                ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName
+            };
             return View("CVs/CVsView", dto);
+        }
+
+        [HttpGet]
+        public IActionResult ViewCV(Guid cvId)
+        {
+            CV cv = cVService.GetById(cvId);
+            var dto = new ViewCVPageDTO { CV = cv };
+            return View("CVs/CVView", dto);
         }
     }
 }

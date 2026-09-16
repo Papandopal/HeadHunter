@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Infrastructure.Database.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using UseCases.Database;
 using UseCases.Database.Repositories;
 
@@ -15,26 +16,17 @@ namespace Infrastructure.Database
     {
         private IDbContextTransaction? dbTransaction = null;
         IUserRepository IUnitOfWork.UserRepository => new UserRepository(appDbContext);
-
         ICandidateRepository IUnitOfWork.CandidateRepository => new CandidateRepository(appDbContext);
-
         ICandidateSkillRepository IUnitOfWork.CandidateSkillRepository => new CandidateSkillRepository(appDbContext);
-
         ISkillRepository IUnitOfWork.SkillRepository => new SkillRepository(appDbContext);
-
         ICategoryRepository IUnitOfWork.CategoryRepository => new CategoryRepository(appDbContext);
-
         IRecruterRepostory IUnitOfWork.RecruterRepostory => new RecruterRepository(appDbContext);
-
         IAccessRuleRepository IUnitOfWork.AccessRuleRepository => new AccessRuleRepository(appDbContext);
-
         IPositionRepository IUnitOfWork.PositionRepository => new PositionRepository(appDbContext);
-
         IPositionSkillRepositiry IUnitOfWork.PositionSkillRepositiry => new PositionSkillRepository(appDbContext);
-
         IProjectTagRepository IUnitOfWork.ProjectTagRepository => new ProjectTagRepository(appDbContext);
-
         ICVRepository IUnitOfWork.CVRepository => new CVRepository(appDbContext);
+        IProjectRepository IUnitOfWork.ProjectRepository => new ProjectRepository(appDbContext);
 
         void IUnitOfWork.StartTransaction()
         {

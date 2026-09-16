@@ -15,6 +15,8 @@ using UseCases.Services.CVServices;
 using UseCases.Services.CVServices.Interfaces;
 using UseCases.Services.PositionServices;
 using UseCases.Services.PositionServices.Interfaces;
+using UseCases.Services.ProjectServices;
+using UseCases.Services.ProjectServices.Interfaces;
 using UseCases.Services.ProjectTagServices;
 using UseCases.Services.ProjectTagServices.Interfaces;
 using UseCases.Services.RecruterServices;
@@ -73,6 +75,7 @@ namespace ITransitionProject
             builder.Services.AddTransient<IAccessRuleService, AccessRuleService>();
             builder.Services.AddTransient<IProjectTagService, ProjectTagService>();
             builder.Services.AddTransient<ICVService, CVService>();
+            builder.Services.AddTransient<IProjectService, ProjectService>();
 
             builder.Services.AddTransient<AccessValidator>();
             builder.Services.AddTransient<CryptService>();

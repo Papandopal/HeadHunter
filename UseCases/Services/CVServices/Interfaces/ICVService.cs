@@ -11,6 +11,7 @@ namespace UseCases.Services.CVServices.Interfaces
     public interface ICVService
     {
         public void AddCV(Guid ownerId, Guid positionId);
+        public CV GetById(Guid id);
         public IEnumerable<CV> GetAll();
         public IEnumerable<CV> GetByOwnerId(Guid ownerId);
     }

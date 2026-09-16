@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\ValuedSkillServices\CandidateSkillServices\DTOs\" />
+    <Folder Include="Services\ProjectTagServices\DTOs\" />
   </ItemGroup>
 
 </Project>

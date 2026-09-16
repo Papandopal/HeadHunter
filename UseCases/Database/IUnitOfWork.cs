@@ -20,6 +20,7 @@ namespace UseCases.Database
         public IPositionSkillRepositiry PositionSkillRepositiry { get; }
         public IProjectTagRepository ProjectTagRepository { get; }
         public ICVRepository CVRepository { get; }
+        public IProjectRepository ProjectRepository { get; }
         public void StartTransaction();
         public Task StartTransactionAsync();
         public void Commit();

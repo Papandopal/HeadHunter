@@ -39,6 +39,11 @@ namespace Infrastructure.Database.Repositories
             return positions.Include(x=>x.ProjectTags).Include(x=>x.AccessRules).Include(x=>x.PositionSkills).ThenInclude(y=>y.Skill).First(x=>x.Id == id);
         }
 
+        IEnumerable<Position> IPositionRepository.GetByIds(IEnumerable<Guid> ids)
+        {
+            return positions.Include(x=>x.ProjectTags).Include(x=>x.AccessRules).Include(x=>x.PositionSkills).ThenInclude(x=>x.Skill).Where(x => ids.Contains(x.Id));
+        }
+
         bool IRepository<Position>.IsExists(Position entity)
         {
             return positions.FirstOrDefault(x => x.Id == entity.Id) is not null;

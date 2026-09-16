@@ -4,7 +4,7 @@
 }
 <label for="@Model.ValuedSkill.Id">@Model.ValuedSkill.Skill.Name</label>
 <select id="@Model.ValuedSkill.Id" onchange="@(Model.EventHandlers["addUpdateInBuffer2"])(this.options[this.selectedIndex].text, '@Model.ValuedSkill.Id')">
-	@foreach (var item in Model.ValuedSkill.Skill.PotentialValue.Split(";"))
+	@foreach (var item in OneOfManyFormater.Render(Model.ValuedSkill.Skill.PotentialValue))
 	{
 		@if (!string.IsNullOrEmpty(item))
 		{

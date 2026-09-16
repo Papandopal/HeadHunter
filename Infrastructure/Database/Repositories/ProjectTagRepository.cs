@@ -34,6 +34,12 @@ namespace Infrastructure.Database.Repositories
             return projectTags.First(x=>x.Id==id);
         }
 
+        IEnumerable<string> IProjectTagRepository.GetNamesByPrefix(string? prefix)
+        {
+            if(prefix is null) return projectTags.Select(x=>x.Name);
+            else return projectTags.Where(x=>x.Name.StartsWith(prefix)).Select(x=>x.Name);
+        }
+
         bool IRepository<ProjectTag>.IsExists(ProjectTag entity)
         {
             return projectTags.FirstOrDefault(x => x.Id == entity.Id) is not null;

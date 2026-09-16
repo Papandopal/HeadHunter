@@ -11,5 +11,6 @@ namespace Domain.Entities
         public Guid Id { get; init; }
         public Guid OwnerId { get; set; }
         public string Name { get; set; } = string.Empty;
+        public IEnumerable<CV> LikedCVs { get; set; }
     }
 }

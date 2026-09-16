@@ -6,7 +6,7 @@
 	<label>Title: @Model.Position.Title</label>
 	<label>Description</label>
 	<div>
-		@MarkdownTextFormater.Render(Model.Position.Description)
+		@Html.Raw(MarkdownTextFormater.Render(Model.Position.Description))
 	</div>
 	<table>
 		<tbody>

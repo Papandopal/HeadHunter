@@ -3,5 +3,5 @@
 
 }
 <label for="@Model.ValuedSkill.Id">@Model.ValuedSkill.Skill.Name</label>
-<input id="@Model.ValuedSkill.Id" type="date" onchange="@(Model.EventHandlers["addDatePeriodUpdateInBuffer3"])(this.value, 0, '@Model.ValuedSkill.Id')" value="@Model.ValuedSkill.Value.Split(";")[0]" />
-<input type="date" onchange="@(Model.EventHandlers["addDatePeriodUpdateInBuffer3"])(this.value, 1, '@Model.ValuedSkill.Id')" value="@Model.ValuedSkill.Value.Split(";")[1]" />
+<input id="@Model.ValuedSkill.Id" type="date" onchange="@(Model.EventHandlers["addDatePeriodUpdateInBuffer3"])(this.value, 0, '@Model.ValuedSkill.Id')" value="@Model.ValuedSkill.Value.Split(Separators.DatePeriodSeparator)[0]" />
+<input type="date" onchange="@(Model.EventHandlers["addDatePeriodUpdateInBuffer3"])(this.value, 1, '@Model.ValuedSkill.Id')" value="@Model.ValuedSkill.Value.Split(Separators.DatePeriodSeparator)[1]" />

@@ -34,6 +34,11 @@ namespace UseCases.Services.CVServices
             return unitOfWork.CVRepository.GetAll();
         }
 
+        CV ICVService.GetById(Guid id)
+        {
+            return unitOfWork.CVRepository.GetById(id);
+        }
+
         IEnumerable<CV> ICVService.GetByOwnerId(Guid ownerId)
         {
             return unitOfWork.CVRepository.GetByOwnerId(ownerId);

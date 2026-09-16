@@ -1,0 +1,18 @@
+﻿@model AddProjectFormPageDTO
+@{
+	Model.EventsHandlers.Add("removeProject1", "removeProject1");
+	Model.EventsHandlers.Add("addProjectRecord3", "addProjectRecord3");
+	Model.EventsHandlers.Add("addProjectTag2", "addProjectTag2");
+	Model.EventsHandlers.Add("removeProjectTag2", "removeProjectTag2");
+	var dto = new AddProjectPartialDTO
+			{
+				ProjectIndex = Model.ProjectIndex,
+				EventHandlers = Model.EventsHandlers,
+				ActionForGetProjectTags = Model.ActionForGetProjectTags,
+				ControllerForGetProjectTags = Model.ControllerForGetProjectTags
+			};
+}
+<div id="@Model.ProjectIndex" class="w-100 h-100 position-relative">
+	<partial name="Projects/AddProject" model="@dto" />
+	<button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0" onclick="@(Model.EventsHandlers["removeProject1"])('@Model.ProjectIndex')">-</button>
+</div>

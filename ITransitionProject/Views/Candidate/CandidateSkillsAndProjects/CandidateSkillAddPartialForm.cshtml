@@ -1,0 +1,18 @@
+﻿@model AddCandidateSkillFormPageDTO
+@{
+	Model.EventsHandlers.Add("onTextChanged2", "onTextChanged2");
+	Model.EventsHandlers.Add("addUpdateInBuffer2", "addUpdateInBuffer2");
+	Model.EventsHandlers.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInBuffer3");
+	Model.EventsHandlers.Add("removeSkill2", "removeSkill2");
+
+	var partialModel = new AddValuedSkillPartialDTO
+			{
+				EventHandlers = Model.EventsHandlers,
+				Skill = Model.Skill
+			};
+}
+<div id="@Model.Skill.Id" class="w-100 h-100">
+	<button type="button" class="btn btn-sm btn-outline-danger" onclick="@(Model.EventsHandlers["removeSkill2"])('@Model.Skill.Id', '@Model.Skill.Name')">-</button>
+	<label for="@Model.Skill.Id">@Model.Skill.Name: </label>
+	<partial name="ValuedSkills/Add/@Model.Skill.Type.ToString()" model="@partialModel" />
+</div>

@@ -1,5 +1,4 @@
-﻿@using ITransitionProject.PagesDTOs.Candidate.CandidateSkills
-@model EditCandidateSkillsPageDTO
+﻿@model EditCandidateSkillsAndProjectsPageDTO
 @{
 	string bufferInputName = "buffer";
 	string buttonForSubmitId = "buttonForSubmitId";
@@ -66,12 +65,12 @@
 
 		let item = buffer.find(item=>item.ValuedSkillId === skillId);
 		if(typeof item !== 'undefined'){
-			let parts = item.value.split(';');
+			let parts = item.value.split('@Separators.DatePeriodSeparator');
 			parts[index] = newValue;
-			item.value = parts.join(';');
+			item.value = parts.join('@Separators.DatePeriodSeparator');
 		}
 		else{
-			if(index!=0) newValue = ';'+newValue;
+			if(index!=0) newValue = '@Separators.DatePeriodSeparator'+newValue;
 			let currentData = {
 				ValuedSkillId: skillId,
 				Value: newValue

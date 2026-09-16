@@ -1,0 +1,25 @@
+﻿@model ViewCandidateSkillsAndProjectsPageDTO
+@{
+	IEnumerable<ViewValuedSkillPartialDTO> partialSkillsDTOs = Model.CandidateSkills
+	.Select(x => new ViewValuedSkillPartialDTO
+			{//mapper
+				ValuedSkill = new ValuedSkillDTO{ Id = x.Id, Skill = x.Skill, Value = x.Value}
+			});
+	IEnumerable<ViewProjectPartialDTO> partialProjectsDTOs = Model.Projects
+	.Select(x => new ViewProjectPartialDTO
+			{
+				Project = x
+			});
+}
+<div class="w-100 h-100">
+	@foreach(var partialDTO in partialSkillsDTOs)
+	{
+		<partial name="ValuedSkills/View/@partialDTO.ValuedSkill.Skill.Type" model="@partialDTO"/>
+	}
+</div>
+<div>
+	@foreach (var projectDTO in partialProjectsDTOs)
+	{
+		<partial name="Projects/ViewProject" model="@projectDTO" />
+	}
+</div>

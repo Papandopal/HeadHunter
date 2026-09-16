@@ -10,7 +10,5 @@ namespace Domain.Entities
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public UserStatus Status { get; set; }
-        public Candidate? Candidate { get; set; }
-        public Recruter? Recruter { get; set; }
     }
 }

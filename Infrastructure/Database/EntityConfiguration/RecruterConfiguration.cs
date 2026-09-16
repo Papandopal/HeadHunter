@@ -11,6 +11,11 @@ namespace Infrastructure.Database.EntityConfiguration
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id)
                   .HasValueGenerator<Microsoft.EntityFrameworkCore.ValueGeneration.SequentialGuidValueGenerator>();
+            builder.HasMany(x => x.LikedCVs).WithMany(x=>x.LikedRecruters).UsingEntity<Dictionary<string, object>>(
+                   "CVRecruter",
+                   j => j.HasOne<CV>().WithMany().HasForeignKey("LikedCVsId").OnDelete(DeleteBehavior.NoAction),
+                   j => j.HasOne<Recruter>().WithMany().HasForeignKey("LikedRecrutersId").OnDelete(DeleteBehavior.NoAction)
+               );
         }   
     }
 }

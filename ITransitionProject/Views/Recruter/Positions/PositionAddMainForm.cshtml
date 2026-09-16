@@ -215,25 +215,25 @@
 	function AddExtraValueForOneOfManyRule2(skillId, extraValue){
 		let item = bufferForAccessRules.find(x=>x.SkillId === skillId && x.PropName === 'Value');
 		if(typeof(item) !== 'undefined'){
-			item.PropValue += ";"+extraValue;
+			item.PropValue += "@Separators.OneOfManySeparator"+extraValue;
 		}
 	}
 
 	function ChangeExtraValueForOneOfMany3(skillId, changedRuleIndex, value){
 		let item = bufferForAccessRules.find(x=>x.SkillId === skillId && x.PropName === 'Value');
 		if(typeof(item) !== 'undefined'){
-			let parts = item.PropValue.split(';');
+			let parts = item.PropValue.split('@Separators.OneOfManySeparator');
 			parts[changedRuleIndex] = value;
-			item.PropValue = parts.join(';');
+			item.PropValue = parts.join('@Separators.OneOfManySeparator');
 		}
 	}
 
 	function RemoveExtraValueForOneOfMany2(skillId, value){
 		let item = bufferForAccessRules.find(x=>x.SkillId === skillId && x.PropName === 'Value');
 		if(typeof(item) !== 'undefined'){
-			let parts = item.PropValue.split(';');
+			let parts = item.PropValue.split('@Separators.OneOfManySeparator');
 			parts = parts.filter(x=>x !== value);
-			item.PropValue = parts.join(';');
+			item.PropValue = parts.join('@Separators.OneOfManySeparator');
 		}
 	}
 

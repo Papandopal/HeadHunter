@@ -1,4 +1,48 @@
 ﻿@model ViewCVsPageDTO
 @{
-
+	var positions = Model.Positions.ToDictionary(x => x.Id);
 }
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				<label>Position Name</label>
+			</th>
+			<th>
+				<label>Skills</label>
+			</th>
+			<th>
+				<label>Decription</label>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var cv in Model.CVs)
+		{
+			<tr>
+				<td>
+					<a asp-controller="@Model.ControllerForViewCV" asp-action="@Model.ActionForViewCV" asp-route-cvId="@cv.Id">@positions[cv.PositionId].Title</a>
+				</td>
+				<td>
+					<div>
+						@foreach (var skill in positions[cv.PositionId].PositionSkills.Take(10))
+						{
+							<label>@skill.Skill.Name</label>
+						}
+					</div>
+					<div>
+						@foreach (var potentialEmptySkill in positions[cv.PositionId].PositionSkills.Select(x => x.Skill).Except(cv.ValuedSkills.Select(x => x.Skill)))
+						{
+							<label style="color:red;">@potentialEmptySkill.Name</label>
+						}
+					</div>
+				</td>
+				<td>
+					@Html.Raw(MarkdownTextFormater.Render(positions[cv.PositionId].Description))
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
