@@ -1,3 +1,89 @@
-﻿
+﻿@model EditProjectPartialDTO
 @{
+	var titleInputId = Guid.NewGuid();
+	var projectTagsSelectorId = Guid.NewGuid();
+	var projectTagsTableId = Guid.NewGuid();
 }
+<div>
+	<label for="@titleInputId">Title:</label>
+	<input id="@titleInputId" required oninput="@(Model.EventsHandlers["addProjectRecord3"])('@Model.ProjectIndex', 'Title', this.value)" value="@Model.Project.Title"/>
+	<label>Date Period</label>
+	<div class="d-flex flex-row">
+		<input type="date" oninput="addDatePeriodRecord('@Model.ProjectIndex', 0, this.value)" value="@Model.Project.DatePeriod.Split(Separators.DatePeriodSeparator)[0]"/>
+		<input type="date" oninput="addDatePeriodRecord('@Model.ProjectIndex', 1, this.value)" value="@Model.Project.DatePeriod.Split(Separators.DatePeriodSeparator)[1]"/>
+	</div>
+	<div class="d-flex flex-column">
+		<label>Description:</label>
+		<textarea required oninput="@(Model.EventsHandlers["addProjectRecord3"])('@Model.ProjectIndex', 'Description', this.value)">@Model.Project.Description</textarea>
+	</div>
+	<input oninput="loadProjectTags(this.value)" placeholder="Project Tags" />
+	<select id="@projectTagsSelectorId" onchange="addTag(this.value)">
+	</select>
+	<div id="@projectTagsTableId">
+		
+	</div>
+</div>
+
+@foreach (var tag in Model.Project.ProjectTags)
+{
+	<script>addTag(tag)</script>
+}
+
+<script>
+	let partsOfDatePeriod = ['', ''];
+
+	function addDatePeriodRecord(projectIndex, index, value){
+		partsOfDatePeriod[index] = value;
+		if(partsOfDatePeriod[0] !== '' && partsOfDatePeriod[1] !== ''){
+		@(Model.EventsHandlers["addProjectRecord3"])(projectIndex, 'DatePeriod', partsOfDatePeriod.join('@Separators.DatePeriodSeparator'));
+		}
+	}
+
+	function loadProjectTags(prefix){
+		fetch(`/@Model.ControllerForGetProjectTags/@Model.ActionForGetProjectTags?prefix=${encodeURIComponent(prefix)}`,  {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			let select = document.getElementById('@projectTagsSelectorId');
+
+			let selectedTags = [...document.getElementById('@projectTagsTableId').getElementsByTagName('label')].map(x=>x.textContent);
+
+			let filteredData = [];
+
+			for(item of data){
+				if(typeof(selectedTags.find(x=>x === item)) === 'undefined'){
+					filteredData.push(item);
+				}
+			}
+
+			select.innerHTML = '<option selected hidden disabled>Project tags</option>' + filteredData
+			.map(item => `<option value="${item}">${item}</option>`)
+			.join('');
+		})
+		.catch(error=>console.log(error));
+	}
+
+	function removeTag(id, tag){
+		document.getElementById(id).remove();
+		@(Model.EventsHandlers["removeProjectTag2"])('@Model.ProjectIndex', tag);
+	}
+
+	function addTag(tag){
+		let newDiv = document.createElement('div');
+		newDiv.id = crypto.randomUUID();
+		newDiv.classList.add('border');
+		let newLabel = document.createElement('label');
+		newLabel.textContent = tag;
+		let newButton = document.createElement('button');
+		newButton.textContent = '-';
+		newButton.classList.add('btn btn-sm btn-outline-danger');
+		newButton.onclick = function(){ removeTag(newDiv.id, tag); };
+		@(Model.EventsHandlers["addProjectTag2"])('@Model.ProjectIndex', tag);
+
+		document.getElementById('@projectTagsSelectorId').querySelector(`option:checked`).remove();
+	}
+</script>

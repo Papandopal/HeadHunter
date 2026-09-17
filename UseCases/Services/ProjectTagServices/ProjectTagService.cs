@@ -19,6 +19,7 @@ namespace UseCases.Services.ProjectTagServices
 
         IEnumerable<ProjectTag> IProjectTagService.GetFromJSON(string json)
         {
+            if(string.IsNullOrWhiteSpace(json)) return Enumerable.Empty<ProjectTag>();      
             var names = json.Split(Separators.ProjectTagsSeparator);
             return names.Select(x => new ProjectTag { Name = x });
         }

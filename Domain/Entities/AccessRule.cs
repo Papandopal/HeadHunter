@@ -16,5 +16,6 @@ namespace Domain.Entities
         public Skill Skill { get; set; }
         public FilterOperators Operator { get; set; }
         public string Value { get; set; } = string.Empty;
+        public int Version { get; init; } = 0;
     }
 }

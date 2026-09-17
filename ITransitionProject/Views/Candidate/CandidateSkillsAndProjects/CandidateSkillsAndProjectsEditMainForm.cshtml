@@ -1,0 +1,462 @@
+﻿@model EditCandidateSkillsAndProjectsPageDTO
+@{
+	string bufferForUpdatingSkillsName = nameof(Model.PostedModel.BufferForUpdatingSkills);
+	string bufferForAddedSkillsName = nameof(Model.PostedModel.BufferForAddedSkills);
+	string bufferForUpdatingProjectsName = nameof(Model.PostedModel.BufferForUpdatingProjects);
+	string bufferForAddedProjectsName = nameof(Model.PostedModel.BufferForAddedProjects);
+	string buttonForSubmitId = "buttonForSubmitId";
+	string CandidateSkillTypeSelectorId = "CandidateSkillTypeSelector";
+	string CandidateSkillFormsId = "CandidateSkillFormId";
+	string CandidateProjectFormsId = "CandidateProjectFormsId";
+
+	var updatingSkillsEventHandlers = new Dictionary<string, string>();
+
+	updatingSkillsEventHandlers.Add("onTextChanged2", "onUpdatingSkillTextChanged2");
+	updatingSkillsEventHandlers.Add("addUpdateInBuffer2", "addUpdateInUpdatingSkillBuffer2");
+	updatingSkillsEventHandlers.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInUpdatingSkillBuffer3");
+	updatingSkillsEventHandlers.Add("removeValuedSkill2", "removeUpdatingValuedSkill2");
+
+	IEnumerable<EditValuedSkillDTO> skillsDTOs = Model.CandidateSkills.Select(x => new EditValuedSkillDTO { ValuedSkillId = x.Id, Value = x.Value });
+	IEnumerable<EditCandidateSkillFormPageDTO> partialSkillsDTOs = Model.CandidateSkills.Select(x =>
+	{
+		//mapper
+		return new EditCandidateSkillFormPageDTO
+				{
+					EventsHandlers = updatingSkillsEventHandlers,
+					ValuedSkill = new ValuedSkillDTO
+					{
+						Id = x.Id,
+						Skill = x.Skill,
+						Value = x.Value
+					}
+				};
+	});
+
+	var updatingProjectsEventHandlers = new Dictionary<string, string>();
+	updatingProjectsEventHandlers.Add("removeProject1", "removeUpdatingProject1");
+	updatingProjectsEventHandlers.Add("addProjectRecord3", "addUpdatingProjectRecord3");
+	updatingProjectsEventHandlers.Add("addProjectTag2", "addUpdatingProjectTag2");
+	updatingProjectsEventHandlers.Add("removeProjectTag2", "removeUpdatingProjectTag2");
+
+	List<ProjectRecordDTO> projectRecordDTOs = new List<ProjectRecordDTO>();
+	@foreach (var project in Model.Projects)
+	{
+		projectRecordDTOs.Add(new ProjectRecordDTO
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.Title),
+					PropValue = project.Title
+				});
+		projectRecordDTOs.Add(new ProjectRecordDTO
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.Description),
+					PropValue = project.Description
+				});
+		projectRecordDTOs.Add(new ProjectRecordDTO
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.DatePeriod),
+					PropValue = project.DatePeriod
+				});
+	}
+	IEnumerable<int> indexes = projectRecordDTOs.Count == 0 ? Enumerable.Empty<int>() : Enumerable.Range(0, projectRecordDTOs.Count - 1);
+
+	IEnumerable<EditProjectFormPageDTO> partialProjectsDTOs = Model.Projects.Select(x =>
+	{
+
+		return new EditProjectFormPageDTO
+				{
+					ProjectIndex = x.Id.ToString(),
+					Project = x,
+					EventsHandlers = updatingProjectsEventHandlers,
+					ActionForGetProjectTags = Model.ActionForGetProjectTags,
+					ControllerForGetProjectTags = Model.ControllerForGetProjectTags
+
+				};
+	});
+
+	var addedSkillsEventsHandler = new Dictionary<string, string>();
+
+	addedSkillsEventsHandler.Add("onTextChanged2", "onAddedSkillTextChanged2");
+	addedSkillsEventsHandler.Add("addUpdateInBuffer2", "addUpdateInAddedSkillBuffer2");
+	addedSkillsEventsHandler.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInAddedSkillBuffer3");
+	addedSkillsEventsHandler.Add("removeSkill2", "removeAddedValuedSkill2");
+
+	var addedProjectsEventsHandler = new Dictionary<string, string>();
+
+	addedProjectsEventsHandler.Add("removeProject1", "removeAddedProject1");
+	addedProjectsEventsHandler.Add("addProjectRecord3", "addAddedProjectRecord3");
+	addedProjectsEventsHandler.Add("addProjectTag2", "addAddedProjectTag2");
+	addedProjectsEventsHandler.Add("removeProjectTag2", "removeAddedProjectTag2");
+}
+<div class="container">
+	<div class="row">
+		<div class="col">
+			<input type="text" oninput="loadSkills(this.value)" />
+			<select id="@CandidateSkillTypeSelectorId" onchange="loadForm(this.value)">
+				<option hidden disabled selected>Элементы</option>
+			</select>
+			@foreach (var partialDTO in partialSkillsDTOs)
+			{
+				<partial name="CandidateSkillsAndProjects/CandidateSkillEditPartialForm" model="@partialDTO"/>
+			}
+			<div id="@CandidateSkillFormsId">
+			</div>
+		</div>
+		<div class="col">
+			@foreach (var partialDTO in partialProjectsDTOs)
+			{
+				<partial name="CandidateSkillsAndProjects/CandidateProjectEditPartialForm" model="@partialDTO" />
+			}
+			<div id="@CandidateProjectFormsId">
+			</div>
+		</div>
+	</div>
+</div>
+
+<form asp-action="@Model.ActionToSubmit" asp-controller="@Model.ControllerToSubmit" onsubmit="saveBufferInHiddenInput()" method="post">
+	<input id="@bufferForAddedSkillsName" type="hidden" name="@bufferForAddedSkillsName" />
+	<input id="@bufferForUpdatingSkillsName" type="hidden" name="@bufferForUpdatingSkillsName" />
+	<input id="@bufferForAddedProjectsName" type="hidden" name="@bufferForAddedProjectsName" />
+	<input id="@bufferForUpdatingProjectsName" type="hidden" name="@bufferForUpdatingProjectsName" />
+	<button id="@buttonForSubmitId" type="submit"> Save</button>
+</form>
+
+<script>
+	function saveBufferInHiddenInput(){
+		document.getElementById('@bufferForAddedSkillsName').value = JSON.stringify(bufferForAddedSkills);
+		document.getElementById('@bufferForUpdatingSkillsName').value = JSON.stringify(bufferForUpdatingSkills);
+		document.getElementById('@bufferForAddedProjectsName').value = JSON.stringify(bufferForAddedProjects);
+		document.getElementById('@bufferForUpdatingProjectsName').value = JSON.stringify(bufferForUpdatingProjects);
+	}
+
+	function activateSubmitButton(){
+		document.getElementById("@buttonForSubmitId").disabled = false;
+	}
+
+	function deactivateSubmitButton(){
+		document.getElementById("@buttonForSubmitId").disabled = true;
+	}
+
+	function executeScriptsInContainer(container) {
+		const scripts = container.querySelectorAll('script');
+
+		scripts.forEach(oldScript => {
+			const newScript = document.createElement('script');
+
+			for (let attr of oldScript.attributes) {
+				newScript.setAttribute(attr.name, attr.value);
+			}
+			if (oldScript.textContent) {
+				newScript.textContent = oldScript.textContent;
+			}
+			oldScript.parentNode.replaceChild(newScript, oldScript);
+		});
+	}
+</script>
+
+<script>
+	class ProjectRecord{
+		ProjectIndex;
+		PropName;
+		PropValue;
+		constructor(projectIndex, propName, propValue){
+			this.ProjectIndex = projectIndex;
+			this.PropName = propName;
+			this.PropValue = propValue;
+		}
+	}
+
+	let bufferForAddedProjects = [];
+	let countOfRequiredProjectProperties = @typeof(AddProjectDTO).GetProperties().Length - 1;
+	let projectIndex = 0;
+	let projectIndexes = @Json.Serialize(indexes);
+
+	addProject();
+
+	function addProject(){
+
+		fetch(`/@Model.ControllerForGetProjectForm/@Model.ActionForGetProjectForm?projectIndex=${projectIndex}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(addedProjectsEventsHandler)))}`)
+		.then(response => response.text())
+		.then(html => {
+			let form = document.getElementById("@CandidateProjectFormsId");
+			let newDiv = document.createElement('div');
+			newDiv.innerHTML = html;
+			form.append(newDiv);
+			projectIndexes.push(projectIndex);
+			projectIndex++;
+			countOfRequiredProjectProperties = @typeof(AddProjectDTO).GetProperties().Length - 1;
+			executeScriptsInContainer(form);
+		})
+		.catch(error => console.log('Error:', error));
+	}
+
+	function removeAddedProject1(projectIndex)
+	{
+		bufferForAddedProjects = bufferForAddedProjects.filter(x=>x.ProjectIndex !== projectIndex);
+		if(String(projectIndexes[projectIndexes.length-1]) === projectIndex){
+			let inputs = document.getElementById(projectIndex).getElementsByTagName('input');
+			for(let item of inputs){
+				item.value = '';
+			}
+		}
+		else{
+			document.getElementById(projectIndex).remove();
+			projectIndexes = projectIndexes.filter(x=>x !== Number(projectIndex));
+		}
+		countOfRequiredProjectProperties = @typeof(AddProjectDTO).GetProperties().Length - 1;
+	}
+
+	function addAddedProjectRecord3(projectIndex, propName, propValue){
+		let item = bufferForAddedProjects.find(x=>x.ProjectIndex === projectIndex && x.PropName === propName);
+		if(typeof(item) !== 'undefined'){
+			item.PropValue = propValue;
+		}
+		else{
+			bufferForAddedProjects.push(new ProjectRecord(projectIndex, propName, propValue));
+			if(propName !== 'ProjectTags') countOfRequiredProjectProperties--;
+			if(countOfRequiredProjectProperties === 0) addProject();
+		}
+	}
+
+	function addAddedProjectTag2(projectIndex, tag){
+		let item = bufferForAddedProjects.find(x=>x.ProjectIndex === projectIndex && x.PropName === 'ProjectTags');
+		if(typeof(item) !== 'undefined')
+		{
+			item.PropValue += '@Separators.ProjectTagsSeparator' + tag;
+		}
+		else{
+			bufferForAddedProjects.push(new ProjectRecord(projectIndex, 'ProjectTags', tag));
+		}
+	}
+
+	function removeAddedProjectTag2(projectIndex, tag){
+		let item = bufferForAddedProjects.find(x=>x.ProjectIndex === projectIndex && x.PropName === 'ProjectTags');
+		let tags = item.PropValue.split('@Separators.ProjectTagsSeparator');
+		tags = tags.filter(x=>x !== tag);
+		item.PropValue = tags.join('@Separators.ProjectTagsSeparator');
+	}
+
+</script>
+
+<script>
+	
+	let bufferForUpdatingProjects = @Json.Serialize(projectRecordDTOs);
+
+	function removeUpdatingProject1(projectIndex)
+	{
+		bufferForUpdatingProjects = bufferForUpdatingProjects.filter(x=>x.ProjectIndex !== projectIndex);
+		if(String(projectIndexes[projectIndexes.length-1]) === projectIndex){
+			let inputs = document.getElementById(projectIndex).getElementsByTagName('input');
+			for(let item of inputs){
+				item.value = '';
+			}
+		}
+		else{
+			document.getElementById(projectIndex).remove();
+			projectIndexes = projectIndexes.filter(x=>x !== projectIndex);
+		}
+		countOfRequiredProjectProperties = @typeof(AddProjectDTO).GetProperties().Length - 1;
+	}
+
+	function addUpdatingProjectRecord3(projectIndex, propName, propValue){
+		let item = bufferForUpdatingProjects.find(x=>x.ProjectIndex === projectIndex && x.PropName === propName);
+		if(typeof(item) !== 'undefined'){
+			item.PropValue = propValue;
+		}
+		else{
+			bufferForUpdatingProjects.push(new ProjectRecord(projectIndex, propName, propValue));
+			if(propName !== 'ProjectTags') countOfRequiredProjectProperties--;
+			if(countOfRequiredProjectProperties === 0) addProject();
+		}
+	}
+
+	function addUpdatingProjectTag2(projectIndex, tag){
+		let item = bufferForUpdatingProjects.find(x=>x.ProjectIndex === projectIndex && x.PropName === 'ProjectTags');
+		if(typeof(item) !== 'undefined')
+		{
+			item.PropValue += '@Separators.ProjectTagsSeparator' + tag;
+		}
+		else{
+			bufferForUpdatingProjects.push(new ProjectRecord(projectIndex, 'ProjectTags', tag));
+		}
+	}
+
+	function removeUpdatingProjectTag2(projectIndex, tag){
+		let item = bufferForUpdatingProjects.find(x=>x.ProjectIndex === projectIndex && x.PropName === 'ProjectTags');
+		let tags = item.PropValue.split('@Separators.ProjectTagsSeparator');
+		tags = tags.filter(x=>x !== tag);
+		item.PropValue = tags.join('@Separators.ProjectTagsSeparator');
+	}
+
+</script>
+
+<script>
+	let bufferForAddedSkills = [];
+	let countOfRequiredSkills = 0;
+	let partsOfAddedPeriod = ['', ''];
+
+	function onAddedTextChanged2(newValue, skillId) {
+		clearTimeout(timeout);
+
+		timeout = setTimeout(() => {
+
+			addUpdateInAddedSkillBuffer2(newValue, skillId)
+
+		}, 500);
+	}
+
+	function addDatePeriodUpdateInAddedSkillBuffer3(newValue, index, skillId){
+		let item = bufferForAddedSkills.find(item=>item.SkillId === skillId);
+		if(typeof item !== 'undefined'){
+			if(partsOfAddedPeriod[index] === '') countOfRequiredSkills--;
+			partsOfAddedPeriod[index] = newValue;
+			item.Value = partsOfAddedPeriod.join('@Separators.DatePeriodSeparator');
+			if(countOfRequiredSkills == 0) activateSubmitButton();
+		}
+		else{
+			partsOfPeriod[index] = newValue;
+			let currentData = {
+				SkillId: skillId,
+				Value: partsOfPeriod.join('@Separators.DatePeriodSeparator')
+			};
+			bufferForAddedSkills.push(currentData);
+		}
+	}
+
+	function addUpdateInAddedSkillBuffer2(newValue, skillId) {
+
+		let currentData = {
+			SkillId: skillId,
+			Value: newValue
+		};
+
+		let item = bufferForAddedSkills.find(item=>item.SkillId === skillId);
+		if(typeof item !== 'undefined'){
+			item.value = newValue;
+		}
+		else{
+			countOfRequiredSkills--;
+			bufferForAddedSkills.push(currentData);
+			if(countOfRequiredSkills == 0) activateSubmitButton();
+		}
+	}
+
+	function removeAddedValuedSkill2(skillId, skillName)
+	{
+		bufferForAddedSkills = bufferForAddedSkills.filter(x=>x.SkillId !== skillId);
+		selectedSkills = selectedSkills.filter(x=>x != skillName);
+		document.getElementById(skillId).remove();
+		let skillsSelector = document.getElementById('@CandidateSkillTypeSelectorId');
+		let newOption = document.createElement('option');
+		newOption.value = skillName;
+		newOption.textContent = skillName;
+		skillsSelector.append(newOption);
+		if(countOfRequiredSkills !== 0){
+			countOfRequiredSkills--;
+			if(countOfRequiredSkills == 0) activateSubmitButton();
+		}
+	}
+</script>
+
+<script>
+	let bufferForUpdatingSkills = @Json.Serialize(skillsDTOs);
+	let selectedSkills = @Json.Serialize(Model.CandidateSkills.Select(x => x.Skill.Name));
+	let timeout = null;
+	let partsOfUpdatingPeriod = ['', ''];
+
+	function onUpdatingTextChanged2(newValue, skillId) {
+		clearTimeout(timeout);
+
+		timeout = setTimeout(() => {
+
+			addUpdateInUpdatingSkillBuffer2(newValue, skillId)
+
+		}, 500);
+	}
+
+	function addDatePeriodUpdateInUpdatingSkillBuffer3(newValue, index, valuedSkillId){
+		let item = bufferForUpdatingSkills.find(item=>item.ValuedSkillId === valuedSkillId);
+		if(typeof item !== 'undefined'){
+			if(partsOfUpdatingPeriod[index] === '') countOfRequiredSkills--;
+			partsOfUpdatingPeriod[index] = newValue;
+			item.Value = partsOfUpdatingPeriod.join('@Separators.DatePeriodSeparator');
+			if(countOfRequiredSkills == 0) activateSubmitButton();
+		}
+		else{
+			partsOfUpdatingPeriod[index] = newValue;
+			let currentData = {
+				ValuedSkillId: skillId,
+				Value: partsOfUpdatingPeriod.join('@Separators.DatePeriodSeparator')
+			};
+			bufferForUpdatingSkills.push(currentData);
+		}
+	}
+
+	function addUpdateInUpdatingSkillBuffer2(newValue, valuedSkillId) {
+
+		let currentData = {
+			ValuedSkillId: valuedSkillId,
+			Value: newValue
+		};
+
+		let item = bufferForUpdatingSkills.find(item=>item.ValuedSkillId === valuedSkillId);
+		if(typeof item !== 'undefined'){
+			item.value = newValue;
+		}
+		else{
+			bufferForUpdatingSkills.push(currentData);
+		}
+	}
+
+	function removeUpdatingValuedSkill2(valuedSkillId, skillName)
+	{
+		bufferForUpdatingSkills = bufferForUpdatingSkills.filter(x=>x.ValuedSkillId !== valuedSkillId);
+		selectedSkills = selectedSkills.filter(x=>x != skillName);
+		document.getElementById(valuedSkillId).remove();
+		let skillsSelector = document.getElementById('@CandidateSkillTypeSelectorId');
+		let newOption = document.createElement('option');
+		newOption.value = skillName;
+		newOption.textContent = skillName;
+		skillsSelector.append(newOption);
+	}
+
+	function loadSkills(prefix){
+		fetch(`/@Model.ControllerForGetSkillsNames/@Model.ActionForGetSkillsNames?prefix=${encodeURIComponent(prefix)}`, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			let select = document.getElementById('@CandidateSkillTypeSelectorId');
+
+			data = data.filter(x=>selectedSkills.indexOf(x) === -1);
+
+			select.innerHTML = '<option hidden disapbled selected value="">Элементы</option>' + data
+			.map(item => `<option value="${item}">${item}</option>`)
+			.join('');
+		})
+		.catch(error=>console.log(error));
+	}
+	function loadForm(skillName) {
+		fetch(`/@Model.ControllerForGetSkillForm/@Model.ActionForGetSkillForm?skillName=${encodeURIComponent(skillName)}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(addedSkillsEventsHandler)))}`)
+		.then(response => response.text())
+		.then(html => {
+			let form = document.getElementById('@CandidateSkillFormsId');
+			let newDiv = document.createElement('div');
+			newDiv.innerHTML = html;
+			form.append(newDiv);
+			countOfRequiredSkills++;
+			selectedSkills.push(skillName);
+			let skillsSelector = document.getElementById('@CandidateSkillTypeSelectorId');
+			let option = skillsSelector.querySelector(`option:checked`);
+			skillsSelector.removeChild(option);
+			deactivateSubmitButton();
+			executeScriptsInContainer(form);
+		})
+		.catch(error => console.log('Error:', error));
+	}
+</script>

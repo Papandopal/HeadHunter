@@ -1,0 +1,13 @@
+﻿@model EditCandidateSkillFormPageDTO
+@{
+	var partialModel = new EditValuedSkillPartialDTO
+			{
+				 ValuedSkill = Model.ValuedSkill,
+				EventHandlers = Model.EventsHandlers
+			};
+}
+<div id="@Model.ValuedSkill.Id" class="w-100 h-100">
+	<button type="button" class="btn btn-sm btn-outline-danger" onclick="@(Model.EventsHandlers["removeValuedSkill2"])('@Model.ValuedSkill.Id', '@Model.ValuedSkill.Skill.Name')">-</button>
+	<label for="@Model.ValuedSkill.Id">@Model.ValuedSkill.Skill.Name: </label>
+	<partial name="ValuedSkills/Edit/@Model.ValuedSkill.Skill.Type.ToString()" model="@partialModel" />
+</div>

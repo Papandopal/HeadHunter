@@ -6,7 +6,7 @@
 }
 <div>
 	<label for="@titleInputId">Title:</label>
-	<input id="@titleInputId" required oninput="@(Model.EventHandlers["addProjectRecord3"])('@Model.ProjectIndex', 'Title', this.value)" />
+	<input id="@titleInputId" required oninput="@(Model.EventsHandlers["addProjectRecord3"])('@Model.ProjectIndex', 'Title', this.value)" />
 	<label>Date Period</label>
 	<div class="d-flex flex-row">
 		<input type="date" oninput="addDatePeriodRecord('@Model.ProjectIndex', 0, this.value)" />
@@ -14,7 +14,7 @@
 	</div>
 	<div class="d-flex flex-column">
 		<label>Description:</label>
-		<textarea required oninput="@(Model.EventHandlers["addProjectRecord3"])('@Model.ProjectIndex', 'Description', this.value)"></textarea>
+		<textarea required oninput="@(Model.EventsHandlers["addProjectRecord3"])('@Model.ProjectIndex', 'Description', this.value)"></textarea>
 	</div>
 	<input oninput="loadProjectTags(this.value)" placeholder="Project Tags" />
 	<select id="@projectTagsSelectorId" onchange="addTag(this.value)">
@@ -27,7 +27,7 @@
 	function addDatePeriodRecord(projectIndex, index, value){
 		partsOfDatePeriod[index] = value;
 		if(partsOfDatePeriod[0] !== '' && partsOfDatePeriod[1] !== ''){
-			@(Model.EventHandlers["addProjectRecord3"])(projectIndex, 'DatePeriod', partsOfDatePeriod.join('@Separators.DatePeriodSeparator'));
+			@(Model.EventsHandlers["addProjectRecord3"])(projectIndex, 'DatePeriod', partsOfDatePeriod.join('@Separators.DatePeriodSeparator'));
 		}
 	}
 
@@ -61,7 +61,7 @@
 
 	function removeTag(id, tag){
 		document.getElementById(id).remove();
-		@(Model.EventHandlers["removeProjectTag2"])('@Model.ProjectIndex', tag);
+		@(Model.EventsHandlers["removeProjectTag2"])('@Model.ProjectIndex', tag);
 	}
 
 	function addTag(tag){
@@ -74,7 +74,7 @@
 		newButton.textContent = '-';
 		newButton.classList.add('btn btn-sm btn-outline-danger');
 		newButton.onclick = function(){ removeTag(newDiv.id, tag); };
-	@(Model.EventHandlers["addProjectTag2"])('@Model.ProjectIndex', tag);
+		@(Model.EventsHandlers["addProjectTag2"])('@Model.ProjectIndex', tag);
 
 		document.getElementById('@projectTagsSelectorId').querySelector(`option:checked`).remove();
 	}

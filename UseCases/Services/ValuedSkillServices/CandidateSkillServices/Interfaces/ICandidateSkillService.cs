@@ -11,9 +11,10 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interface
     public interface ICandidateSkillService
     {
         public void Add(AddValuedSkillDTO skillDTO, Guid candidateId);
+        public void Update(EditValuedSkillDTO skillDTO);
         public void AddRange(IEnumerable<AddValuedSkillDTO> skillDTOs, Guid candidateId);
-        public void UpdateCandidateSkills(IEnumerable<UpdateValuedSkillDTO> skillDTOs);
-        public CandidateSkill GetByName(Guid ownerId, string name);
+        public void UpdateRange(IEnumerable<EditValuedSkillDTO> skillDTOs);
+        public CandidateSkill GetByName(string name, Guid ownerId);
         public IEnumerable<CandidateSkill> GetCandidateSkillsByOwnerId(Guid ownerId);
         public IEnumerable<CandidateSkill> GetCandidateSkillsByOwnerIdWithPrefix(Guid ownerId, string prefix);
     }

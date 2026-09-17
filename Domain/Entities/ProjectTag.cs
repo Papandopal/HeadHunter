@@ -12,5 +12,6 @@ namespace Domain.Entities
         public string Name { get; set; } = string.Empty;
         public IEnumerable<Position> Positions { get; set; } = new List<Position>(); 
         public IEnumerable<Project> Projects { get; set; } = new List<Project>();
+        public int Version { get; init; } = 0;
     }
 }

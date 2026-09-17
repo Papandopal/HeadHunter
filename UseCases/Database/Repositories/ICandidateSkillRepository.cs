@@ -11,7 +11,9 @@ namespace UseCases.Database.Repositories
     {
         public void AddRange(IEnumerable<CandidateSkill> items);
         public void UpdateRange(IEnumerable<CandidateSkill> items);
-        public CandidateSkill GetByName(Guid ownerId, string name);
+        public void DeleteRange(IEnumerable<CandidateSkill> items);
+        public CandidateSkill GetByName(string name, Guid ownerId);
         public IEnumerable<CandidateSkill> GetByOwnerId(Guid ownerId);
+        public IEnumerable<CandidateSkill> GetAllExceptOf(IEnumerable<Guid> ids);
     }
 }

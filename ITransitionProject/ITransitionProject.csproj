@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="EntityFramework.Triggers" Version="6.2.3" />
   </ItemGroup>
 
   <ItemGroup>

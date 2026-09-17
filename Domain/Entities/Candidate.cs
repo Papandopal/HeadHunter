@@ -15,5 +15,6 @@ namespace Domain.Entities
         public DateOnly Birthday { get; set; }
         public IEnumerable<CandidateSkill> Skills { get; set; }  = new List<CandidateSkill>();
         public IEnumerable<Project> Projects { get; set; } = new List<Project>();
+        public int Version { get; init; } = 0;
     }
 }

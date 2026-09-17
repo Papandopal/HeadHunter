@@ -16,5 +16,6 @@ namespace Domain.Entities
         public IEnumerable<AccessRule> AccessRules { get; set; } = new List<AccessRule>();
         public IEnumerable<ProjectTag> ProjectTags { get; set; } = new List<ProjectTag>();
         public int MaxCountOfProject { get; set; }
+        public int Version { get; init; } = 0;
     }
 }

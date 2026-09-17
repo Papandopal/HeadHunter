@@ -28,14 +28,29 @@ namespace Infrastructure.Database.Repositories
             projects.Remove(project);
         }
 
+        void IProjectRepository.DeleteRange(IEnumerable<Project> projects)
+        {
+            this.projects.RemoveRange(projects);
+        }
+
         IQueryable<Project> IRepository<Project>.GetAll()
         {
             return projects;
         }
 
+        IEnumerable<Project> IProjectRepository.GetAllExceptOf(IEnumerable<Guid> ids)
+        {
+            return projects.Where(x=>!ids.Contains(x.Id));  
+        }
+
         Project IRepository<Project>.GetById(Guid id)
         {
             return projects.First(x => x.Id == id);
+        }
+
+        IEnumerable<Project> IProjectRepository.GetByIds(IEnumerable<Guid> ids)
+        {
+            return projects.Where(x=>ids.Contains(x.Id));   
         }
 
         IEnumerable<Project> IProjectRepository.GetByOwnerId(Guid ownerId)
@@ -48,9 +63,19 @@ namespace Infrastructure.Database.Repositories
             return projects.FirstOrDefault(x => x.Id == entity.Id) is not null;
         }
 
+        void IProjectRepository.RemoveAll()
+        {
+            projects.ExecuteDelete();
+        }
+
         void IRepository<Project>.Update(Project entity)
         {
             projects.Update(entity);
+        }
+
+        void IProjectRepository.UpdateRange(IEnumerable<Project> projects)
+        {
+            this.projects.UpdateRange(projects);
         }
     }
 }

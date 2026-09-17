@@ -27,9 +27,19 @@ namespace Infrastructure.Database.Repositories
             skills.Remove(skills.First(x => x.Id == id));
         }
 
+        void ICandidateSkillRepository.DeleteRange(IEnumerable<CandidateSkill> items)
+        {
+            skills.RemoveRange(items);
+        }
+
         IQueryable<CandidateSkill> IRepository<CandidateSkill>.GetAll()
         {
             return skills.Include(x=>x.Skill);
+        }
+
+        IEnumerable<CandidateSkill> ICandidateSkillRepository.GetAllExceptOf(IEnumerable<Guid> ids)
+        {
+            return skills.Where(x => !ids.Contains(x.Id));
         }
 
         CandidateSkill IRepository<CandidateSkill>.GetById(Guid id)
@@ -37,7 +47,7 @@ namespace Infrastructure.Database.Repositories
             return skills.Include(x => x.Skill).First(x => x.Id == id);
         }
 
-        CandidateSkill ICandidateSkillRepository.GetByName(Guid ownerId, string name)
+        CandidateSkill ICandidateSkillRepository.GetByName(string name, Guid ownerId)
         {
             return skills.Include(x => x.Skill).Where(x=> x.CandidateId == ownerId && x.Skill.Name == name).First();
         }

@@ -11,8 +11,11 @@ namespace UseCases.Services.ProjectServices.Interfaces
     public interface IProjectService
     {
         public void Add(AddProjectDTO projectDTO, Guid ownerId);
+        public void Update(EditProjectDTO projectDTO);
         public void AddRange(IEnumerable<AddProjectDTO> projectDTOs, Guid ownerId);
-        public IEnumerable<AddProjectDTO> Deserialize(IEnumerable<ProjectRecordDTO> dtos);
+        public void UpdateRange(IEnumerable<EditProjectDTO> projectDTOs);
+        public IEnumerable<AddProjectDTO> DeserializeToAddDTOs(IEnumerable<ProjectRecordDTO> dtos);
+        public IEnumerable<EditProjectDTO> DeserializeEditDTOs(IEnumerable<ProjectRecordDTO> dtos);
         public IEnumerable<Project> GetByOwnerId(Guid ownerId);
     }
 }
