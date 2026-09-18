@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Drawing.Printing;
+using System.Text.Json;
 using AspNetCoreGeneratedDocument;
 using Domain;
 using Domain.Entities;
@@ -162,6 +163,8 @@ namespace ITransitionProject.Controllers
                 ControllerForGetSkillTypeBySkillName = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetSkillIdBySkillName = "GetSkillIdBySkillName",
                 ControllerForGetSkillIdBySkillName = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetPopularSkillNames = "GetPopularSkillsNames",
+                ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
                 ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
             };
@@ -173,6 +176,14 @@ namespace ITransitionProject.Controllers
         {
             authService.Validate();
             var skills = skillService.GetAllSkillsNamesByPrefix(prefix);
+            return skills;
+        }
+
+        [HttpGet]
+        public IEnumerable<string> GetPopularSkillsNames(int count)
+        {
+            authService.Validate();
+            var skills = skillService.GetPopularSkillsNames(count);
             return skills;
         }
 

@@ -11,13 +11,13 @@
 				Project = x
 			});
 }
-<div class="w-100 h-100">
+<div class="border">
 	@foreach(var partialDTO in partialSkillsDTOs)
 	{
 		<partial name="ValuedSkills/View/@partialDTO.ValuedSkill.Skill.Type" model="@partialDTO"/>
 	}
 </div>
-<div>
+<div class="border">
 	@foreach (var projectDTO in partialProjectsDTOs)
 	{
 		<partial name="Projects/ViewProject" model="@projectDTO" />

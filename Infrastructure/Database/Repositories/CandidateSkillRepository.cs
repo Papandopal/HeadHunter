@@ -37,9 +37,9 @@ namespace Infrastructure.Database.Repositories
             return skills.Include(x=>x.Skill);
         }
 
-        IEnumerable<CandidateSkill> ICandidateSkillRepository.GetAllExceptOf(IEnumerable<Guid> ids)
+        IEnumerable<CandidateSkill> ICandidateSkillRepository.GetAllExceptOf(IEnumerable<Guid> ids, Guid ownerId)
         {
-            return skills.Where(x => !ids.Contains(x.Id));
+            return skills.Where(x => x.CandidateId == ownerId && !ids.Contains(x.Id));
         }
 
         CandidateSkill IRepository<CandidateSkill>.GetById(Guid id)

@@ -8,12 +8,13 @@ using Domain;
 using Domain.Entities;
 using UseCases.Database;
 using UseCases.Services.SkillServices;
+using UseCases.Services.SkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.GeneralDTOs;
 
 namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
 {
-    public class CandidateSkillService(IUnitOfWork unitOfWork) : ICandidateSkillService
+    public class CandidateSkillService(IUnitOfWork unitOfWork, ISkillService skillService) : ICandidateSkillService
     {
         void ICandidateSkillService.Add(AddValuedSkillDTO skillDTO, Guid candidateId)
         {
@@ -25,6 +26,7 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
                 SkillId = skill.Id,
                 Value = skillDTO.Value
             };
+            skillService.PopularityUp(skill.Id);
             unitOfWork.StartTransaction();
             unitOfWork.CandidateSkillRepository.Add(newCandidateSkill);
             unitOfWork.Commit();
@@ -32,15 +34,15 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
 
         void ICandidateSkillService.Update(EditValuedSkillDTO skillDTO)
         {
-            var skill = unitOfWork.CandidateSkillRepository.GetById(skillDTO.ValuedSkillId);
-            skill.ChangeValue(skillDTO.Value);
+            var candidateSkill = unitOfWork.CandidateSkillRepository.GetById(skillDTO.ValuedSkillId);
+            candidateSkill.ChangeValue(skillDTO.Value);
             unitOfWork.StartTransaction();
-            unitOfWork.CandidateSkillRepository.Update(skill);
+            unitOfWork.CandidateSkillRepository.Update(candidateSkill);
             unitOfWork.Commit();
 
         }
 
-        void ICandidateSkillService.AddRange(IEnumerable<AddValuedSkillDTO> skillDTOs, Guid candidateId)
+        async Task ICandidateSkillService.AddRangeAsync(IEnumerable<AddValuedSkillDTO> skillDTOs, Guid candidateId)
         {
             List<CandidateSkill> newCandidateSkills = new();
             var skills = unitOfWork.SkillRepository.GetByIdRange(skillDTOs.Select(x => x.SkillId)).ToDictionary(x => x.Id);
@@ -56,6 +58,8 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
                 };
                 newCandidateSkills.Add(newCandidateSkill);
             }
+            await skillService.PopulariyUpRangeAsync(newCandidateSkills.Select(x => x.SkillId));
+
             unitOfWork.StartTransaction();
             unitOfWork.CandidateSkillRepository.AddRange(newCandidateSkills);
             unitOfWork.Commit();
@@ -71,11 +75,30 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
                 skill.ChangeValue(iterator.Current.Value);
             }
 
-            var deletedSkills = unitOfWork.CandidateSkillRepository.GetAllExceptOf(skillDTOs.Select(x => x.ValuedSkillId));
+            unitOfWork.StartTransaction();
+            unitOfWork.CandidateSkillRepository.UpdateRange(skills);
+            unitOfWork.Commit();
+        }
+
+        async Task ICandidateSkillService.ChangeCurrentSkillsAsync(IEnumerable<EditValuedSkillDTO> skillDTOs, Guid ownerId)
+        {
+            var candidateSkills = skillDTOs.Select(x => unitOfWork.CandidateSkillRepository.GetById(x.ValuedSkillId));
+            var iterator = skillDTOs.GetEnumerator();
+            foreach (var skill in candidateSkills)
+            {
+                iterator.MoveNext();
+                skill.ChangeValue(iterator.Current.Value);
+            }
+
+            var deletedCandidateSkills = unitOfWork.CandidateSkillRepository.GetAllExceptOf(skillDTOs.Select(x => x.ValuedSkillId), ownerId);
+
+            var updatedSkillsIds = deletedCandidateSkills.Select(x => x.SkillId);
+
+            await skillService.PopulariyDownRangeAsync(updatedSkillsIds);
 
             unitOfWork.StartTransaction();
-            unitOfWork.CandidateSkillRepository.DeleteRange(deletedSkills);
-            unitOfWork.CandidateSkillRepository.UpdateRange(skills);
+            unitOfWork.CandidateSkillRepository.DeleteRange(deletedCandidateSkills);
+            unitOfWork.CandidateSkillRepository.UpdateRange(candidateSkills);
             unitOfWork.Commit();
         }
 

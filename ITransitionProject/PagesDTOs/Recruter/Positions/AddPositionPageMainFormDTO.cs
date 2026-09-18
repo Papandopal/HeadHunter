@@ -7,6 +7,8 @@ namespace ITransitionProject.PagesDTOs.Recruter.Positions
         public AddPositionDTO PostedModel { get; } = new();
         public string ActionForSubmit { get; set; } = string.Empty;
         public string ControllerForSubmit { get; set; } = string.Empty;
+        public required string ActionForGetPopularSkillNames {  get; set; } 
+        public required string ControllerForGetPopularSkillNames { get; set; } 
         public string ActionForGetSkillsNames { get; set; } = string.Empty;
         public string ControllerForGetSkillsNames { get; set; } = string.Empty;
         public string ActionForGetSkillForm { get; set; } = string.Empty;

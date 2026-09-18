@@ -6,7 +6,7 @@
 				Skill = Model.Skill
 			};
 }
-<div id="@Model.Skill.Id" class="w-100 h-100">
+<div id="@Model.Skill.Id" class="border">
 	<button type="button" class="btn btn-sm btn-outline-danger" onclick="@(Model.EventsHandlers["removeSkill2"])('@Model.Skill.Id', '@Model.Skill.Name')">-</button>
 	<label for="@Model.Skill.Id">@Model.Skill.Name: </label>
 	<partial name="ValuedSkills/Add/@Model.Skill.Type.ToString()" model="@partialModel" />

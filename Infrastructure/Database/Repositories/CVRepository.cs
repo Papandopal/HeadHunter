@@ -30,7 +30,7 @@ namespace Infrastructure.Database.Repositories
 
         CV IRepository<CV>.GetById(Guid id)
         {
-            return cvs.First(x=>x.Id == id);
+            return cvs.Include(x=>x.ValuedSkills).ThenInclude(x=>x.Skill).Include(x=>x.Candidate).ThenInclude(x=>x.Projects).First(x=>x.Id == id);
         }
 
         IEnumerable<CV> ICVRepository.GetByOwnerId(Guid ownerId)

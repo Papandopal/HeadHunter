@@ -15,6 +15,7 @@ namespace Domain.Entities
         public string Name { get; set; } = string.Empty;
         public string PotentialValue { get; set; } = string.Empty;
         public SkillTypes Type { get; set; }
+        public long CountOfValuedSkills { get; set; }    
         public int Version { get; init; } = 0;
     }
 }

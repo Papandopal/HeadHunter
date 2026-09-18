@@ -297,7 +297,7 @@
 	let countOfRequiredSkills = 0;
 	let partsOfAddedPeriod = ['', ''];
 
-	function onAddedTextChanged2(newValue, skillId) {
+	function onAddedSkillTextChanged2(newValue, skillId) {
 		clearTimeout(timeout);
 
 		timeout = setTimeout(() => {
@@ -366,7 +366,7 @@
 	let timeout = null;
 	let partsOfUpdatingPeriod = ['', ''];
 
-	function onUpdatingTextChanged2(newValue, skillId) {
+	function onUpdatingSkillTextChanged2(newValue, skillId) {
 		clearTimeout(timeout);
 
 		timeout = setTimeout(() => {

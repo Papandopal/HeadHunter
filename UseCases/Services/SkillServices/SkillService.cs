@@ -48,9 +48,34 @@ namespace UseCases.Services.SkillServices
             return unitOfWork.SkillRepository.GetIdBySkillName(skillName);
         }
 
+        IEnumerable<string> ISkillService.GetPopularSkillsNames(int count)
+        {
+            return unitOfWork.SkillRepository.GetPopularitySkillsNames(count);
+        }
+
         SkillTypes ISkillService.GetSkillTypeBySkillName(string skillName)
         {
             return unitOfWork.SkillRepository.GetSkillTypeBySkillName(skillName);
+        }
+
+        void ISkillService.PopularityDown(Guid skillId)
+        {
+            unitOfWork.SkillRepository.PopularityDown(skillId);
+        }
+
+        void ISkillService.PopularityUp(Guid skillId)
+        {
+            unitOfWork.SkillRepository.PopularityUp(skillId);
+        }
+
+        async Task ISkillService.PopulariyDownRangeAsync(IEnumerable<Guid> skillIds)
+        {
+            await unitOfWork.SkillRepository.PopulariyDownRangeAsync(skillIds);
+        }
+
+        async Task ISkillService.PopulariyUpRangeAsync(IEnumerable<Guid> skillIds)
+        {
+            await unitOfWork.SkillRepository.PopulariyUpRangeAsync(skillIds);
         }
 
         void ISkillService.UpdateByDTOs(IEnumerable<UpdateSkillDTO> updateSkillDTOs)

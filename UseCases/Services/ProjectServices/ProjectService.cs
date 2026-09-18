@@ -62,7 +62,7 @@ namespace UseCases.Services.ProjectServices
             unitOfWork.Commit();
         }
 
-        void IProjectService.UpdateRange(IEnumerable<EditProjectDTO> projectDTOs)
+        void IProjectService.ChangeCurrentProjects(IEnumerable<EditProjectDTO> projectDTOs, Guid ownerId)
         {
             IEnumerable<Project> projects = unitOfWork.ProjectRepository.GetByIds(projectDTOs.Select(x => x.Id));
             var dto = projectDTOs.GetEnumerator();
@@ -75,7 +75,7 @@ namespace UseCases.Services.ProjectServices
                 project.ProjectTags = dto.Current.ProjectTags ?? project.ProjectTags;
             }
 
-            var deletedProjects = unitOfWork.ProjectRepository.GetAllExceptOf(projectDTOs.Select(x => x.Id));
+            var deletedProjects = unitOfWork.ProjectRepository.GetAllExceptOf(projectDTOs.Select(x => x.Id), ownerId);
 
             unitOfWork.StartTransaction();
             unitOfWork.ProjectRepository.UpdateRange(projects);

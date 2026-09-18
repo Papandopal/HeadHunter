@@ -22,12 +22,12 @@
 	<div id="@projectTagsTableId" />
 </div>
 <script>
-	let partsOfDatePeriod = ['', ''];
+	let partsOfDatePeriod@(Model.ProjectIndex) = ['', ''];
 
 	function addDatePeriodRecord(projectIndex, index, value){
-		partsOfDatePeriod[index] = value;
-		if(partsOfDatePeriod[0] !== '' && partsOfDatePeriod[1] !== ''){
-			@(Model.EventsHandlers["addProjectRecord3"])(projectIndex, 'DatePeriod', partsOfDatePeriod.join('@Separators.DatePeriodSeparator'));
+		partsOfDatePeriod@(Model.ProjectIndex)[index] = value;
+		if(partsOfDatePeriod@(Model.ProjectIndex)[0] !== '' && partsOfDatePeriod@(Model.ProjectIndex)[1] !== ''){
+	@(Model.EventsHandlers["addProjectRecord3"])(projectIndex, 'DatePeriod', partsOfDatePeriod@(Model.ProjectIndex).join('@Separators.DatePeriodSeparator'));
 		}
 	}
 

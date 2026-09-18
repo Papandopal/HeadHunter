@@ -38,9 +38,9 @@ namespace Infrastructure.Database.Repositories
             return projects;
         }
 
-        IEnumerable<Project> IProjectRepository.GetAllExceptOf(IEnumerable<Guid> ids)
+        IEnumerable<Project> IProjectRepository.GetAllExceptOf(IEnumerable<Guid> ids, Guid ownerId)
         {
-            return projects.Where(x=>!ids.Contains(x.Id));  
+            return projects.Where(x=>x.OwnerId == ownerId && !ids.Contains(x.Id));  
         }
 
         Project IRepository<Project>.GetById(Guid id)

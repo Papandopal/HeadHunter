@@ -2,5 +2,6 @@
 @{
 
 }
+
 <label for="@Model.ValuedSkill.Id">@Model.ValuedSkill.Skill.Name</label>
-<input id="@Model.ValuedSkill.Id" type="number" onchange="@(Model.EventHandlers["addUpdateInBuffer2"])(this.value, '@Model.ValuedSkill.Id')" value="@Model.ValuedSkill.Value" />
+<input id="@Model.ValuedSkill.Id" type="number" oninput="@(Model.EventHandlers["onTextChanged2"])(this.value, '@Model.ValuedSkill.Id')" value="@Model.ValuedSkill.Value" />

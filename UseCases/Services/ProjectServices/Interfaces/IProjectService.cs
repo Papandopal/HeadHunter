@@ -13,7 +13,7 @@ namespace UseCases.Services.ProjectServices.Interfaces
         public void Add(AddProjectDTO projectDTO, Guid ownerId);
         public void Update(EditProjectDTO projectDTO);
         public void AddRange(IEnumerable<AddProjectDTO> projectDTOs, Guid ownerId);
-        public void UpdateRange(IEnumerable<EditProjectDTO> projectDTOs);
+        public void ChangeCurrentProjects(IEnumerable<EditProjectDTO> projectDTOs, Guid ownerId);
         public IEnumerable<AddProjectDTO> DeserializeToAddDTOs(IEnumerable<ProjectRecordDTO> dtos);
         public IEnumerable<EditProjectDTO> DeserializeEditDTOs(IEnumerable<ProjectRecordDTO> dtos);
         public IEnumerable<Project> GetByOwnerId(Guid ownerId);

@@ -82,39 +82,39 @@ namespace ITransitionProject.Controllers
             return View("Profile/Profile", dto);
         }
 
-        [HttpGet]
-        public IActionResult EditCandidateSkills()
-        {
-            var currentUser = authService.User();
-            var candidate = Candidate();
-            if (candidate is null) return RedirectToAction("Home");
-            var skills = candidateSkillService.GetCandidateSkillsByOwnerId(candidate.Id);
-            var projects = projectService.GetByOwnerId(candidate.Id);
-            return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsEdit",
-                new EditCandidateSkillsAndProjectsPageDTO
-                {
-                    CandidateSkills = skills,
-                    Projects = projects,
-                    ActionForGetSkillsNames = "GetSkillsNames",
-                    ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
-                    ActionForGetSkillForm = "GetAddingSkillForm",
-                    ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
-                    ActionForGetProjectForm = "GetAddingProjectForm",
-                    ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
-                    ActionForGetProjectTags = "GetProjectTagsNames",
-                    ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-                    ActionToSubmit = "UpdateCandidateSkills",
-                    ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
-                });
-        }
+        //[HttpGet]
+        //public IActionResult EditCandidateSkills()
+        //{
+        //    var currentUser = authService.User();
+        //    var candidate = Candidate();
+        //    if (candidate is null) return RedirectToAction("Home");
+        //    var skills = candidateSkillService.GetCandidateSkillsByOwnerId(candidate.Id);
+        //    var projects = projectService.GetByOwnerId(candidate.Id);
+        //    return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsEdit",
+        //        new EditCandidateSkillsAndProjectsPageDTO
+        //        {
+        //            CandidateSkills = skills,
+        //            Projects = projects,
+        //            ActionForGetSkillsNames = "GetSkillsNames",
+        //            ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
+        //            ActionForGetSkillForm = "GetAddingSkillForm",
+        //            ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
+        //            ActionForGetProjectForm = "GetAddingProjectForm",
+        //            ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
+        //            ActionForGetProjectTags = "GetProjectTagsNames",
+        //            ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+        //            ActionToSubmit = "UpdateCandidateSkills",
+        //            ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
+        //        });
+        //}
 
-        [HttpPost]
-        public IActionResult UpdateCandidateSkills(string json)
-        {
-            List<EditValuedSkillDTO> dtos = JsonSerializer.Deserialize<List<EditValuedSkillDTO>>(json);
-            candidateSkillService.UpdateRange(dtos);
-            return RedirectToAction("Profile");
-        }
+        //[HttpPost]
+        //public IActionResult UpdateCandidateSkills(string json)
+        //{
+        //    List<EditValuedSkillDTO> dtos = JsonSerializer.Deserialize<List<EditValuedSkillDTO>>(json);
+        //    candidateSkillService.ChangeCurrentSkills(dtos);
+        //    return RedirectToAction("Profile");
+        //}
 
         [HttpGet]
         public IActionResult AddCandidateSkillsAndProjects()
@@ -179,12 +179,12 @@ namespace ITransitionProject.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddCandidateSkillsAndProjects(AddCandidateSkillsAndProjectsDTO addCandidateSkillsAndProjectsDTO)
+        public async Task<IActionResult> AddCandidateSkillsAndProjects(AddCandidateSkillsAndProjectsDTO addCandidateSkillsAndProjectsDTO)
         {
             IEnumerable<AddValuedSkillDTO> skillDTOs = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(addCandidateSkillsAndProjectsDTO.BufferForSkills);
             IEnumerable<ProjectRecordDTO> projectsRecordDTOs = JsonSerializer.Deserialize<IEnumerable<ProjectRecordDTO>>(addCandidateSkillsAndProjectsDTO.BufferForProjects);
             IEnumerable<AddProjectDTO> projectDTOs = projectService.DeserializeToAddDTOs(projectsRecordDTOs);
-            candidateSkillService.AddRange(skillDTOs, Candidate().Id);
+            await candidateSkillService.AddRangeAsync(skillDTOs, Candidate().Id);
             projectService.AddRange(projectDTOs, Candidate().Id);
             return RedirectToAction("Profile");
         }
@@ -240,14 +240,14 @@ namespace ITransitionProject.Controllers
         }
 
         [HttpPost]
-        public IActionResult GenerateCV(AddCVDTO addCVDTO)
+        public async Task<IActionResult> GenerateCV(AddCVDTO addCVDTO)
         {
             IEnumerable<AddValuedSkillDTO> newSkills = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(addCVDTO.BufferForNotValuedSkills);
             IEnumerable<EditValuedSkillDTO> updatedSkillDTOs = JsonSerializer.Deserialize<IEnumerable<EditValuedSkillDTO>>(addCVDTO.BufferForValuedSkills);
 
             if (updatedSkillDTOs.Count() != 0) candidateSkillService.UpdateRange(updatedSkillDTOs);
 
-            candidateSkillService.AddRange(newSkills, Candidate().Id);
+            await candidateSkillService.AddRangeAsync(newSkills, Candidate().Id);
             cVService.AddCV(Candidate().Id, addCVDTO.PositionId);
             return RedirectToAction("ViewCVs");
         }
@@ -299,19 +299,19 @@ namespace ITransitionProject.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditSkillsAndProjects(EditCandidateSkillsAndProjectsDTO dto)
+        public async Task<IActionResult> EditSkillsAndProjects(EditCandidateSkillsAndProjectsDTO dto)
         {
             IEnumerable<EditValuedSkillDTO> updatedSkillDTOs = JsonSerializer.Deserialize<IEnumerable<EditValuedSkillDTO>>(dto.BufferForUpdatingSkills);
             IEnumerable<ProjectRecordDTO> updatedProjectRecordDTOs = JsonSerializer.Deserialize<IEnumerable<ProjectRecordDTO>>(dto.BufferForUpdatingProjects);
             IEnumerable<EditProjectDTO> updatedProjectDTOs = projectService.DeserializeEditDTOs(updatedProjectRecordDTOs);
 
-            candidateSkillService.UpdateRange(updatedSkillDTOs);
-            projectService.UpdateRange(updatedProjectDTOs);
+            await candidateSkillService.ChangeCurrentSkillsAsync(updatedSkillDTOs, Candidate().Id);
+            projectService.ChangeCurrentProjects(updatedProjectDTOs, Candidate().Id);
 
             IEnumerable<AddValuedSkillDTO> addedSkillDTOs = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(dto.BufferForAddedSkills);
             IEnumerable<ProjectRecordDTO> addedProjectsRecordDTOs = JsonSerializer.Deserialize<IEnumerable<ProjectRecordDTO>>(dto.BufferForAddedProjects);
             IEnumerable<AddProjectDTO> addedProjectDTOs = projectService.DeserializeToAddDTOs(addedProjectsRecordDTOs);
-            candidateSkillService.AddRange(addedSkillDTOs, Candidate().Id);
+            await candidateSkillService.AddRangeAsync(addedSkillDTOs, Candidate().Id);
             projectService.AddRange(addedProjectDTOs, Candidate().Id);
 
             return RedirectToAction("Profile");

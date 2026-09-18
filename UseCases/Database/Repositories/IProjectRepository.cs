@@ -15,6 +15,6 @@ namespace UseCases.Database.Repositories
         public void RemoveAll();
         public IEnumerable<Project> GetByOwnerId(Guid ownerId);
         public IEnumerable<Project> GetByIds(IEnumerable<Guid> ids);
-        public IEnumerable<Project> GetAllExceptOf(IEnumerable<Guid> ids);
+        public IEnumerable<Project> GetAllExceptOf(IEnumerable<Guid> ids, Guid ownerId);
     }
 }
