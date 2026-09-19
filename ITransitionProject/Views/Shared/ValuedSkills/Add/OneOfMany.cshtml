@@ -1,11 +1,12 @@
 ﻿@model AddValuedSkillPartialDTO
+@inject IOneOfManyFormater oneOfManyFormater
 @{
 
 }
 <label for="@Model.Skill.Id">@Model.Skill.Name</label>
 <select id="@Model.Skill.Id" onchange="@(Model.EventHandlers["addUpdateInBuffer2"])(this.options[this.selectedIndex].text, '@Model.Skill.Id')">
 	<!option hidden disabled selected>Value</!option>
-	@foreach (var item in OneOfManyFormater.Render(Model.Skill.PotentialValue))
+	@foreach (var item in oneOfManyFormater.Format(Model.Skill.PotentialValue))
 	{
 		@if (!string.IsNullOrEmpty(item))
 		{

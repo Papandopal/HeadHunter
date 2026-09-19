@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
 
-namespace UseCases.Services.ValuedSkillServices.GeneralDTOs
+namespace UseCases.Services.ValuedSkillServices.General.DTOs
 {
     public class ValuedSkillDTO
     {

@@ -1,8 +1,9 @@
 ﻿@model ViewCVPageDTO
+@inject IDatePeriodFormater datePeriodFormater
+@inject IMarkdownTextFormater markdownTextFormater
 @{
 
 }
-
 <div class="container">
 	<div class="row">
 		<div class="col-3">
@@ -23,11 +24,11 @@
 				{
 					<div class="row">
 						<div class="col-3">
-							<label>@DatePeriodFormater.Render(project.DatePeriod)</label>
+							<label>@datePeriodFormater.Format(project.DatePeriod)</label>
 						</div>
 						<div class="col-9">
 							<label>@project.Title</label>
-							@Html.Raw(MarkdownTextFormater.Render(project.Description))
+							@Html.Raw(markdownTextFormater.Format(project.Description))
 						</div>
 					</div>
 				}

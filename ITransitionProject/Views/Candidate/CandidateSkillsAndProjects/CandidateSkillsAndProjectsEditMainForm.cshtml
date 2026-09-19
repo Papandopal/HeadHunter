@@ -9,12 +9,16 @@
 	string CandidateSkillFormsId = "CandidateSkillFormId";
 	string CandidateProjectFormsId = "CandidateProjectFormsId";
 
+	string oldImageNamePropName = "oldImageName";
+	string imagePropName = "image";
+
 	var updatingSkillsEventHandlers = new Dictionary<string, string>();
 
 	updatingSkillsEventHandlers.Add("onTextChanged2", "onUpdatingSkillTextChanged2");
 	updatingSkillsEventHandlers.Add("addUpdateInBuffer2", "addUpdateInUpdatingSkillBuffer2");
 	updatingSkillsEventHandlers.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInUpdatingSkillBuffer3");
 	updatingSkillsEventHandlers.Add("removeValuedSkill2", "removeUpdatingValuedSkill2");
+	updatingSkillsEventHandlers.Add("uploadImage3", "uploadUpdatingSkillImage3");
 
 	IEnumerable<EditValuedSkillDTO> skillsDTOs = Model.CandidateSkills.Select(x => new EditValuedSkillDTO { ValuedSkillId = x.Id, Value = x.Value });
 	IEnumerable<EditCandidateSkillFormPageDTO> partialSkillsDTOs = Model.CandidateSkills.Select(x =>
@@ -59,12 +63,17 @@
 					PropName = nameof(project.DatePeriod),
 					PropValue = project.DatePeriod
 				});
+		projectRecordDTOs.Add(new ProjectRecordDTO
+		{
+			ProjectIndex = project.Id.ToString(),
+			PropName = nameof(project.ProjectTags),
+			PropValue = string.Join(Separators.ProjectTagsSeparator, project.ProjectTags.Select(x=>x.Name))
+		});
 	}
 	IEnumerable<int> indexes = projectRecordDTOs.Count == 0 ? Enumerable.Empty<int>() : Enumerable.Range(0, projectRecordDTOs.Count - 1);
 
 	IEnumerable<EditProjectFormPageDTO> partialProjectsDTOs = Model.Projects.Select(x =>
 	{
-
 		return new EditProjectFormPageDTO
 				{
 					ProjectIndex = x.Id.ToString(),
@@ -76,19 +85,21 @@
 				};
 	});
 
-	var addedSkillsEventsHandler = new Dictionary<string, string>();
+	var addedSkillsEventHandlers = new Dictionary<string, string>();
 
-	addedSkillsEventsHandler.Add("onTextChanged2", "onAddedSkillTextChanged2");
-	addedSkillsEventsHandler.Add("addUpdateInBuffer2", "addUpdateInAddedSkillBuffer2");
-	addedSkillsEventsHandler.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInAddedSkillBuffer3");
-	addedSkillsEventsHandler.Add("removeSkill2", "removeAddedValuedSkill2");
+	addedSkillsEventHandlers.Add("onTextChanged2", "onAddedSkillTextChanged2");
+	addedSkillsEventHandlers.Add("addUpdateInBuffer2", "addUpdateInAddedSkillBuffer2");
+	addedSkillsEventHandlers.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInAddedSkillBuffer3");
+	addedSkillsEventHandlers.Add("removeSkill2", "removeAddedValuedSkill2");
+	addedSkillsEventHandlers.Add("uploadImage3", "uploadAddedSkillImage3");
 
-	var addedProjectsEventsHandler = new Dictionary<string, string>();
 
-	addedProjectsEventsHandler.Add("removeProject1", "removeAddedProject1");
-	addedProjectsEventsHandler.Add("addProjectRecord3", "addAddedProjectRecord3");
-	addedProjectsEventsHandler.Add("addProjectTag2", "addAddedProjectTag2");
-	addedProjectsEventsHandler.Add("removeProjectTag2", "removeAddedProjectTag2");
+	var addedProjectsEventHandlers = new Dictionary<string, string>();
+
+	addedProjectsEventHandlers.Add("removeProject1", "removeAddedProject1");
+	addedProjectsEventHandlers.Add("addProjectRecord3", "addAddedProjectRecord3");
+	addedProjectsEventHandlers.Add("addProjectTag2", "addAddedProjectTag2");
+	addedProjectsEventHandlers.Add("removeProjectTag2", "removeAddedProjectTag2");
 }
 <div class="container">
 	<div class="row">
@@ -177,7 +188,7 @@
 
 	function addProject(){
 
-		fetch(`/@Model.ControllerForGetProjectForm/@Model.ActionForGetProjectForm?projectIndex=${projectIndex}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(addedProjectsEventsHandler)))}`)
+		fetch(`/@Model.ControllerForGetProjectForm/@Model.ActionForGetProjectForm?projectIndex=${projectIndex}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(addedProjectsEventHandlers)))}`)
 		.then(response => response.text())
 		.then(html => {
 			let form = document.getElementById("@CandidateProjectFormsId");
@@ -334,7 +345,7 @@
 
 		let item = bufferForAddedSkills.find(item=>item.SkillId === skillId);
 		if(typeof item !== 'undefined'){
-			item.value = newValue;
+			item.Value = newValue;
 		}
 		else{
 			countOfRequiredSkills--;
@@ -342,6 +353,41 @@
 			if(countOfRequiredSkills == 0) activateSubmitButton();
 		}
 	}
+
+	async function uploadAddedSkillImage3(skillId, oldImageName, image){
+
+		let formData = new FormData();
+		formData.append("@oldImageNamePropName", oldImageName);
+		formData.append("@imagePropName", image);
+
+		try{
+			let imageURI = await fetch(`/@Model.ControllerForUploadImage/@Model.ActionForUploadImage`,  {
+				method: 'POST',
+				body: formData
+			});
+
+		    if(!imageURI.ok) throw new Error(imageURI.statusText);
+
+			let currentData = {
+				SkillId: skillId,
+				Value: await imageURI.text()
+			};
+
+			let item = bufferForAddedSkills.find(x=>x.SkillId === skillId);
+			if(typeof item !== 'undefined'){
+				item.Value = currentData.Value;
+			}
+			else{
+				countOfRequiredSkills--;
+				bufferForAddedSkills.push(currentData);
+				if(countOfRequiredSkills == 0) activateSubmitButton();
+			}
+
+		} catch (error) {
+			console.error('Error:', error);
+		}
+    }
+
 
 	function removeAddedValuedSkill2(skillId, skillName)
 	{
@@ -358,6 +404,8 @@
 			if(countOfRequiredSkills == 0) activateSubmitButton();
 		}
 	}
+
+	
 </script>
 
 <script>
@@ -403,10 +451,42 @@
 
 		let item = bufferForUpdatingSkills.find(item=>item.ValuedSkillId === valuedSkillId);
 		if(typeof item !== 'undefined'){
-			item.value = newValue;
+			item.Value = newValue;
 		}
 		else{
 			bufferForUpdatingSkills.push(currentData);
+		}
+	}
+
+	async function uploadUpdatingSkillImage3(skillId, oldImageName, image){
+
+		let formData = new FormData();
+		formData.append("@oldImageNamePropName", oldImageName);
+		formData.append("@imagePropName", image);
+
+		try{
+			let imageURI = await fetch(`/@Model.ControllerForUploadImage/@Model.ActionForUploadImage`,  {
+				method: 'POST',
+				body: formData
+			});
+
+			if(!imageURI.ok) throw new Error(imageURI.statusText);
+
+			let currentData = {
+				ValuedSkillId: skillId,
+				Value: await imageURI.text()
+			};
+
+			let item = bufferForUpdatingSkills.find(x=>x.ValuedSkillId === skillId);
+			if(typeof item !== 'undefined'){
+				item.Value = currentData.Value;
+			}
+			else{
+				bufferForUpdatingSkills.push(currentData);
+			}
+
+		} catch (error) {
+			console.error('Error:', error);
 		}
 	}
 
@@ -442,7 +522,7 @@
 		.catch(error=>console.log(error));
 	}
 	function loadForm(skillName) {
-		fetch(`/@Model.ControllerForGetSkillForm/@Model.ActionForGetSkillForm?skillName=${encodeURIComponent(skillName)}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(addedSkillsEventsHandler)))}`)
+		fetch(`/@Model.ControllerForGetSkillForm/@Model.ActionForGetSkillForm?skillName=${encodeURIComponent(skillName)}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(addedSkillsEventHandlers)))}`)
 		.then(response => response.text())
 		.then(html => {
 			let form = document.getElementById('@CandidateSkillFormsId');

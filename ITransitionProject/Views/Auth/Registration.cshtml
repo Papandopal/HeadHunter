@@ -10,21 +10,21 @@
 		<form method="post">
 			<div class="input-group has-validation m-2">
 				<div class="form-floating">
-					<input type="email" asp-for="Email" class="form-control" id="floatingInputGrid" placeholder="name@gmail.com">
+					<input required type="email" asp-for="Email" class="form-control" id="floatingInputGrid" placeholder="name@gmail.com">
 					<label for="floatingInputGrid">Email address</label>
 				</div>
 				<span class="input-group-text">@@</span>
 			</div>
 			<div class="input-group has-validation m-2">
 				<div class="form-floating">
-					<input type="password" asp-for="Password" class="form-control" id="floatingInputGrid" placeholder="**********">
+					<input required type="password" asp-for="Password" class="form-control" id="floatingInputGrid" placeholder="**********">
 					<label for="floatingInputGrid">Password</label>
 				</div>
 				<span class="input-group-text"> <i class="bi bi-eye"></i> </span>
 			</div>
 			<div class="input-group has-validation m-2">
 				<div class="form-floating">
-					<select asp-for="Role">
+					<select class="form-select" asp-for="Role">
 						@foreach(var name in Enum.GetNames<UserRoles>())
 						{
 							<!option value="@name">@name</!option>

@@ -1,14 +1,14 @@
 ﻿@model AddCVPageDTO
 @{
 	var NotValuedEventHandlers = new Dictionary<string, string> {
-		{ "onTextChanged2", "onTextChanged2NotValued" },
-		{ "addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInBuffer3NotValued" },
-		{ "addUpdateInBuffer2", "addUpdateInBuffer2NotValued"}
+		{ "onTextChanged2", "onTextChangedNotValuedSkill2" },
+		{ "addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInNotValuedSkillBuffer3" },
+		{ "addUpdateInBuffer2", "addUpdateInNotValuedSkillBuffer2"}
 	};
 	var ValuedEventHandlers = new Dictionary<string, string>{
-		{ "onTextChanged2", "onTextChanged2Valued" },
-		{ "addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInBuffer3Valued" },
-		{ "addUpdateInBuffer2", "addUpdateInBuffer2Valued"}
+		{ "onTextChanged2", "onTextChangedValuedSkill2" },
+		{ "addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInValuedSkillBuffer3" },
+		{ "addUpdateInBuffer2", "addUpdateInValuedSkillBuffer2"}
 	};
 	var bufferForNotValuedSkillsName = nameof(Model.PostedModel.BufferForNotValuedSkills);
 	var bufferForValuedSkillsName = nameof(Model.PostedModel.BufferForValuedSkills);
@@ -42,7 +42,7 @@
 	<tbody>
 		<tr>
 			<td>
-				<div class="d-flex flex-row">
+				<div class="d-flex flex-row w-50">
 					@foreach (var valuedSkill in valuedSkillDTOs)
 					{
 						<partial name="ValuedSkills/Edit/@valuedSkill.ValuedSkill.Skill.Type" model="@valuedSkill" />
@@ -50,7 +50,7 @@
 				</div>
 			</td>
 			<td>
-				<div class="d-flex flex-row">
+				<div class="d-flex flex-row w-50">
 					@foreach (var notValuedSkill in notValuedSkillDTOs)
 					{
 						<partial name="ValuedSkills/Add/@notValuedSkill.Skill.Type" model="@notValuedSkill" />
@@ -80,22 +80,22 @@
 		document.getElementById("@buttonForSubmitId").disabled = false;
 	}
 
-	function onTextChanged2NotValued(newValue, skillId) {
+	function onTextChangedNotValuedSkill2(newValue, skillId) {
 		clearTimeout(timeout);
 
 		timeout = setTimeout(() => {
 
-			addUpdateInBuffer2NotValued(newValue, skillId)
+			addUpdateInBufferNotValuedSkill2(newValue, skillId)
 
 		}, 500);
 	}
 
-	function onTextChanged2Valued(newValue, skillId) {
+	function onTextChangedValuedSkill2(newValue, skillId) {
 		clearTimeout(timeout);
 
 		timeout = setTimeout(() => {
 
-			addUpdateInBuffer2Valued(newValue, skillId)
+			addUpdateInValuedSkillBuffer2(newValue, skillId)
 
 		}, 500);
 	}
@@ -106,7 +106,7 @@
 		document.getElementById('@bufferForValuedSkillsName').value = JSON.stringify(bufferForValuedSkills);
 	}
 
-	function addDatePeriodUpdateInBuffer3NotValued(newValue, index, skillId){
+	function addDatePeriodUpdateInNotValuedSkillBuffer3(newValue, index, skillId){
 		let item = bufferForNotValuedSkills.find(item=>item.SkillId === skillId);
 		if(typeof item !== 'undefined'){
 			if(partsOfPeriod[index] === '') countOfRequiredProperties--;
@@ -124,7 +124,7 @@
 		}
 	}
 
-	function addUpdateInBuffer2NotValued(newValue, skillId) {
+	function addUpdateInNotValuedSkillBuffer2(newValue, skillId) {
 
 		let currentData = {
 			SkillId: skillId,
@@ -142,7 +142,7 @@
 		}
 	}
 
-	function addDatePeriodUpdateInBuffer3Valued(newValue, index, skillId){
+	function addDatePeriodUpdateInValuedSkillBuffer3(newValue, index, skillId){
 		let item = bufferForValuedSkills.find(item=>item.SkillId === skillId);
 		if(typeof item !== 'undefined'){
 			if(partsOfPeriod[index] === '') countOfRequiredProperties--;
@@ -160,7 +160,7 @@
 		}
 	}
 
-	function addUpdateInBuffer2Valued(newValue, skillId) {
+	function addUpdateInValuedSkillBuffer2(newValue, skillId) {
 
 		let currentData = {
 			ValuedSkillId: skillId,

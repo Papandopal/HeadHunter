@@ -1,11 +1,12 @@
 ﻿@model ViewAccessRulePartialDTO
+@inject IOneOfManyFormater oneOfManyFormater
 @{
 
 }
 <div class="row">
 	<label>@Model.AccessRule.Skill.Name:</label>
 	<div class="col">
-		@foreach (var item in OneOfManyFormater.Render(Model.AccessRule.Value))
+		@foreach (var item in oneOfManyFormater.Format(Model.AccessRule.Value))
 		{
 			<label>@Model.AccessRule.Operator</label>
 			<label>@item</label>

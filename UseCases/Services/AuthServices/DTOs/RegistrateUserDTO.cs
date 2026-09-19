@@ -9,9 +9,9 @@ namespace UseCases.Services.AuthServices.DTOs
 {
     public class RegistrateUserDTO
     {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
+        public required string Email { get; set; } 
+        public required string Password { get; set; }
+        public required string Role { get; set; } 
         public bool RememberMe { get; set; } = false;
     }
 }

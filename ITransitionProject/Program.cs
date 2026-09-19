@@ -1,6 +1,10 @@
+using Domain.Entities;
+using EntityFrameworkCore.Triggered;
 using Infrastructure.Database;
+using Infrastructure.Database.Triggers.BeforeUpdating.ChangeVersion;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using UseCases.Database;
 using UseCases.Services;
 using UseCases.Services.AccessRuleServices;
@@ -13,6 +17,10 @@ using UseCases.Services.CategoryServices;
 using UseCases.Services.CategoryServices.Interfaces;
 using UseCases.Services.CVServices;
 using UseCases.Services.CVServices.Interfaces;
+using UseCases.Services.Formaters;
+using UseCases.Services.Formaters.Interfaces;
+using UseCases.Services.ImageServices;
+using UseCases.Services.ImageServices.Interfaces;
 using UseCases.Services.PositionServices;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.ProjectServices;
@@ -49,11 +57,17 @@ namespace ITransitionProject
                    options.AccessDeniedPath = "/";
                    options.SlidingExpiration = true;
                    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+               })
+               .AddGoogle(options=>
+               {
+                   options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                   options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
                });
-
+            
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                options.UseTriggers();
             });
 
             builder.Services.AddAuthorization();
@@ -76,6 +90,16 @@ namespace ITransitionProject
             builder.Services.AddTransient<IProjectTagService, ProjectTagService>();
             builder.Services.AddTransient<ICVService, CVService>();
             builder.Services.AddTransient<IProjectService, ProjectService>();
+            builder.Services.AddTransient<IImageService, ImageService>();
+
+            builder.Services.AddTransient<IMarkdownTextFormater, MarkdownTextFormater>();
+            builder.Services.AddTransient<IOneOfManyFormater, OneOfManyFormater>();
+            builder.Services.AddTransient<IDatePeriodFormater, DatePeriodFormater>();
+
+            builder.Services.AddTransient<IBeforeSaveTrigger<CandidateSkill>, ChangeCandidateSkillVersionTrigger>();
+            builder.Services.AddTransient<IBeforeSaveTrigger<CV>, ChangeCVVersionTrigger>();
+            builder.Services.AddTransient<IBeforeSaveTrigger<Position>, ChangePositionVersionTrigger>();
+            builder.Services.AddTransient<IBeforeSaveTrigger<Skill>, ChangeSkillVersionTrigger>();
 
             builder.Services.AddTransient<AccessValidator>();
             builder.Services.AddTransient<CryptService>();

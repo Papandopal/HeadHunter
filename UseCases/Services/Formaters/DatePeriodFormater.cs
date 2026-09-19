@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain;
+using UseCases.Services.Formaters.Interfaces;
 
-namespace UseCases.Services.SkillServices.Formaters
+namespace UseCases.Services.Formaters
 {
-    public static class DatePeriodFormater
+    public class DatePeriodFormater : IDatePeriodFormater
     {
-        public static string Render(string value)
+        string IDatePeriodFormater.Format(string value)
         {
             string[] list = value.Split(Separators.DatePeriodSeparator);
             var firstDate = DateTime.Parse(list[0]);

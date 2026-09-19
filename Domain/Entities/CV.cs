@@ -16,6 +16,6 @@ namespace Domain.Entities
         public IEnumerable<CandidateSkill> ValuedSkills { get; set; } = new List<CandidateSkill>();
         public long Likes { get; set; }
         public IEnumerable<Recruter> LikedRecruters { get; set; } = new List<Recruter>();
-        public int Version { get; init; } = 0;
+        public int Version { get; set; } = 0;
     }
 }

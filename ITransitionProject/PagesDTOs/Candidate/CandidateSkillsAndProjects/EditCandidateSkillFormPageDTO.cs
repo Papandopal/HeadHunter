@@ -1,4 +1,4 @@
-﻿using UseCases.Services.ValuedSkillServices.GeneralDTOs;
+﻿using UseCases.Services.ValuedSkillServices.General.DTOs;
 
 namespace ITransitionProject.PagesDTOs.Candidate.CandidateSkillsAndProjects
 {

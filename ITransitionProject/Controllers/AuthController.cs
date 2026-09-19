@@ -75,7 +75,7 @@ namespace ITransitionProject.Controllers
                 _alertService.RaiseAlert("User not found", AlertTypes.Warning);
                 return View();
             }
-            return RedirectToAction("Home", $"{user.Role.Name}");
+            return RedirectToAction("Home", user.Role.Name);
         }
 
 
@@ -88,7 +88,7 @@ namespace ITransitionProject.Controllers
                 _alertService.RaiseAlert("Cant registrate user", AlertTypes.Danger);
                 return View();
             }
-            return RedirectToAction("Home", $"{user.Role.Name}");
+            return RedirectToAction("Home", user.Role.Name);
         }
     }
 }

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Database.Triggers.Before
+namespace UseCases.Services.Formaters.Interfaces
 {
-    internal class Class
+    public interface IDatePeriodFormater 
     {
+        public string Format(string value);
     }
 }

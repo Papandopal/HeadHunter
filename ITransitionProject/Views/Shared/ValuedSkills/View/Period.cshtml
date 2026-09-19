@@ -1,5 +1,6 @@
 ﻿@model ViewValuedSkillPartialDTO
+@inject IDatePeriodFormater datePeriodFormater
 @{
 
 }
-<label>@Model.ValuedSkill.Skill.Name: @DatePeriodFormater.Render(Model.ValuedSkill.Value)</label>
+<label>@Model.ValuedSkill.Skill.Name: @datePeriodFormater.Format(Model.ValuedSkill.Value)</label>

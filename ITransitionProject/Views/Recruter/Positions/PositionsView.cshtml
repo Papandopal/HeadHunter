@@ -1,4 +1,5 @@
 ﻿@model ViewPositionsPageDTO
+@inject IMarkdownTextFormater markdownTextFormater
 @{
 	
 }
@@ -33,7 +34,7 @@
 					<a asp-controller="@Model.ControllerForEditPosition" asp-action="@Model.ActionForEditPosition" asp-route-positionId="@position.Id">@position.Title</a>
 				</td>
 				<td>
-					@Html.Raw(MarkdownTextFormater.Render(position.Description))
+					@Html.Raw(markdownTextFormater.Format(position.Description))
 				</td>
 				<td>
 					@foreach (var skill in position.PositionSkills.Take(10))

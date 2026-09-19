@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
-using UseCases.Services.ValuedSkillServices.GeneralDTOs;
+using UseCases.Services.ValuedSkillServices.General.DTOs;
 
 namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces
 {

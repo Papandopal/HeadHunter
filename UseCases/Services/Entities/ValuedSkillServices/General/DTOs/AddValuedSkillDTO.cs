@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Domain.Enums;
 
-namespace UseCases.Services.ValuedSkillServices.GeneralDTOs
+namespace UseCases.Services.ValuedSkillServices.General.DTOs
 {
     public class AddValuedSkillDTO
     {

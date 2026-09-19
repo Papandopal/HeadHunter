@@ -1,4 +1,5 @@
 ﻿@model ViewPositionPageDTO
+@inject IMarkdownTextFormater markdownTextFormater
 @{
 
 }
@@ -6,7 +7,7 @@
 	<label>Title:</label>
 	<label>@Model.Position.Title</label>
 	<label>Description</label>
-	@Html.Raw(MarkdownTextFormater.Render(Model.Position.Description))
+	@Html.Raw(markdownTextFormater.Format(Model.Position.Description))
 	<table>
 		<tbody>
 			<tr>

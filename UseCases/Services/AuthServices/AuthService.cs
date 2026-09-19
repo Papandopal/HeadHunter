@@ -8,6 +8,8 @@ using UseCases.Services.AuthServices.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace UseCases.Services.AuthServices
 {
@@ -50,13 +52,6 @@ namespace UseCases.Services.AuthServices
             {
                 unitOfWork.StartTransaction();
                 unitOfWork.UserRepository.Add(user);
-                //if (user.Role == UserRole.Candidate.ToString())
-                //{
-                //    unitOfWork.CandidateRepository.AddByUser(user);
-                //    var accountId = unitOfWork.CandidateRepository.GetByOwnerId(user.Id).Id;
-                //    user.AccountId = accountId;
-                //    unitOfWork.UserRepository.Update(user);
-                //}
                 unitOfWork.Commit();
                 var authorizedUser = mapper.Map<AuthorizedUserDTO>(user);
                 await SetCookies(authorizedUser, registrateUserDTO.Role, registrateUserDTO.RememberMe);
@@ -75,13 +70,26 @@ namespace UseCases.Services.AuthServices
             if (user is null || !cryptService.VerifyPassword(verifyUserDTO.Password, user.PasswordHash)) return null;
             var roleName = user.Role;
             var authorizedUser = mapper.Map<AuthorizedUserDTO>(user);
-            await SetCookies(authorizedUser, roleName!, verifyUserDTO.RememberMe);
+            await SetCookies(authorizedUser, roleName, verifyUserDTO.RememberMe);
             return authorizedUser;
         }
 
         void IAuthService.Validate()
         {
             accessValidator.Validate();
+        }
+
+        async Task<AuthorizedUserDTO?> IAuthService.TryAuthorizeFromGoogle(VerifyUserFromGoogleDTO verifyUserFromGoogleDTO)
+        {
+            var item = unitOfWork.UserRepository.FirstOrDefaultByEmail(verifyUserFromGoogleDTO.Email);
+            
+            if(item is not null)
+            {
+                var user = mapper.Map<AuthorizedUserDTO>(item);
+                await SetCookies(user, item.Role, false);
+                return user;
+            }
+            return null;
         }
     }
 }

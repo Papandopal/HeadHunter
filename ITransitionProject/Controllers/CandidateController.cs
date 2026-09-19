@@ -12,6 +12,7 @@ using UseCases.Services.CandidateServices.DTOs;
 using UseCases.Services.CandidateServices.Interfaces;
 using UseCases.Services.CVServices.DTOs;
 using UseCases.Services.CVServices.Interfaces;
+using UseCases.Services.ImageServices.Interfaces;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.ProjectServices.DTOs;
 using UseCases.Services.ProjectServices.Interfaces;
@@ -19,14 +20,14 @@ using UseCases.Services.ProjectTagServices.Interfaces;
 using UseCases.Services.SkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.DTOs;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
-using UseCases.Services.ValuedSkillServices.GeneralDTOs;
+using UseCases.Services.ValuedSkillServices.General.DTOs;
 
 namespace ITransitionProject.Controllers
 {
     [EnumAuthorize(UserRoles.Candidate)]
     public class CandidateController(IAuthService authService, ICandidateSkillService candidateSkillService, ISkillService skillService,
         ICandidateService candidateService, IPositionService positionService, ICVService cVService, IProjectTagService projectTagService,
-        IProjectService projectService) : Controller
+        IProjectService projectService, IImageService imageService, IConfiguration configuration) : Controller
     {
 
         private Candidate? Candidate()
@@ -170,8 +171,8 @@ namespace ITransitionProject.Controllers
             Dictionary<string, string> EventsHandlers = JsonSerializer.Deserialize<Dictionary<string, string>>(eventsHandlers);
             var dto = new AddProjectFormPageDTO
             {
-                ProjectIndex = projectIndex, 
-                 EventsHandlers = EventsHandlers,
+                ProjectIndex = projectIndex,
+                EventsHandlers = EventsHandlers,
                 ActionForGetProjectTags = "GetProjectTagsNames",
                 ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
             };
@@ -292,6 +293,8 @@ namespace ITransitionProject.Controllers
                 ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetProjectTags = "GetProjectTagsNames",
                 ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForUploadImage = "UploadImage",
+                ControllerForUploadImage = ControllerContext.ActionDescriptor.ControllerName,
                 ActionToSubmit = "EditSkillsAndProjects",
                 ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
             };
@@ -315,6 +318,16 @@ namespace ITransitionProject.Controllers
             projectService.AddRange(addedProjectDTOs, Candidate().Id);
 
             return RedirectToAction("Profile");
+        }
+
+        [HttpPost]
+        public async Task<string> UploadImage([FromForm] string oldImageName,[FromForm] IFormFile image)
+        {
+            if (oldImageName == configuration["ImageServices:EmptyImage"])
+            {
+                return await imageService.UploadImageAsync(image);
+            }
+            else return await imageService.ReplaceImageAsync(oldImageName, image);
         }
     }
 }

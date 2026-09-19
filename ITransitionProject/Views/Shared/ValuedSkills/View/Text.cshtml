@@ -1,6 +1,7 @@
 ﻿@model ViewValuedSkillPartialDTO
+@inject IMarkdownTextFormater markdownTextFormater
 @{
 
 }
 <label>@Model.ValuedSkill.Skill.Name</label>
-<label>@Html.Raw(MarkdownTextFormater.Render(Model.ValuedSkill.Value))</label>
+<label>@Html.Raw(markdownTextFormater.Format(Model.ValuedSkill.Value))</label>

@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain;
+using UseCases.Services.Formaters.Interfaces;
 
-namespace UseCases.Services.SkillServices.Formaters
+namespace UseCases.Services.Formaters
 {
-    public static class OneOfManyFormater
+    public class OneOfManyFormater : IOneOfManyFormater
     {
-        public static string[] Render(string value)
+        string[] IOneOfManyFormater.Format(string value)
         {
             return value.Split(Separators.OneOfManySeparator);
         }

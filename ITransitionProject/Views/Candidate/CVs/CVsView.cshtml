@@ -1,4 +1,5 @@
 ﻿@model ViewCVsPageDTO
+@inject IMarkdownTextFormater markdownTextFormater
 @{
 	var positions = Model.Positions.ToDictionary(x => x.Id);
 }
@@ -39,7 +40,7 @@
 					</div>
 				</td>
 				<td>
-					@Html.Raw(MarkdownTextFormater.Render(positions[cv.PositionId].Description))
+					@Html.Raw(markdownTextFormater.Format(positions[cv.PositionId].Description))
 				</td>
 			</tr>
 		}

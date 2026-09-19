@@ -10,7 +10,7 @@ using UseCases.Database;
 using UseCases.Services.SkillServices;
 using UseCases.Services.SkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
-using UseCases.Services.ValuedSkillServices.GeneralDTOs;
+using UseCases.Services.ValuedSkillServices.General.DTOs;
 
 namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
 {

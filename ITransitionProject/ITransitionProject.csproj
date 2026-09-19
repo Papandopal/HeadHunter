@@ -4,11 +4,13 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>906863c0-e7ae-4995-ad11-f6fda772deed</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="EntityFramework.Triggers" Version="6.2.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.20" />
   </ItemGroup>
 
   <ItemGroup>

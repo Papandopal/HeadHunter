@@ -1,6 +1,8 @@
 ﻿@model AddValuedSkillPartialDTO
+@inject IConfiguration configuration
 @{
-
+	var imageRandomId = Guid.NewGuid().ToString();
 }
 <label for="@Model.Skill.Id">@Model.Skill.Name</label>
-<input id="@Model.Skill.Id" type="text" oninput="@(Model.EventHandlers["onTextChanged2"])(this.value, '@Model.Skill.Id')" placeholder="@Model.Skill.PotentialValue" />
+<img width="300" id="@imageRandomId" src="@configuration["ImageServices:EmptyImage"]" />
+<input type="file" onchange="@(Model.EventHandlers["uploadImage3"])('@Model.Skill.Id', document.getElementById('@imageRandomId').src, this.files[0])" placeholder="@Model.Skill.PotentialValue" />

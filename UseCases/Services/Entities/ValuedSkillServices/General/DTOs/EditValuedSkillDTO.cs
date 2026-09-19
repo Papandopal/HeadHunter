@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace UseCases.Services.ValuedSkillServices.GeneralDTOs
+namespace UseCases.Services.ValuedSkillServices.General.DTOs
 {
     public record EditValuedSkillDTO
     {
