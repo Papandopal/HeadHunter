@@ -10,7 +10,9 @@ namespace ITransitionProject.PagesDTOs.Candidate.CVs
         public IEnumerable<CandidateSkill> ValuedSkills { get; set; }
         public IEnumerable<Skill> NotValuedSkills { get; set; }
         public int CountOfRequiredProperties => NotValuedSkills.Count();
-        public string ActionForSubmit { get; set; } = string.Empty;
-        public string ControllerForSubmit { get; set; } = string.Empty;
+        public required string ActionForUploadImage { get; set; }
+        public required string ControllerForUploadImage { get; set; }
+        public required string ActionForSubmit { get; set; } 
+        public required string ControllerForSubmit { get; set; }
     }
 }

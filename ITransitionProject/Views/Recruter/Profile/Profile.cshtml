@@ -1,7 +1,5 @@
-﻿@model RecruterProfileDTO
+﻿@model RecruterProfilePageDTO
 @{
-	var partialModel = new ViewSkillsPageDTO { Skills = Model.Skills };
-}
-<h3>@Model.Name</h3>
-<partial name="Skills/SkillsView" model="@partialModel" />
 
+}
+<label>@Model.Recruter.Name</label>

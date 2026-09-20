@@ -17,5 +17,6 @@ namespace UseCases.Services.ProjectServices.Interfaces
         public IEnumerable<AddProjectDTO> DeserializeToAddDTOs(IEnumerable<ProjectRecordDTO> dtos);
         public IEnumerable<EditProjectDTO> DeserializeEditDTOs(IEnumerable<ProjectRecordDTO> dtos);
         public IEnumerable<Project> GetByOwnerId(Guid ownerId);
+        public IEnumerable <Project> GetPersonaledProjectsByTags(Guid ownerId, IEnumerable<ProjectTag> tag, uint limit);
     }
 }

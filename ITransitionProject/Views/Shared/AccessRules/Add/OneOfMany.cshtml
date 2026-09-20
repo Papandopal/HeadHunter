@@ -71,8 +71,12 @@
 		newLabel.textContent = operator;
 		newLabel.htmlFor = newSelect.id;
 		newLabel.style = "opacity: 0.5;";
+		let newButton = document.createElement('button');
+		newButton.disabled = true;
+		newButton.style = "opacity: 0.5;";
+		newButton.onclick = function(){RemoveExtraRule(newSelect.id)};
 		let newDiv = document.createElement('div');
-		newDiv.append(newLabel, newSelect);
+		newDiv.append(newLabel, newSelect, newButton);
 		return newDiv;
 	}
 
@@ -87,10 +91,13 @@
 		oldElement.onchange = function(){ ChangeValueInRuleSet(this.id, this.value) };
 		oldElement.style="opacity: 1;";
 		let labels = extraRules.getElementsByTagName('label');
+		let buttons = extraRules.getElementsByTagName('button');
 		if(labels.length !== 0){
 			let lastLabel = labels.item(labels.length-1);
 			lastLabel.style = "opacity: 1;";
-			lastLabel.onclick = function(){RemoveExtraRule(lastLabel.htmlFor)};
+			let lastButton = buttons.item(buttons.length-1);
+			lastButton.disabled = false;
+			lastButton.style = "opacity: 1;";
 		}
 		
 		if(selectedValues.length === allSelectValues.length) return;

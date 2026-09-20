@@ -1,0 +1,252 @@
+﻿@model EditCVPageDTO
+@{
+	string bufferForUpdatingSkillsName = nameof(Model.PostedModel.BufferForUpdatingSkills);
+	string bufferForUpdatingProjectsName = nameof(Model.PostedModel.BufferForUpdatingProjects);
+	string buttonForSubmitId = "buttonForSubmitId";
+
+	string oldImageNamePropName = "oldImageName";
+	string imagePropName = "image";
+
+	var updatingSkillsEventHandlers = new Dictionary<string, string>();
+
+	updatingSkillsEventHandlers.Add("onTextChanged2", "onUpdatingSkillTextChanged2");
+	updatingSkillsEventHandlers.Add("addUpdateInBuffer2", "addUpdateInUpdatingSkillBuffer2");
+	updatingSkillsEventHandlers.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInUpdatingSkillBuffer3");
+	updatingSkillsEventHandlers.Add("uploadImage3", "uploadUpdatingSkillImage3");
+
+	IEnumerable<EditValuedSkillDTO> skillsDTOs = Model.CV.Candidate.Skills.Select(x => new EditValuedSkillDTO { ValuedSkillId = x.Id, Value = x.Value });
+	IEnumerable<EditCandidateSkillFormPageDTO> partialSkillsDTOs = Model.CV.Candidate.Skills.Select(x =>
+	{
+		//mapper
+		return new EditCandidateSkillFormPageDTO
+				{
+					EventsHandlers = updatingSkillsEventHandlers,
+					ValuedSkill = new ValuedSkillDTO
+					{
+						Id = x.Id,
+						Skill = x.Skill,
+						Value = x.Value
+					}
+				};
+	});
+
+	var updatingProjectsEventHandlers = new Dictionary<string, string>();
+	updatingProjectsEventHandlers.Add("addProjectRecord3", "addUpdatingProjectRecord3");
+	updatingProjectsEventHandlers.Add("addProjectTag2", "addUpdatingProjectTag2");
+	updatingProjectsEventHandlers.Add("removeProjectTag2", "removeUpdatingProjectTag2");
+
+	List<ProjectRecordDTO> projectRecordDTOs = new List<ProjectRecordDTO>();
+	@foreach (var project in Model.CV.Candidate.Projects)
+	{
+		projectRecordDTOs.Add(new ProjectRecordDTO
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.Title),
+					PropValue = project.Title
+				});
+		projectRecordDTOs.Add(new ProjectRecordDTO
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.Description),
+					PropValue = project.Description
+				});
+		projectRecordDTOs.Add(new ProjectRecordDTO
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.DatePeriod),
+					PropValue = project.DatePeriod
+				});
+		projectRecordDTOs.Add(new ProjectRecordDTO
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.ProjectTags),
+					PropValue = string.Join(Separators.ProjectTagsSeparator, project.ProjectTags.Select(x => x.Name))
+				});
+	}
+	IEnumerable<int> indexes = projectRecordDTOs.Count == 0 ? Enumerable.Empty<int>() : Enumerable.Range(0, projectRecordDTOs.Count - 1);
+
+	IEnumerable<EditProjectFormPageDTO> partialProjectsDTOs = Model.CV.Candidate.Projects.Select(x =>
+	{
+		return new EditProjectFormPageDTO
+				{
+					ProjectIndex = x.Id.ToString(),
+					Project = x,
+					EventsHandlers = updatingProjectsEventHandlers,
+					ActionForGetProjectTags = Model.ActionForGetProjectTags,
+					ControllerForGetProjectTags = Model.ControllerForGetProjectTags
+
+				};
+	});
+}
+<div class="container">
+	<div class="row">
+		<div class="col">
+			@foreach (var partialDTO in partialSkillsDTOs)
+			{
+				<partial name="CVS/CVCandidateSkillEditPartialForm" model="@partialDTO" />
+			}
+		</div>
+		<div class="col">
+			@foreach (var partialDTO in partialProjectsDTOs)
+			{
+				<partial name="CVs/CVProjectEditPartialForm" model="@partialDTO" />
+			}
+		</div>
+	</div>
+</div>
+<form asp-action="@Model.ActionForSubmit" asp-controller="@Model.ControllerForSubmit" onsubmit="saveBufferInHiddenInput()" method="post">
+	<input id="@bufferForUpdatingSkillsName" type="hidden" name="@bufferForUpdatingSkillsName" />
+	<input id="@bufferForUpdatingProjectsName" type="hidden" name="@bufferForUpdatingProjectsName" />
+	<button id="@buttonForSubmitId" type="submit"> Save</button>
+</form>
+
+<script>
+	function saveBufferInHiddenInput(){
+		document.getElementById('@bufferForUpdatingSkillsName').value = JSON.stringify(bufferForUpdatingSkills);
+		document.getElementById('@bufferForUpdatingProjectsName').value = JSON.stringify(bufferForUpdatingProjects);
+	}
+
+	function activateSubmitButton(){
+		document.getElementById("@buttonForSubmitId").disabled = false;
+	}
+
+	function deactivateSubmitButton(){
+		document.getElementById("@buttonForSubmitId").disabled = true;
+	}
+
+	function executeScriptsInContainer(container) {
+		const scripts = container.querySelectorAll('script');
+
+		scripts.forEach(oldScript => {
+			const newScript = document.createElement('script');
+
+			for (let attr of oldScript.attributes) {
+				newScript.setAttribute(attr.name, attr.value);
+			}
+			if (oldScript.textContent) {
+				newScript.textContent = oldScript.textContent;
+			}
+			oldScript.parentNode.replaceChild(newScript, oldScript);
+		});
+	}
+</script>
+
+<script>
+
+	let bufferForUpdatingProjects = @Json.Serialize(projectRecordDTOs);
+
+	function addUpdatingProjectRecord3(projectIndex, propName, propValue){
+		let item = bufferForUpdatingProjects.find(x=>x.ProjectIndex === projectIndex && x.PropName === propName);
+		if(typeof(item) !== 'undefined'){
+			item.PropValue = propValue;
+		}
+		else{
+			bufferForUpdatingProjects.push(new ProjectRecord(projectIndex, propName, propValue));
+			if(propName !== 'ProjectTags') countOfRequiredProjectProperties--;
+			if(countOfRequiredProjectProperties === 0) addProject();
+		}
+	}
+
+	function addUpdatingProjectTag2(projectIndex, tag){
+		let item = bufferForUpdatingProjects.find(x=>x.ProjectIndex === projectIndex && x.PropName === 'ProjectTags');
+		if(typeof(item) !== 'undefined')
+		{
+			item.PropValue += '@Separators.ProjectTagsSeparator' + tag;
+		}
+		else{
+			bufferForUpdatingProjects.push(new ProjectRecord(projectIndex, 'ProjectTags', tag));
+		}
+	}
+
+	function removeUpdatingProjectTag2(projectIndex, tag){
+		let item = bufferForUpdatingProjects.find(x=>x.ProjectIndex === projectIndex && x.PropName === 'ProjectTags');
+		let tags = item.PropValue.split('@Separators.ProjectTagsSeparator');
+		tags = tags.filter(x=>x !== tag);
+		item.PropValue = tags.join('@Separators.ProjectTagsSeparator');
+	}
+
+</script>
+
+<script>
+	let bufferForUpdatingSkills = @Json.Serialize(skillsDTOs);
+	let selectedSkills = @Json.Serialize(Model.CV.Candidate.Skills.Select(x => x.Skill.Name));
+	let timeout = null;
+	let partsOfUpdatingPeriod = ['', ''];
+	let curLoadSkills = [];
+
+	function onUpdatingSkillTextChanged2(newValue, skillId) {
+		clearTimeout(timeout);
+
+		timeout = setTimeout(() => {
+
+			addUpdateInUpdatingSkillBuffer2(newValue, skillId)
+
+		}, 500);
+	}
+
+	function addDatePeriodUpdateInUpdatingSkillBuffer3(newValue, index, valuedSkillId){
+		let item = bufferForUpdatingSkills.find(item=>item.ValuedSkillId === valuedSkillId);
+		if(typeof item !== 'undefined'){
+			if(partsOfUpdatingPeriod[index] === '') countOfRequiredSkills--;
+			partsOfUpdatingPeriod[index] = newValue;
+			item.Value = partsOfUpdatingPeriod.join('@Separators.DatePeriodSeparator');
+			if(countOfRequiredSkills == 0) activateSubmitButton();
+		}
+		else{
+			partsOfUpdatingPeriod[index] = newValue;
+			let currentData = {
+				ValuedSkillId: skillId,
+				Value: partsOfUpdatingPeriod.join('@Separators.DatePeriodSeparator')
+			};
+			bufferForUpdatingSkills.push(currentData);
+		}
+	}
+
+	function addUpdateInUpdatingSkillBuffer2(newValue, valuedSkillId) {
+
+		let currentData = {
+			ValuedSkillId: valuedSkillId,
+			Value: newValue
+		};
+
+		let item = bufferForUpdatingSkills.find(item=>item.ValuedSkillId === valuedSkillId);
+		if(typeof item !== 'undefined'){
+			item.Value = newValue;
+		}
+		else{
+			bufferForUpdatingSkills.push(currentData);
+		}
+	}
+
+	async function uploadUpdatingSkillImage3(skillId, oldImageName, image){
+
+		let formData = new FormData();
+		formData.append("@oldImageNamePropName", oldImageName);
+		formData.append("@imagePropName", image);
+
+		try{
+			let imageURI = await fetch(`/@Model.ControllerForUploadImage/@Model.ActionForUploadImage`,  {
+				method: 'POST',
+				body: formData
+			});
+
+			if(!imageURI.ok) throw new Error(imageURI.statusText);
+
+			let currentData = {
+				ValuedSkillId: skillId,
+				Value: await imageURI.text()
+			};
+
+			let item = bufferForUpdatingSkills.find(x=>x.ValuedSkillId === skillId);
+			if(typeof item !== 'undefined'){
+				item.Value = currentData.Value;
+			}
+			else{
+				bufferForUpdatingSkills.push(currentData);
+			}
+
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	}
+</script>

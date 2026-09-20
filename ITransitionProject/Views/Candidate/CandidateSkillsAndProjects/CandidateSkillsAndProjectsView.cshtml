@@ -11,15 +11,23 @@
 				Project = x
 			});
 }
-<div class="border">
-	@foreach(var partialDTO in partialSkillsDTOs)
-	{
-		<partial name="ValuedSkills/View/@partialDTO.ValuedSkill.Skill.Type" model="@partialDTO"/>
-	}
-</div>
-<div class="border">
-	@foreach (var projectDTO in partialProjectsDTOs)
-	{
-		<partial name="Projects/ViewProject" model="@projectDTO" />
-	}
+<div class="container">
+	<div class="row">
+		<div class="col-3">
+			@foreach (var partialDTO in partialSkillsDTOs)
+			{
+				<div class="border">
+					<partial name="ValuedSkills/View/@partialDTO.ValuedSkill.Skill.Type" model="@partialDTO" />
+				</div>
+			}
+		</div>
+		<div class="col-9">
+			@foreach (var projectDTO in partialProjectsDTOs)
+			{
+				<div class="border">
+					<partial name="Projects/ViewProject" model="@projectDTO" />
+				</div>
+			}
+		</div>
+	</div>
 </div>

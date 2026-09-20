@@ -3,17 +3,21 @@
 	var NotValuedEventHandlers = new Dictionary<string, string> {
 		{ "onTextChanged2", "onTextChangedNotValuedSkill2" },
 		{ "addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInNotValuedSkillBuffer3" },
-		{ "addUpdateInBuffer2", "addUpdateInNotValuedSkillBuffer2"}
+		{ "addUpdateInBuffer2", "addUpdateInNotValuedSkillBuffer2"},
+		{"uploadImage3", "uploadNotValuedSkillImage3"}
 	};
 	var ValuedEventHandlers = new Dictionary<string, string>{
 		{ "onTextChanged2", "onTextChangedValuedSkill2" },
 		{ "addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInValuedSkillBuffer3" },
-		{ "addUpdateInBuffer2", "addUpdateInValuedSkillBuffer2"}
+		{ "addUpdateInBuffer2", "addUpdateInValuedSkillBuffer2"},
+		{"uploadImage3", "uploadValuedSkillImage3"}
 	};
 	var bufferForNotValuedSkillsName = nameof(Model.PostedModel.BufferForNotValuedSkills);
 	var bufferForValuedSkillsName = nameof(Model.PostedModel.BufferForValuedSkills);
 	var positionIdInputName = nameof(Model.PostedModel.PositionId);
 	var buttonForSubmitId = "buttonForSubmitId";
+	string oldImageNamePropName = "oldImageName";
+	string imagePropName = "image";
 	var valuedSkillDTOs = Model.ValuedSkills.Select(x =>
 		new EditValuedSkillPartialDTO
 				{
@@ -21,7 +25,7 @@
 					{
 						Id = x.Id,
 						Skill = x.Skill,
-						Value = x.Value, 
+						Value = x.Value,
 					},
 					EventHandlers = ValuedEventHandlers
 				});
@@ -142,6 +146,38 @@
 		}
 	}
 
+	async function uploadNotValuedSkillImage3(skillId, oldImageName, image){
+
+		let formData = new FormData();
+		formData.append("@oldImageNamePropName", oldImageName);
+		formData.append("@imagePropName", image);
+
+		try{
+			let imageURI = await fetch(`/@Model.ControllerForUploadImage/@Model.ActionForUploadImage`,  {
+				method: 'POST',
+				body: formData
+			});
+
+			if(!imageURI.ok) throw new Error(imageURI.statusText);
+
+			let currentData = {
+				SkillId: skillId,
+				Value: await imageURI.text()
+			};
+
+			let item = bufferForNotValuedSkills.find(x=>x.SkillId === skillId);
+			if(typeof item !== 'undefined'){
+				item.Value = currentData.Value;
+			}
+			else{
+				bufferForNotValuedSkills.push(currentData);
+			}
+
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	}
+
 	function addDatePeriodUpdateInValuedSkillBuffer3(newValue, index, skillId){
 		let item = bufferForValuedSkills.find(item=>item.SkillId === skillId);
 		if(typeof item !== 'undefined'){
@@ -175,6 +211,38 @@
 			countOfRequiredProperties--;
 			bufferForValuedSkills.push(currentData);
 			if(countOfRequiredProperties == 0) activateSubmitButton();
+		}
+	}
+
+	async function uploadValuedSkillImage3(skillId, oldImageName, image){
+
+		let formData = new FormData();
+		formData.append("@oldImageNamePropName", oldImageName);
+		formData.append("@imagePropName", image);
+
+		try{
+			let imageURI = await fetch(`/@Model.ControllerForUploadImage/@Model.ActionForUploadImage`,  {
+				method: 'POST',
+				body: formData
+			});
+
+			if(!imageURI.ok) throw new Error(imageURI.statusText);
+
+			let currentData = {
+				ValuedSkillId: skillId,
+				Value: await imageURI.text()
+			};
+
+			let item = bufferForValuedSkills.find(x=>x.ValuedSkillId === skillId);
+			if(typeof item !== 'undefined'){
+				item.Value = currentData.Value;
+			}
+			else{
+				bufferForValuedSkills.push(currentData);
+			}
+
+		} catch (error) {
+			console.error('Error:', error);
 		}
 	}
 </script>

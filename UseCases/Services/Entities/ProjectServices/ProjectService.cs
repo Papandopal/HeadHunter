@@ -75,7 +75,7 @@ namespace UseCases.Services.ProjectServices
                 project.ProjectTags = dto.Current.ProjectTags ?? project.ProjectTags;
             }
 
-            var deletedProjects = unitOfWork.ProjectRepository.GetAllExceptOf(projectDTOs.Select(x => x.Id), ownerId);
+            var deletedProjects = unitOfWork.ProjectRepository.GetAllByOwnerIdExceptOf(ownerId, projectDTOs.Select(x => x.Id));
 
             unitOfWork.StartTransaction();
             unitOfWork.ProjectRepository.UpdateRange(projects);
@@ -164,6 +164,18 @@ namespace UseCases.Services.ProjectServices
         IEnumerable<Project> IProjectService.GetByOwnerId(Guid ownerId)
         {
             return unitOfWork.ProjectRepository.GetByOwnerId(ownerId);
+        }
+
+        IEnumerable<Project> IProjectService.GetPersonaledProjectsByTags(Guid ownerId, IEnumerable<ProjectTag> tags, uint limit)
+        {
+            List<Project> result = unitOfWork.ProjectRepository.GetPersonaledProjectsByTags(ownerId, tags, limit).ToList();
+            if (result.Count < limit)
+            {
+                var extraProjects =
+                    unitOfWork.ProjectRepository.GetAllByOwnerIdExceptOf(ownerId, result.Select(x => x.Id), (uint)(limit - result.Count));
+                result.AddRange(extraProjects);
+            }
+            return result;
         }
     }
 }

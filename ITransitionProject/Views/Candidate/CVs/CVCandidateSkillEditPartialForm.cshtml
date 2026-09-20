@@ -1,0 +1,12 @@
+﻿@model EditCandidateSkillFormPageDTO
+@{
+	var partialModel = new EditValuedSkillPartialDTO
+			{
+				ValuedSkill = Model.ValuedSkill,
+				EventHandlers = Model.EventsHandlers
+			};
+}
+<div id="@Model.ValuedSkill.Id" class="border">
+	<label for="@Model.ValuedSkill.Id">@Model.ValuedSkill.Skill.Name: </label>
+	<partial name="ValuedSkills/Edit/@Model.ValuedSkill.Skill.Type.ToString()" model="@partialModel" />
+</div>

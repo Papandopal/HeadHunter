@@ -24,6 +24,8 @@ namespace ITransitionProject.PagesDTOs.Candidate.CandidateSkillsAndProjects
         public required string ControllerForGetProjectForm { get; set; }
         public required string ActionForUploadImage { get; set; }
         public required string ControllerForUploadImage { get; set; }
+        public required string ActionForGetPopularSkillNames { get; set; }
+        public required string ControllerForGetPopularSkillNames { get; set; }
         public required string ActionToSubmit { get; set; }
         public required string ControllerToSubmit { get; set; }
     }

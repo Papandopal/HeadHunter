@@ -106,7 +106,7 @@
 		<div class="col">
 			<input type="text" oninput="loadSkills(this.value)" />
 			<select id="@CandidateSkillTypeSelectorId" onchange="loadForm(this.value)">
-				<option hidden disabled selected>Элементы</option>
+				<option hidden disabled selected>Skills</option>
 			</select>
 			@foreach (var partialDTO in partialSkillsDTOs)
 			{
@@ -413,6 +413,36 @@
 	let selectedSkills = @Json.Serialize(Model.CandidateSkills.Select(x => x.Skill.Name));
 	let timeout = null;
 	let partsOfUpdatingPeriod = ['', ''];
+	let curLoadSkills = [];
+
+	loadPopularSkills(10);
+
+	function RebuildSkillSelector(){
+		let selector = document.getElementById('@CandidateSkillTypeSelectorId');
+		selector.innerHTML = '';
+		let newInnerHTML = '<option selected disabled hidden value="">Skill</option>';
+		for(let skill of curLoadSkills){
+			if(selectedSkills.indexOf(skill) === -1){
+				newInnerHTML += `<option value='${skill}'>${skill}</option>`;
+			}
+		}
+		selector.innerHTML = newInnerHTML;
+	}
+
+	function loadPopularSkills(count){
+		fetch(`/@Model.ControllerForGetPopularSkillNames/@Model.ActionForGetPopularSkillNames?count=${count}`, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			curLoadSkills = data;
+			RebuildSkillSelector();
+		})
+		.catch(error=>console.log(error));
+	}
 
 	function onUpdatingSkillTextChanged2(newValue, skillId) {
 		clearTimeout(timeout);
@@ -515,7 +545,7 @@
 
 			data = data.filter(x=>selectedSkills.indexOf(x) === -1);
 
-			select.innerHTML = '<option hidden disapbled selected value="">Элементы</option>' + data
+			select.innerHTML = '<option hidden disapbled selected value="">Skills</option>' + data
 			.map(item => `<option value="${item}">${item}</option>`)
 			.join('');
 		})

@@ -1,0 +1,14 @@
+﻿@model EditProjectFormPageDTO
+@{
+	var dto = new EditProjectPartialDTO
+			{
+				ProjectIndex = Model.ProjectIndex,
+				Project = Model.Project,
+				EventsHandlers = Model.EventsHandlers,
+				ActionForGetProjectTags = Model.ActionForGetProjectTags,
+				ControllerForGetProjectTags = Model.ControllerForGetProjectTags
+			};
+}
+<div id="@Model.ProjectIndex" class="border">
+	<partial name="Projects/EditProject" model="@dto" />
+</div>

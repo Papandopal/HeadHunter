@@ -12,6 +12,7 @@ using UseCases.Services.CandidateServices.DTOs;
 using UseCases.Services.CandidateServices.Interfaces;
 using UseCases.Services.CVServices.DTOs;
 using UseCases.Services.CVServices.Interfaces;
+using UseCases.Services.Entities.CVServices.DTOs;
 using UseCases.Services.ImageServices.Interfaces;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.ProjectServices.DTOs;
@@ -41,14 +42,15 @@ namespace ITransitionProject.Controllers
             authService.Validate();
             if (candidateService.GetItemOrDefaultByOwnerId(authService.User().Id) is null)
             {
-                var dto = new CreateCandidateProfilePageDTO
+                var createCandidateDTO = new CreateCandidateProfilePageDTO
                 {
                     ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName,
                     ActionForSubmit = "CreateProfile",
                 };
-                return View("Profile/CreateProfile", dto);
+                return View("Profile/CreateProfile", createCandidateDTO);
             }
-            return View("Profile/Home");
+            var homeDTO = new CandidateHomePageDTO { Candidate = Candidate() };
+            return View("Profile/Home", homeDTO);
         }
 
         [HttpPost]
@@ -70,9 +72,9 @@ namespace ITransitionProject.Controllers
         public IActionResult Profile()
         {
             var candidate = Candidate();
+            if (candidate is null) return RedirectToAction("Home");
             var candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(candidate.Id);
             var projects = projectService.GetByOwnerId(candidate.Id).ToList();
-            if (candidate is null) return RedirectToAction("Home");
             var dto = new CandidateProfilePageDTO
             {
                 FirstName = candidate.FirstName,
@@ -82,40 +84,6 @@ namespace ITransitionProject.Controllers
             };
             return View("Profile/Profile", dto);
         }
-
-        //[HttpGet]
-        //public IActionResult EditCandidateSkills()
-        //{
-        //    var currentUser = authService.User();
-        //    var candidate = Candidate();
-        //    if (candidate is null) return RedirectToAction("Home");
-        //    var skills = candidateSkillService.GetCandidateSkillsByOwnerId(candidate.Id);
-        //    var projects = projectService.GetByOwnerId(candidate.Id);
-        //    return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsEdit",
-        //        new EditCandidateSkillsAndProjectsPageDTO
-        //        {
-        //            CandidateSkills = skills,
-        //            Projects = projects,
-        //            ActionForGetSkillsNames = "GetSkillsNames",
-        //            ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
-        //            ActionForGetSkillForm = "GetAddingSkillForm",
-        //            ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
-        //            ActionForGetProjectForm = "GetAddingProjectForm",
-        //            ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
-        //            ActionForGetProjectTags = "GetProjectTagsNames",
-        //            ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-        //            ActionToSubmit = "UpdateCandidateSkills",
-        //            ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
-        //        });
-        //}
-
-        //[HttpPost]
-        //public IActionResult UpdateCandidateSkills(string json)
-        //{
-        //    List<EditValuedSkillDTO> dtos = JsonSerializer.Deserialize<List<EditValuedSkillDTO>>(json);
-        //    candidateSkillService.ChangeCurrentSkills(dtos);
-        //    return RedirectToAction("Profile");
-        //}
 
         [HttpGet]
         public IActionResult AddCandidateSkillsAndProjects()
@@ -153,6 +121,14 @@ namespace ITransitionProject.Controllers
         }
 
         [HttpGet]
+        public IEnumerable<string> GetPopularSkillsNames(int count)
+        {
+            authService.Validate();
+            var skills = skillService.GetPopularSkillsNames(count);
+            return skills;
+        }
+
+        [HttpGet]
         public IActionResult GetAddingSkillForm(string skillName, string eventsHandlers)
         {
             CandidateSkill CandidateSkill = new CandidateSkill { Skill = skillService.GetByName(skillName) };
@@ -180,13 +156,77 @@ namespace ITransitionProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCandidateSkillsAndProjects(AddCandidateSkillsAndProjectsDTO addCandidateSkillsAndProjectsDTO)
+        public async Task<string> UploadImage([FromForm] string oldImageName, [FromForm] IFormFile image)
         {
-            IEnumerable<AddValuedSkillDTO> skillDTOs = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(addCandidateSkillsAndProjectsDTO.BufferForSkills);
-            IEnumerable<ProjectRecordDTO> projectsRecordDTOs = JsonSerializer.Deserialize<IEnumerable<ProjectRecordDTO>>(addCandidateSkillsAndProjectsDTO.BufferForProjects);
-            IEnumerable<AddProjectDTO> projectDTOs = projectService.DeserializeToAddDTOs(projectsRecordDTOs);
-            await candidateSkillService.AddRangeAsync(skillDTOs, Candidate().Id);
-            projectService.AddRange(projectDTOs, Candidate().Id);
+            if (oldImageName == configuration["ImageServices:EmptyImage"])
+            {
+                return await imageService.UploadImageAsync(image);
+            }
+            else return await imageService.ReplaceImageAsync(oldImageName, image);
+        }
+
+        [HttpGet]
+        public IActionResult EditSkillsAndProjects()
+        {
+            var projects = projectService.GetByOwnerId(Candidate().Id);
+            var candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(Candidate().Id);
+            var dto = new EditCandidateSkillsAndProjectsPageDTO
+            {
+                CandidateSkills = candidateSkills,
+                Projects = projects,
+                ActionForGetSkillsNames = "GetSkillsNames",
+                ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetSkillForm = "GetAddingSkillForm",
+                ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetProjectForm = "GetAddingProjectForm",
+                ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetProjectTags = "GetProjectTagsNames",
+                ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForUploadImage = "UploadImage",
+                ControllerForUploadImage = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetPopularSkillNames = "GetPopularSkillsNames",
+                ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
+                ActionToSubmit = "EditSkillsAndProjects",
+                ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
+            };
+            return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsEditMainForm", dto);
+        }
+
+        private IEnumerable<EditProjectDTO> GetEditDTOsFromJSON(string buffer)
+        {
+            IEnumerable<ProjectRecordDTO> projectRecordDTOs = JsonSerializer.Deserialize<IEnumerable<ProjectRecordDTO>>(buffer);
+            IEnumerable<EditProjectDTO> editProjectDTOs = projectService.DeserializeEditDTOs(projectRecordDTOs);
+            return editProjectDTOs;
+        }
+
+        private IEnumerable<AddProjectDTO> GetAddDTOsFromJSON(string buffer)
+        {
+            IEnumerable<ProjectRecordDTO> projectsRecordDTOs = JsonSerializer.Deserialize<IEnumerable<ProjectRecordDTO>>(buffer);
+            IEnumerable<AddProjectDTO> addProjectDTOs = projectService.DeserializeToAddDTOs(projectsRecordDTOs);
+            return addProjectDTOs;
+        }
+
+        private async Task TryAddNewItems(string skillsBuffer, string projectsBuffer)
+        {
+            IEnumerable<AddValuedSkillDTO> addedSkillDTOs = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(skillsBuffer);
+            IEnumerable<AddProjectDTO> addedProjectDTOs = GetAddDTOsFromJSON(projectsBuffer);
+            await candidateSkillService.AddRangeAsync(addedSkillDTOs, Candidate().Id);
+            projectService.AddRange(addedProjectDTOs, Candidate().Id);
+        }
+
+        private async Task TryUpdateItems(string skillsBuffer, string projectsBuffer)
+        {
+            IEnumerable<EditValuedSkillDTO> updatedSkillDTOs = JsonSerializer.Deserialize<IEnumerable<EditValuedSkillDTO>>(skillsBuffer);
+            IEnumerable<EditProjectDTO> updatedProjectDTOs = GetEditDTOsFromJSON(projectsBuffer);
+            await candidateSkillService.ChangeCurrentSkillsAsync(updatedSkillDTOs, Candidate().Id);
+            projectService.ChangeCurrentProjects(updatedProjectDTOs, Candidate().Id);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditSkillsAndProjects(EditCandidateSkillsAndProjectsDTO dto)
+        {
+            await TryUpdateItems(dto.BufferForUpdatingSkills, dto.BufferForUpdatingProjects);
+            await TryAddNewItems(dto.BufferForAddedSkills, dto.BufferForAddedProjects);
             return RedirectToAction("Profile");
         }
 
@@ -234,6 +274,8 @@ namespace ITransitionProject.Controllers
                 PositionId = positionId,
                 ValuedSkills = valuedSkills,
                 NotValuedSkills = notValuedSkills,
+                ActionForUploadImage = "UploadImage",
+                ControllerForUploadImage = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForSubmit = "GenerateCV",
                 ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
             };
@@ -272,62 +314,41 @@ namespace ITransitionProject.Controllers
         public IActionResult ViewCV(Guid cvId)
         {
             CV cv = cVService.GetById(cvId);
-            var dto = new ViewCVPageDTO { CV = cv };
+            IEnumerable<Project> projects =
+                projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
+            var dto = new ViewCVPageDTO
+            {
+                CV = cv,
+                Projects = projects
+            };
             return View("CVs/CVView", dto);
         }
 
         [HttpGet]
-        public IActionResult EditSkillsAndProjects()
+        public IActionResult EditCV(Guid cvId)
         {
-            var projects = projectService.GetByOwnerId(Candidate().Id);
-            var candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(Candidate().Id);
-            var dto = new EditCandidateSkillsAndProjectsPageDTO
+            CV cv = cVService.GetById(cvId);
+
+            var dto = new EditCVPageDTO
             {
-                CandidateSkills = candidateSkills,
-                Projects = projects,
-                ActionForGetSkillsNames = "GetSkillsNames",
-                ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillForm = "GetAddingSkillForm",
-                ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetProjectForm = "GetAddingProjectForm",
-                ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
+                CV = cv,
                 ActionForGetProjectTags = "GetProjectTagsNames",
                 ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForUploadImage = "UploadImage",
                 ControllerForUploadImage = ControllerContext.ActionDescriptor.ControllerName,
-                ActionToSubmit = "EditSkillsAndProjects",
-                ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
+                ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
+                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName,
             };
-            return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsEditMainForm", dto);
+
+            return View("CVs/CVEditMainForm", dto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditSkillsAndProjects(EditCandidateSkillsAndProjectsDTO dto)
+        public async Task<IActionResult> EditCV(EditCVDTO dto)
         {
-            IEnumerable<EditValuedSkillDTO> updatedSkillDTOs = JsonSerializer.Deserialize<IEnumerable<EditValuedSkillDTO>>(dto.BufferForUpdatingSkills);
-            IEnumerable<ProjectRecordDTO> updatedProjectRecordDTOs = JsonSerializer.Deserialize<IEnumerable<ProjectRecordDTO>>(dto.BufferForUpdatingProjects);
-            IEnumerable<EditProjectDTO> updatedProjectDTOs = projectService.DeserializeEditDTOs(updatedProjectRecordDTOs);
-
-            await candidateSkillService.ChangeCurrentSkillsAsync(updatedSkillDTOs, Candidate().Id);
-            projectService.ChangeCurrentProjects(updatedProjectDTOs, Candidate().Id);
-
-            IEnumerable<AddValuedSkillDTO> addedSkillDTOs = JsonSerializer.Deserialize<IEnumerable<AddValuedSkillDTO>>(dto.BufferForAddedSkills);
-            IEnumerable<ProjectRecordDTO> addedProjectsRecordDTOs = JsonSerializer.Deserialize<IEnumerable<ProjectRecordDTO>>(dto.BufferForAddedProjects);
-            IEnumerable<AddProjectDTO> addedProjectDTOs = projectService.DeserializeToAddDTOs(addedProjectsRecordDTOs);
-            await candidateSkillService.AddRangeAsync(addedSkillDTOs, Candidate().Id);
-            projectService.AddRange(addedProjectDTOs, Candidate().Id);
-
+            await TryUpdateItems(dto.BufferForUpdatingSkills, dto.BufferForUpdatingProjects);
             return RedirectToAction("Profile");
         }
 
-        [HttpPost]
-        public async Task<string> UploadImage([FromForm] string oldImageName,[FromForm] IFormFile image)
-        {
-            if (oldImageName == configuration["ImageServices:EmptyImage"])
-            {
-                return await imageService.UploadImageAsync(image);
-            }
-            else return await imageService.ReplaceImageAsync(oldImageName, image);
-        }
     }
 }

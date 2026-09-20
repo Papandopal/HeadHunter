@@ -2,17 +2,24 @@
 @inject IDatePeriodFormater datePeriodFormater
 @inject IMarkdownTextFormater markdownTextFormater
 @{
+	var skillsViewDTOs = Model.CV.ValuedSkills.Select(x => 
+		new ViewValuedSkillPartialDTO { 
+			ValuedSkill = new ValuedSkillDTO { 
+				Skill = x.Skill, Value = x.Value 
+			} 
+		});
 
+	var projectViewDTOs = Model.Projects.Select(x => new ViewProjectPartialDTO{ Project = x});
 }
 <div class="container">
 	<div class="row">
 		<div class="col-3">
 			<div class="container">
-				@foreach (var skill in Model.CV.ValuedSkills)
+				@foreach (var skillDTO in skillsViewDTOs)
 				{
 					<div class="row">
 						<div class="col-12">
-							<label>@skill.Skill.Name: @skill.Value</label>
+							<partial name="ValuedSkills/View/@skillDTO.ValuedSkill.Skill.Type" model="skillDTO"/>
 						</div>
 					</div>
 				}
@@ -20,19 +27,18 @@
 		</div>
 		<div class="col-9">
 			<div class="container">
-				@foreach (var project in Model.CV.Candidate.Projects)
+				@foreach (var projectDTO in projectViewDTOs)
 				{
 					<div class="row">
-						<div class="col-3">
-							<label>@datePeriodFormater.Format(project.DatePeriod)</label>
-						</div>
-						<div class="col-9">
-							<label>@project.Title</label>
-							@Html.Raw(markdownTextFormater.Format(project.Description))
-						</div>
+						<partial name="Projects/ViewProject" model="projectDTO"/>
 					</div>
 				}
 			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-12">
+			<a asp-action="EditCV" asp-route-cvId="@Model.CV.Id">Edit</a>
 		</div>
 	</div>
 </div>

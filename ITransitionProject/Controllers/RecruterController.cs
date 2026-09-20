@@ -29,7 +29,7 @@ namespace ITransitionProject.Controllers
         IRecruterService recruterService, AlertService alertService, IPositionService positionService) : Controller
     {
 
-        public Recruter? Recruter()
+        private Recruter? Recruter()
         {
             return recruterService.GetItemOrDefaultByOwnerId(authService.User().Id);
         }
@@ -40,14 +40,25 @@ namespace ITransitionProject.Controllers
             authService.Validate();
             if (recruterService.GetItemOrDefaultByOwnerId(authService.User().Id) is null)
             {
-                var dto = new CreateRecruterProfilePageDTO
+                var createRecruterDTO = new CreateRecruterProfilePageDTO
                 {
                     ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName,
                     ActionForSubmit = "CreateProfile",
                 };
-                return View("Profile/CreateProfile", dto);
+                return View("Profile/CreateProfile", createRecruterDTO);
             }
-            return View("Profile/Home");
+
+            var positions = positionService.GetAll();
+            var homeDTO = new RecruterHomePageDTO
+            {
+                Recruter = Recruter(),
+                Positions = positions,
+                ActionForDeletePositions = "DeletePositions",
+                ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForEditPosition = " EditPosition",
+                ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName
+            };
+            return View("Profile/Home", homeDTO);
         }
 
         [HttpPost]
@@ -65,11 +76,9 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IActionResult Profile()
         {
-            var skills = skillService.GetAll();
-            var dto = new RecruterProfileDTO
+            var dto = new RecruterProfilePageDTO
             {
-                Name = recruterService.GetItemOrDefaultByOwnerId(authService.User().Id).Name,
-                Skills = skills,
+                Recruter = Recruter()
             };
             return View("Profile/Profile", dto);
         }
