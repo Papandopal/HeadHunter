@@ -1,4 +1,4 @@
-﻿@model AddAccessRulePageDTO
+﻿@model AddPositionAccessRulePagePartialFormDTO
 @{
 	Model.EventHandlers.Add("AddAccessRuleRecord3", "AddAccessRuleRecord3");
 	Model.EventHandlers.Add("AddExtraValueForOneOfManyRule2", "AddExtraValueForOneOfManyRule2");
@@ -12,7 +12,7 @@
 			};
 }
 
-<div class="w-100 h-100 d-flex flex-row">
+<div class="d-flex flex-row">
 	<button type="button" class="btn btn-sm btn-outline-danger" onclick="@(Model.EventHandlers["RemoveAccessRule1"])('@Model.Skill.Name')">-</button>
 	<partial name="AccessRules/Add/@Model.Skill.Type.ToString()" model="@partialModel" />
 </div>

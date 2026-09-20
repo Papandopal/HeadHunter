@@ -2,7 +2,7 @@
 @inject IDatePeriodFormater datePeriodFormater
 @inject IMarkdownTextFormater markdownTextFormater
 @{
-	var skillsViewDTOs = Model.CV.ValuedSkills.Select(x => 
+	var skillsViewDTOs = Model.CV.Candidate.Skills.Select(x => 
 		new ViewValuedSkillPartialDTO { 
 			ValuedSkill = new ValuedSkillDTO { 
 				Skill = x.Skill, Value = x.Value 

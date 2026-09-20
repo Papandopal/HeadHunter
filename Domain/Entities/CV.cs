@@ -13,7 +13,6 @@ namespace Domain.Entities
         public Position Position { get; set; }
         public Guid CandidateId { get; set; }
         public Candidate Candidate {  get; set; }
-        public IEnumerable<CandidateSkill> ValuedSkills { get; set; } = new List<CandidateSkill>();
         public long Likes { get; set; }
         public IEnumerable<Recruter> LikedRecruters { get; set; } = new List<Recruter>();
         public int Version { get; set; } = 0;

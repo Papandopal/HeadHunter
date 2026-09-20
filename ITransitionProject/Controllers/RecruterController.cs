@@ -1,11 +1,7 @@
-﻿using System.Drawing.Printing;
-using System.Text.Json;
-using AspNetCoreGeneratedDocument;
+﻿using System.Text.Json;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
-using ITransitionProject.PagesDTOs.Recruter;
-using ITransitionProject.PagesDTOs.Recruter.AccessRules;
 using ITransitionProject.PagesDTOs.Recruter.Categories;
 using ITransitionProject.PagesDTOs.Recruter.Positions;
 using ITransitionProject.PagesDTOs.Recruter.Profile;
@@ -222,7 +218,7 @@ namespace ITransitionProject.Controllers
         public IActionResult GetPositionSkillPartialForm(string skillName)
         {
             var skill = skillService.GetByName(skillName);
-            var dto = new AddPositionPagePartialFormDTO
+            var dto = new AddPositionSkillPagePartialFormDTO
             {
                 Skill = skill
             };
@@ -232,11 +228,11 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IActionResult GetAccessRuleForm(string skillName)
         {
-            var dto = new AddAccessRulePageDTO
+            var dto = new AddPositionAccessRulePagePartialFormDTO
             {
                 Skill = skillService.GetByName(skillName)
             };
-            return PartialView("AccessRules/AccessRuleAddPartialForm", dto);
+            return PartialView("Positions/PositionAccessRuleAddPartialForm", dto);
         }
 
         [HttpPost]

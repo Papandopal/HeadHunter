@@ -15,13 +15,11 @@ namespace UseCases.Services.CVServices
         {
             var candidateSkills = unitOfWork.CandidateSkillRepository.GetByOwnerId(ownerId);
             var positionSkillsSkillsIds = unitOfWork.PositionSkillRepositiry.GetByPositionId(positionId).Select(x => x.SkillId).ToHashSet();
-            var cvSkills = candidateSkills.Where(x => positionSkillsSkillsIds.Contains(x.SkillId)).ToList();
 
             var newCV = new CV
             {
                 PositionId = positionId,
-                CandidateId = ownerId,
-                ValuedSkills = cvSkills
+                CandidateId = ownerId
             };
 
             unitOfWork.StartTransaction();

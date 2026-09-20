@@ -2,9 +2,9 @@
 
 namespace ITransitionProject.PagesDTOs.Recruter.Positions
 {
-    public class AddPositionPagePartialFormDTO
+    public class AddPositionAccessRulePagePartialFormDTO
     {
         public Skill Skill { get; set; }
-        public Dictionary<string, string> EventsHandlers { get; set; } = new();
+        public Dictionary<string, string> EventHandlers { get; set; } = new();
     }
 }

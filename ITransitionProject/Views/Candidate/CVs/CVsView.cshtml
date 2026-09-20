@@ -2,6 +2,7 @@
 @inject IMarkdownTextFormater markdownTextFormater
 @{
 	var positions = Model.Positions.ToDictionary(x => x.Id);
+	var cv1 = Model.CVs.First();
 }
 
 <table class="table">
@@ -27,13 +28,13 @@
 				</td>
 				<td>
 					<div>
-						@foreach (var skill in positions[cv.PositionId].PositionSkills.Take(10))
+						@foreach (var skill in positions[cv.PositionId].PositionSkills.Where(x=>cv.Candidate.Skills.Select(y=>y.SkillId).Contains(x.SkillId)).Take(10))
 						{
 							<label>@skill.Skill.Name</label>
 						}
 					</div>
 					<div>
-						@foreach (var potentialEmptySkill in positions[cv.PositionId].PositionSkills.Select(x => x.Skill).Except(cv.ValuedSkills.Select(x => x.Skill)))
+						@foreach (var potentialEmptySkill in positions[cv.PositionId].PositionSkills.Select(x => x.Skill).Except(cv.Candidate.Skills.Select(x => x.Skill)))
 						{
 							<label style="color:red;">@potentialEmptySkill.Name</label>
 						}

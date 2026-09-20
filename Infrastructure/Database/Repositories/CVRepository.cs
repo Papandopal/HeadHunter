@@ -30,12 +30,12 @@ namespace Infrastructure.Database.Repositories
 
         CV IRepository<CV>.GetById(Guid id)
         {
-            return cvs.Include(x=>x.ValuedSkills).ThenInclude(x=>x.Skill).Include(x=>x.Candidate).ThenInclude(x=>x.Projects).First(x=>x.Id == id);
+            return cvs.Include(x=>x.Candidate).ThenInclude(x=>x.Projects).First(x=>x.Id == id);
         }
 
         IEnumerable<CV> ICVRepository.GetByOwnerId(Guid ownerId)
         {
-            return cvs.Include(x=>x.ValuedSkills).Where(x=>x.CandidateId == ownerId);
+            return cvs.Where(x=>x.CandidateId == ownerId);
         }
 
         bool IRepository<CV>.IsExists(CV entity)
