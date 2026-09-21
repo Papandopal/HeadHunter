@@ -35,12 +35,12 @@ namespace Infrastructure.Database.Repositories
 
         Candidate IRepository<Candidate>.GetById(Guid id)
         {
-            return candidates.Include(x => x.Skills).First(x => x.Id == id);
+            return candidates.Include(x => x.Skills).ThenInclude(x => x.Skill).First(x => x.Id == id);
         }
 
         Candidate ICandidateRepository.GetByOwnerId(Guid id)
         {
-            return candidates.Include(x=>x.Skills).First(x=>x.UserId == id);
+            return candidates.Include(x=>x.Skills).ThenInclude(x=>x.Skill).First(x=>x.UserId == id);
         }
 
         bool IRepository<Candidate>.IsExists(Candidate entity)

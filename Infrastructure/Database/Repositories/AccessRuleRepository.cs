@@ -31,7 +31,7 @@ namespace Infrastructure.Database.Repositories
 
         AccessRule IRepository<AccessRule>.GetById(Guid id)
         {
-            return accessRules.First(x=>x.Id == id);
+            return accessRules.Include(x=>x.Skill).First(x=>x.Id == id);
         }
 
         bool IRepository<AccessRule>.IsExists(AccessRule entity)

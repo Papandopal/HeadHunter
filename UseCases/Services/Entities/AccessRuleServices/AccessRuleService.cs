@@ -5,13 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Enums;
+using UseCases.Database;
 using UseCases.Services.AccessRuleServices.DTOs;
 using UseCases.Services.AccessRuleServices.Interfaces;
 
 namespace UseCases.Services.AccessRuleServices
 {
-    public class AccessRuleService : IAccessRuleService
+    public class AccessRuleService(IUnitOfWork unitOfWork) : IAccessRuleService
     {
+        AccessRule IAccessRuleService.GetById(Guid id)
+        {
+            return unitOfWork.AccessRuleRepository.GetById(id);
+        }
+
         AccessRule IAccessRuleService.GetFromRecords(IEnumerable<AccessRuleRecord> records)
         {
             if (records.Count() != 2) throw new ArgumentException("invalid arguments for construct AccessRule");

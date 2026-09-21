@@ -1,4 +1,4 @@
-﻿@model AddAccessRulePartialDTO
+﻿@model EditAccessRulePartialDTO
 @{
 	string selectId = "selectId";
 	string inputId = "inputId";
@@ -9,18 +9,18 @@
 		isFirstItem = false;
 	}
 }
-<label>@Model.Skill.Name:</label>
-<select id="@selectId" onchange="@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', this.value)">
+<label>@Model.AccessRule.Skill.Name:</label>
+<select id="@selectId" onchange="@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.AccessRule.Skill.Id', 'Operator', this.value)">
 	@foreach (var item in new List<FilterOperators> { FilterOperators.Equal, FilterOperators.NotEqual, FilterOperators.GreaterThan, FilterOperators.GreaterThanOrEqual, FilterOperators.LessThan, FilterOperators.LessThanOrEqual })
 	{
 		<!option @(IsFirstItem() ? "selected" : "") value="@item">@item</!option>
 	}
 </select>
-<input id="@inputId" type="number" onchange="@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Value', this.value)" />
+<input id="@inputId" type="number" onchange="@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.AccessRule.Skill.Id', 'Value', this.value)" />
 
 <script>
 	let selector = document.getElementById('@selectId');
-	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', selector.value);
+	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.AccessRule.Skill.Id', 'Operator', selector.value);
 	let input = document.getElementById('@inputId');
-	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Value', input.value);
+	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.AccessRule.Skill.Id', 'Value', input.value);
 </script>

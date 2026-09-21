@@ -94,7 +94,7 @@
 			countOfRequiredProjectProperties = @typeof(AddProjectDTO).GetProperties().Length - 1;
 			executeScriptsInContainer(form);
 		})
-		.catch(error => console.log('Error:', error));
+		.catch(error => console.error('Error:', error));
 	}
 
 	function removeProject1(projectIndex)
@@ -226,7 +226,7 @@
 			.map(item => `<option value="${item}">${item}</option>`)
 			.join('');
 		})
-		.catch(error=>console.log(error));
+		.catch(error=>console.error(error));
 	}
         function loadForm(skillName) {
 
@@ -245,6 +245,6 @@
 			deactivateSubmitButton();
             executeScriptsInContainer(form);
         })
-        .catch(error => console.log('Error:', error));
+        .catch(error => console.error('Error:', error));
     }
 </script>

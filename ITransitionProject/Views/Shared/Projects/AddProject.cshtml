@@ -56,7 +56,7 @@
 			.map(item => `<option value="${item}">${item}</option>`)
 			.join('');
 		})
-		.catch(error=>console.log(error));
+		.catch(error=>console.error(error));
 	}
 
 	function removeTag(id, tag){

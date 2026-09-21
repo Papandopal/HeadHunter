@@ -49,6 +49,11 @@ namespace Infrastructure.Database.Repositories
             return positionSkills.FirstOrDefault(x=>x.Id ==  entity.Id) is not null;
         }
 
+        void IPositionSkillRepositiry.RemoveRange(IEnumerable<Guid> ids)
+        {
+            positionSkills.RemoveRange(positionSkills.Where(x => ids.Contains(x.Id)));
+        }
+
         void IRepository<PositionSkill>.Update(PositionSkill entity)
         {
             positionSkills.Update(entity);

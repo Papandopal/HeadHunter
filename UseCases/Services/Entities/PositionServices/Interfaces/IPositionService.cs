@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
+using UseCases.Services.Entities.PositionServices.DTOs;
 using UseCases.Services.PositionServices.DTOs;
 
 namespace UseCases.Services.PositionServices.Interfaces
@@ -11,9 +12,11 @@ namespace UseCases.Services.PositionServices.Interfaces
     public interface IPositionService
     {
         public void AddPosition(AddPositionDTO positionDTO, Guid ownerId);
+        public void UpdatePosition(EditPositionDTO positionDTO);
         public void DeleteRange(IEnumerable<Guid> ids);
         public Position GetById(Guid id);
         public IEnumerable<Position> GetByIds(IEnumerable<Guid> ids);
         public IEnumerable<Position> GetAll();
+        public IEnumerable<Position> GetPersonaledPositions(Candidate candidate);
     }
 }

@@ -1,0 +1,8 @@
+﻿@model EditPositionAccessRulePagePartialFormDTO
+@{
+	var partialModel = new EditAccessRulePartialDTO { AccessRule = Model.AccessRule, EventHandlers = Model.EventHandlers };
+}
+<div class="d-flex flex-row">
+	<button type="button" class="btn btn-sm btn-outline-danger" onclick="@(Model.EventHandlers["RemoveAccessRule1"])('@Model.AccessRule.Skill.Name')">-</button>
+	<partial name="AccessRules/Edit/@Model.AccessRule.Skill.Type.ToString()" model="@partialModel" />
+</div>

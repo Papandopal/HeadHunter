@@ -200,7 +200,7 @@
 			countOfRequiredProjectProperties = @typeof(AddProjectDTO).GetProperties().Length - 1;
 			executeScriptsInContainer(form);
 		})
-		.catch(error => console.log('Error:', error));
+		.catch(error => console.error('Error:', error));
 	}
 
 	function removeAddedProject1(projectIndex)
@@ -441,7 +441,7 @@
 			curLoadSkills = data;
 			RebuildSkillSelector();
 		})
-		.catch(error=>console.log(error));
+		.catch(error=>console.error(error));
 	}
 
 	function onUpdatingSkillTextChanged2(newValue, skillId) {
@@ -549,7 +549,7 @@
 			.map(item => `<option value="${item}">${item}</option>`)
 			.join('');
 		})
-		.catch(error=>console.log(error));
+		.catch(error=>console.error(error));
 	}
 	function loadForm(skillName) {
 		fetch(`/@Model.ControllerForGetSkillForm/@Model.ActionForGetSkillForm?skillName=${encodeURIComponent(skillName)}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(addedSkillsEventHandlers)))}`)
@@ -567,6 +567,6 @@
 			deactivateSubmitButton();
 			executeScriptsInContainer(form);
 		})
-		.catch(error => console.log('Error:', error));
+		.catch(error => console.error('Error:', error));
 	}
 </script>

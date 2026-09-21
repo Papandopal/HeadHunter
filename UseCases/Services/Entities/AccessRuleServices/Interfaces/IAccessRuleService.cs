@@ -10,6 +10,7 @@ namespace UseCases.Services.AccessRuleServices.Interfaces
 {
     public interface IAccessRuleService
     {
+        public AccessRule GetById(Guid id);
         public AccessRule GetFromRecords(IEnumerable<AccessRuleRecord> records);
     }
 }

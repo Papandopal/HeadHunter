@@ -85,22 +85,22 @@ namespace ITransitionProject.Controllers
             return View("Profile/Profile", dto);
         }
 
-        [HttpGet]
-        public IActionResult AddCandidateSkillsAndProjects()
-        {
-            var model = new AddCandidateSkillsAndProjectsPageDTO
-            {
-                ActionForGetSkillsNames = "GetSkillsNames",
-                ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillForm = "GetAddingSkillForm",
-                ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetProjectForm = "GetAddingProjectForm",
-                ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForSubmit = "AddCandidateSkillsAndProjects",
-                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsAddMainForm", model);
-        }
+        //[HttpGet]
+        //public IActionResult AddCandidateSkillsAndProjects()
+        //{
+        //    var model = new AddCandidateSkillsAndProjectsPageDTO
+        //    {
+        //        ActionForGetSkillsNames = "GetSkillsNames",
+        //        ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
+        //        ActionForGetSkillForm = "GetAddingSkillForm",
+        //        ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
+        //        ActionForGetProjectForm = "GetAddingProjectForm",
+        //        ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
+        //        ActionForSubmit = "AddCandidateSkillsAndProjects",
+        //        ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
+        //    };
+        //    return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsAddMainForm", model);
+        //}
 
         [HttpGet]
         public IEnumerable<string> GetSkillsNames(string? prefix)
@@ -233,7 +233,7 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IActionResult ViewPositions()
         {
-            var positions = positionService.GetAll();
+            var positions = positionService.GetPersonaledPositions(Candidate());
             var dto = new ViewReadOnlyPositionsPageDTO
             {
                 Positions = positions,

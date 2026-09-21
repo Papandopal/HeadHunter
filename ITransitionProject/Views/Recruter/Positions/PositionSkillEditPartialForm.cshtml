@@ -1,0 +1,13 @@
+﻿@model EditPositionSkillPagePartialFormDTO
+@{
+	var partialModel = new ViewSkillPartialDTO
+			{
+				Skill = Model.Skill
+			};
+	var randomId = Guid.NewGuid().ToString();
+}
+
+<div id="@randomId" class="d-flex flex-row">
+	<button type="button" class="btn btn-sm btn-outline-danger" onclick="@(Model.EventsHandlers["RemoveSkill2"])('@randomId', '@Model.Skill.Name')">-</button>
+	<partial name="Skills/View/@Model.Skill.Type.ToString()" model="@partialModel" />
+</div>

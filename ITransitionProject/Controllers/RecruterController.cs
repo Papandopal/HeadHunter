@@ -8,9 +8,11 @@ using ITransitionProject.PagesDTOs.Recruter.Profile;
 using ITransitionProject.PagesDTOs.Recruter.Skills;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.Services;
+using UseCases.Services.AccessRuleServices.Interfaces;
 using UseCases.Services.AuthServices.Interfaces;
 using UseCases.Services.CategoryServices.DTOs;
 using UseCases.Services.CategoryServices.Interfaces;
+using UseCases.Services.Entities.PositionServices.DTOs;
 using UseCases.Services.PositionServices.DTOs;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.RecruterServices.DTOs;
@@ -22,7 +24,8 @@ namespace ITransitionProject.Controllers
 {
     [EnumAuthorize(UserRoles.Recruter)]
     public class RecruterController(ICategoryService categoryService, ISkillService skillService, IAuthService authService,
-        IRecruterService recruterService, AlertService alertService, IPositionService positionService) : Controller
+        IRecruterService recruterService, AlertService alertService, IPositionService positionService,
+        IAccessRuleService accessRuleService) : Controller
     {
 
         private Recruter? Recruter()
@@ -51,8 +54,8 @@ namespace ITransitionProject.Controllers
                 Positions = positions,
                 ActionForDeletePositions = "DeletePositions",
                 ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForEditPosition = " EditPosition",
-                ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName
+                ActionForViewPosition = "ViewPosition",
+                ControllerForViewPosition = ControllerContext.ActionDescriptor.ControllerName
             };
             return View("Profile/Home", homeDTO);
         }
@@ -160,8 +163,8 @@ namespace ITransitionProject.Controllers
                 ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetSkillForm = "GetPositionSkillPartialForm",
                 ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetAccessRuleForm = "GetAccessRuleForm",
-                ControllerForGetAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetAddingAccessRuleForm = "GetAddingAccessRuleForm",
+                ControllerForGetAddingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetProjectTags = "GetProjectTags",
                 ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetSkillTypeBySkillName = "GetSkillTypeBySkillName",
@@ -226,13 +229,25 @@ namespace ITransitionProject.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAccessRuleForm(string skillName)
+        public IActionResult GetAddingAccessRuleForm(string skillName)
         {
             var dto = new AddPositionAccessRulePagePartialFormDTO
             {
                 Skill = skillService.GetByName(skillName)
             };
             return PartialView("Positions/PositionAccessRuleAddPartialForm", dto);
+        }
+
+        [HttpGet]
+        public IActionResult GetEditingAccessRuleForm(string accessRuleId, string eventsHandlers)
+        {
+            var deserializedEventsHandlers = JsonSerializer.Deserialize<Dictionary<string, string>>(eventsHandlers);
+            var dto = new EditPositionAccessRulePagePartialFormDTO
+            {
+                AccessRule = accessRuleService.GetById(Guid.Parse(accessRuleId)),
+                EventHandlers = deserializedEventsHandlers
+            };
+            return PartialView("Positions/PositionAccessRuleEditPartialForm", dto);
         }
 
         [HttpPost]
@@ -251,8 +266,8 @@ namespace ITransitionProject.Controllers
                 Positions = positons,
                 ActionForDeletePositions = "DeletePositions",
                 ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForEditPosition = " EditPosition",
-                ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName
+                ActionForViewPosition = "ViewPosition",
+                ControllerForViewPosition = ControllerContext.ActionDescriptor.ControllerName
             };
             return View("Positions/PositionsView", dto);
         }
@@ -260,7 +275,12 @@ namespace ITransitionProject.Controllers
         public IActionResult ViewPosition(Guid positionId)
         {
             var position = positionService.GetById(positionId);
-            var dto = new ViewPositionPageDTO { Position = position };
+            var dto = new ViewPositionPageDTO
+            {
+                Position = position,
+                ActionForEditPosition = "EditPosition",
+                ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName,
+            };
             return View("Positions/PositionView", dto);
         }
         [HttpGet]
@@ -274,8 +294,36 @@ namespace ITransitionProject.Controllers
         public IActionResult EditPosition(Guid positionId)
         {
             var position = positionService.GetById(positionId);
-            var dto = new EditPositionPageDTO { Position = position };
-            return View("Positions/PositionEdit", dto);
+            var dto = new EditPositionPageDTO
+            {
+                Position = position,
+                ActionForGetSkillsNames = "GetSkillsNames",
+                ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetSkillForm = "GetPositionSkillPartialForm",
+                ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetAddingAccessRuleForm = "GetAddingAccessRuleForm",
+                ControllerForGetAddingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetProjectTags = "GetProjectTags",
+                ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetSkillTypeBySkillName = "GetSkillTypeBySkillName",
+                ControllerForGetSkillTypeBySkillName = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetSkillIdBySkillName = "GetSkillIdBySkillName",
+                ControllerForGetSkillIdBySkillName = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetPopularSkillNames = "GetPopularSkillsNames",
+                ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetEditingAccessRuleForm = "GetEditingAccessRuleForm",
+                ControllerForGetEditingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
+                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
+            };
+            return View("Positions/PositionEditMainForm", dto);
+        }
+
+        [HttpPost]
+        public IActionResult EditPosition(EditPositionDTO dto)
+        {
+            positionService.UpdatePosition(dto);
+            return RedirectToAction("ViewPosition", new { positionId = dto.Id });
         }
     }
 }

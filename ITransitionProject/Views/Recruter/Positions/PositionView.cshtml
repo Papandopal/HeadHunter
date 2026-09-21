@@ -3,42 +3,48 @@
 @{
 
 }
-<div class="row">
-	<label>Title:</label>
-	<label>@Model.Position.Title</label>
-	<label>Description</label>
-	@Html.Raw(markdownTextFormater.Format(Model.Position.Description))
-	<table>
-		<tbody>
-			<tr>
-				<td>
-					<label>Skills:</label>
-					@foreach (var skill in Model.Position.PositionSkills)
-					{
-						<partial name="Skills/View/@skill.Skill.Type" model="new ViewSkillPartialDTO{ Skill = skill.Skill}" />
-					}
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label>Access Rules(Filters):</label>
-					@foreach (var rule in Model.Position.AccessRules)
-					{
-						<partial name="AccessRules/View/@rule.Skill.Type" model="new ViewAccessRulePartialDTO{ AccessRule = rule}" />
-					}
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label>Max count of projects: @Model.Position.MaxCountOfProject</label>
-					<label>Project tags:</label>
-					@foreach (var projectTag in Model.Position.ProjectTags)
-					{
-						<label>@projectTag.Name</label>
-					}
-				</td>
-			</tr>
-		</tbody>
-
-	</table>
+<div class="position-relative">
+	<a asp-controller="@Model.ControllerForEditPosition" asp-action="@Model.ActionForEditPosition" asp-route-positionId="@Model.Position.Id" class="btn btn-primary position-absolute top-0 end-0">Edit</a>
+	<div class="row">
+		<label>Title:</label>
+		<label>@Model.Position.Title</label>
+		<label>Description</label>
+		@Html.Raw(markdownTextFormater.Format(Model.Position.Description))
+		<table class="table">
+			<tbody>
+				<tr>
+					<td>
+						<label>Skills:</label>
+						@foreach (var skill in Model.Position.PositionSkills)
+						{
+							<partial name="Skills/View/@skill.Skill.Type" model="new ViewSkillPartialDTO{ Skill = skill.Skill}" />
+						}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label>Access Rules(Filters):</label>
+						@foreach (var rule in Model.Position.AccessRules)
+						{
+							<partial name="AccessRules/View/@rule.Skill.Type" model="new ViewAccessRulePartialDTO{ AccessRule = rule }" />
+						}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label>Max count of projects: @Model.Position.MaxCountOfProject</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label>Project tags:</label>
+						@foreach (var projectTag in Model.Position.ProjectTags)
+						{
+							<label>@projectTag.Name</label>
+						}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </div>

@@ -9,24 +9,34 @@ using Domain.Entities;
 using UseCases.Database;
 using UseCases.Services.AccessRuleServices.DTOs;
 using UseCases.Services.AccessRuleServices.Interfaces;
+using UseCases.Services.Entities.PositionServices.DTOs;
 using UseCases.Services.PositionServices.DTOs;
 using UseCases.Services.PositionServices.Interfaces;
-using UseCases.Services.ProjectTagServices.Interfaces;
+using UseCases.Services.ValuedSkillServices.General.DTOs;
 using UseCases.Services.ValuedSkillServices.PositionSkillsServices.DTOs;
 
 namespace UseCases.Services.PositionServices
 {
     public class PositionService(IUnitOfWork unitOfWork, IAccessRuleService accessRuleService) : IPositionService
     {
+        private IEnumerable<AccessRule> GetRulesFromRecordsJSON(string json)
+        {
+            var accessRuleRecords = JsonSerializer.Deserialize<IEnumerable<AccessRuleRecord>>(json);
+            var accessRuleRecordsPairs = accessRuleRecords.GroupBy(x => x.SkillId);
+            return accessRuleRecordsPairs.Select(x => accessRuleService.GetFromRecords(x)).ToList();
+        }
+
+        private IEnumerable<PositionSkill> GetSkillsFromRecordsJSON(string json, Position position)
+        {
+            IEnumerable<AddPositionSkillDTO> newValuedSkills = JsonSerializer.Deserialize<IEnumerable<AddPositionSkillDTO>>(json);
+            IEnumerable<Skill> skills = unitOfWork.SkillRepository.GetAll().Where(x => newValuedSkills.Select(y => y.SkillName).Contains(x.Name)).ToList();
+            return newValuedSkills.Select(x => new PositionSkill { Skill = skills.First(y => y.Name == x.SkillName), Position = position }).ToList();
+        }
+
         void IPositionService.AddPosition(AddPositionDTO positionDTO, Guid ownerId)
         {
-            var accessRuleRecords = JsonSerializer.Deserialize<IEnumerable<AccessRuleRecord>>(positionDTO.BufferForAccessRules);
-
-            var accessRuleRecordsPairs = accessRuleRecords.GroupBy(x => x.SkillId);
-
-            IEnumerable<AccessRule> accessRules = accessRuleRecordsPairs.Select(x => accessRuleService.GetFromRecords(x)).ToList();
-
-            IEnumerable<ProjectTag> projectTags = JsonSerializer.Deserialize<IEnumerable<string>>(positionDTO.BufferForProjectTags).Select(x=>new ProjectTag { Name = x}).ToList();
+            IEnumerable<AccessRule> accessRules = GetRulesFromRecordsJSON(positionDTO.BufferForAccessRules);
+            IEnumerable<ProjectTag> projectTags = JsonSerializer.Deserialize<IEnumerable<string>>(positionDTO.BufferForProjectTags).Select(x => new ProjectTag { Name = x }).ToList();
 
             var newPosition = new Position
             {
@@ -37,13 +47,30 @@ namespace UseCases.Services.PositionServices
                 ProjectTags = projectTags,
                 MaxCountOfProject = positionDTO.MaxCountOfProject,
             };
+            newPosition.PositionSkills = GetSkillsFromRecordsJSON(positionDTO.BufferForSkills, newPosition);
 
-            IEnumerable<AddPositionSkillDTO> newValuedSkills = JsonSerializer.Deserialize<IEnumerable<AddPositionSkillDTO>>(positionDTO.BufferForSkills);
-            IEnumerable<Skill> skills = unitOfWork.SkillRepository.GetAll().Where(x => newValuedSkills.Select(y => y.SkillName).Contains(x.Name)).ToList();
-            IEnumerable<PositionSkill> newPositionSkills = newValuedSkills.Select(x => new PositionSkill { Skill = skills.First(y => y.Name == x.SkillName), Position = newPosition }).ToList();
-            newPosition.PositionSkills = newPositionSkills;
             unitOfWork.StartTransaction();
             unitOfWork.PositionRepository.Add(newPosition);
+            unitOfWork.Commit();
+        }
+
+        void IPositionService.UpdatePosition(EditPositionDTO positionDTO)
+        {
+            Position position = unitOfWork.PositionRepository.GetById(positionDTO.Id);
+            IEnumerable<Guid> oldPositionSkillsIds = position.PositionSkills.Select(x => x.Id);
+            IEnumerable<AccessRule> accessRules = GetRulesFromRecordsJSON(positionDTO.BufferForAccessRules);
+            IEnumerable<ProjectTag> projectTags = JsonSerializer.Deserialize<IEnumerable<string>>(positionDTO.BufferForProjectTags).Select(x => new ProjectTag { Name = x }).ToList();
+            IEnumerable<PositionSkill> positionSkills = GetSkillsFromRecordsJSON(positionDTO.BufferForSkills, position);
+
+            position.Title = positionDTO.Title;
+            position.Description = positionDTO.Description;
+            position.MaxCountOfProject = positionDTO.MaxCountOfProject;
+            position.AccessRules = accessRules;
+            position.ProjectTags = projectTags;
+            position.PositionSkills = positionSkills;
+
+            unitOfWork.StartTransaction();
+            unitOfWork.PositionRepository.Update(position);
             unitOfWork.Commit();
         }
 
@@ -67,6 +94,17 @@ namespace UseCases.Services.PositionServices
         IEnumerable<Position> IPositionService.GetByIds(IEnumerable<Guid> ids)
         {
             return unitOfWork.PositionRepository.GetByIds(ids);
+        }
+
+        IEnumerable<Position> IPositionService.GetPersonaledPositions(Candidate candidate)
+        {
+            IEnumerable<ValuedSkillDTO> valuedSkills = candidate.Skills.Select(x =>
+                new ValuedSkillDTO
+                {
+                    Skill = x.Skill,
+                    Value = x.Value
+                });
+            return unitOfWork.PositionRepository.GetPersonaledPositionsBySkills(valuedSkills);
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿@model AddAccessRulePartialDTO
+﻿@model EditAccessRulePartialDTO
 @inject IOneOfManyFormater oneOfManyFormater
 @{
 	string selectId = "selectId";
 	string mainInputId = "mainInputId";
 	string extraRulesId = "extraRulesId";
 	var operators = new List<FilterOperators> { FilterOperators.Equal, FilterOperators.NotEqual };
-	var ruleValues = oneOfManyFormater.Format(Model.Skill.PotentialValue);
+	var ruleValues = oneOfManyFormater.Format(Model.AccessRule.Skill.PotentialValue);
 }
-<label>@Model.Skill.Name:</label>
+<label>@Model.AccessRule.Skill.Name:</label>
 <select id="@selectId" onchange="ChangeOperatorSelector(this.value)">
 	@for (int i = 0;i<operators.Count; i++)
 	{
@@ -24,18 +24,18 @@
 </div>
 <script>
 	let operator = "=";
-	let allSelectValues = @Html.Raw(Json.Serialize(oneOfManyFormater.Format(Model.Skill.PotentialValue)));
+	let allSelectValues = @Html.Raw(Json.Serialize(oneOfManyFormater.Format(Model.AccessRule.Skill.PotentialValue)));
 	let selectedValues = [];
 	let selector = document.getElementById('@selectId');
-	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', selector.value);
+	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.AccessRule.Skill.Id', 'Operator', selector.value);
 	let input = document.getElementById('@mainInputId');
-	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Value', input.value);
+	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.AccessRule.Skill.Id', 'Value', input.value);
 	selectedValues.push(input.value);
 	AddRule();
 	UpdateSelectors();
 
 	function ChangeOperatorSelector(value){
-		@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', value);
+		@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.AccessRule.Skill.Id', 'Operator', value);
 		let labels = document.getElementById('@extraRulesId').getElementsByTagName('label');
 		if(operator == "=") operator = "!=";
 		else operator = "=";
@@ -45,7 +45,7 @@
 	}
 
 	function AddRuleWithAddExtraValue(propValue){
-		@(Model.EventHandlers["AddExtraValueForOneOfManyRule2"])('@Model.Skill.Id', propValue);
+		@(Model.EventHandlers["AddExtraValueForOneOfManyRule2"])('@Model.AccessRule.Skill.Id', propValue);
 		if (selectedValues.indexOf(propValue) === -1) {
 			selectedValues.push(propValue);
 		}
@@ -99,10 +99,10 @@
 	}
 
 	function ChangeValueInRuleSet(itemId, value){
-		if(itemId === '@mainInputId') @(Model.EventHandlers["ChangeExtraValueForOneOfMany3"])('@Model.Skill.Id', 0, value);
+		if(itemId === '@mainInputId') @(Model.EventHandlers["ChangeExtraValueForOneOfMany3"])('@Model.AccessRule.Skill.Id', 0, value);
 		else{ 
 			let changedRuleIndex = [...document.getElementById('@extraRulesId').querySelectorAll('select')].findIndex(x=>x.id === itemId)+1;
-			@(Model.EventHandlers["ChangeExtraValueForOneOfMany3"])('@Model.Skill.Id', changedRuleIndex, value);
+			@(Model.EventHandlers["ChangeExtraValueForOneOfMany3"])('@Model.AccessRule.Skill.Id', changedRuleIndex, value);
 		}
 		UpdateSelectors();
 	}
@@ -114,7 +114,7 @@
 			extraRules.append(newDiv);
 		}
 		let selector = document.getElementById(selectorId);
-		@(Model.EventHandlers["RemoveExtraValueForOneOfMany2"])('@Model.Skill.Id', selector.value);
+		@(Model.EventHandlers["RemoveExtraValueForOneOfMany2"])('@Model.AccessRule.Skill.Id', selector.value);
 		selector.parentElement.remove();
 		UpdateSelectors();
 	}
@@ -145,7 +145,6 @@
 				newInnerHTML += `<option value="${val}" ${temp === val ? 'selected' : ''}>${val}</option>`;
 			}
 		}
-		console.log(newInnerHTML);
 		mainSelector.innerHTML = newInnerHTML;
 	}
 </script>

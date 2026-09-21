@@ -4,6 +4,8 @@ namespace ITransitionProject.PagesDTOs.Recruter.Positions
 {
     public class ViewPositionPageDTO
     {
-        public Position Position { get; set; }
+        public required Position Position { get; set; }
+        public required string ActionForEditPosition { get; set; }
+        public required string ControllerForEditPosition { get; set; }  
     }
 }

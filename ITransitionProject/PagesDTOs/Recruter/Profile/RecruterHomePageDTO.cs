@@ -13,7 +13,7 @@ namespace ITransitionProject.PagesDTOs.Recruter.Profile
         public required IEnumerable<Position> Positions { get; set; }
         public required string ActionForDeletePositions { get; set; }
         public required string ControllerForDeletePositions { get; set; }
-        public required string ActionForEditPosition { get; set; }
-        public required string ControllerForEditPosition { get; set; }
+        public required string ActionForViewPosition { get; set; }
+        public required string ControllerForViewPosition { get; set; }
     }
 }

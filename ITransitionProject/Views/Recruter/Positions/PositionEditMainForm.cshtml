@@ -1,7 +1,11 @@
-﻿@model AddPositionPageMainFormDTO
+﻿@model EditPositionPageDTO
 @inject SupportedAccessRuleSkillTypes supportedAccessRuleSkillTypes
 @{
 	string accessRulePrefix = "access rule";
+	string idPropName = nameof(Model.PostedModel.Id);
+	string titlePropName = nameof(Model.PostedModel.Title);
+	string descriptionPropName = nameof(Model.PostedModel.Description);
+	string maxCountOfProjectsPropName = nameof(Model.PostedModel.MaxCountOfProject);
 	string mainFormId = "mainFormId";
 	string bufferForSkillsInputName = nameof(Model.PostedModel.BufferForSkills);
 	string buttonForSubmitId = "buttonForSubmitId";
@@ -15,25 +19,45 @@
 	string projectTagsSelectorId = "projectTagsSelectorId";
 	string bufferForProjectTagsName = nameof(Model.PostedModel.BufferForProjectTags);
 	string projectTagsInputId = "projectTagsInputId";
+
+	var selectedSkills = Model.Position.PositionSkills.Select(x => x.Skill.Name);
+
+	var editSkillsEventsHandlers = new Dictionary<string, string>();
+	editSkillsEventsHandlers.Add("RemoveSkill2", "RemoveSkill2");
+
+	var editSkillNames = Model.Position.PositionSkills.Select(x => x.Skill.Name);
+
+	var editAccessRulesEventsHandlers = new Dictionary<string, string>();
+
+	editAccessRulesEventsHandlers.Add("AddAccessRuleRecord3", "AddAccessRuleRecord3");
+	editAccessRulesEventsHandlers.Add("AddExtraValueForOneOfManyRule2", "AddExtraValueForOneOfManyRule2");
+	editAccessRulesEventsHandlers.Add("ChangeExtraValueForOneOfMany3", "ChangeExtraValueForOneOfMany3");
+	editAccessRulesEventsHandlers.Add("RemoveExtraValueForOneOfMany2", "RemoveExtraValueForOneOfMany2");
+	editAccessRulesEventsHandlers.Add("RemoveAccessRule1", "RemoveAccessRule1");
+
+	var editAccessRulesIdsAndNames = Model.Position.AccessRules.Select(x => new {Id = x.Id, SkillName = x.Skill.Name});
+
+	var projectTags = Model.Position.ProjectTags.Select(x => x.Name);
 }
 
 <form id="@mainFormId" asp-action="@Model.ActionForSubmit" asp-controller="@Model.ControllerForSubmit" onsubmit="saveBufferInHiddenInput()" method="post">
 	<div class="d-flex flex-column justify-content-center">
 		<div>
-			<label for="@Model.PostedModel.Title">Title:</label>
-			<input required name="Title" type="text" />
+			<label for="@titlePropName">Title:</label>
+			<input required id="@titlePropName" name="@titlePropName" type="text" value="@Model.Position.Title" />
 		</div>
 		<div>
-			<label for="@Model.PostedModel.Description">Description:</label>
-			<input required name="Description" type="text" />
+			<label for="@descriptionPropName">Description:</label>
+			<input required id="@descriptionPropName" name="@descriptionPropName" type="text" value="@Model.Position.Description" />
 		</div>
 		<div>
-			<label for="@Model.PostedModel.MaxCountOfProject">Max count of projects(0 if not restrictions):</label>
-			<input required name="MaxCountOfProject" type="number" min="0" max="@int.MaxValue" step="1" placeholder="0 if not restrictions" />
+			<label for="@maxCountOfProjectsPropName">Max count of projects(0 if not restrictions):</label>
+			<input required id="@maxCountOfProjectsPropName" name="@maxCountOfProjectsPropName" type="number" min="0" max="@int.MaxValue" step="1" value="@Model.Position.MaxCountOfProject" />
 		</div>
-		<input id="@bufferForSkillsInputName" name="@bufferForSkillsInputName" type="hidden" value="{}" />
-		<input id="@bufferForAccessRulesInputName" name="@bufferForAccessRulesInputName" type="hidden" value="{}" />
-		<input id="@bufferForProjectTagsName" name="@bufferForProjectTagsName" type="hidden" value="{}" />
+		<input id="@idPropName" name="@idPropName" type="hidden" value="@Model.Position.Id" />
+		<input id="@bufferForSkillsInputName" name="@bufferForSkillsInputName" type="hidden" />
+		<input id="@bufferForAccessRulesInputName" name="@bufferForAccessRulesInputName" type="hidden" />
+		<input id="@bufferForProjectTagsName" name="@bufferForProjectTagsName" type="hidden" />
 	</div>
 </form>
 
@@ -48,7 +72,8 @@
 				<select id="@skillTypeSelectorId" onchange="loadSkillView(this.value)">
 					<option hidden disabled selected>Skills</option>
 				</select>
-				<div class="d-flex flex-column list-unstyled" id="@skillFormsId" />
+				<div class="d-flex flex-column list-unstyled" id="@skillFormsId">
+				</div>
 			</td>
 		</tr>
 		<tr>
@@ -57,7 +82,8 @@
 				<select id="@accessRulesTypeSelectorId" onchange="loadAccessRuleForm(this.value)">
 					<option hidden disabled selected>Rules</option>
 				</select>
-				<div class="d-flex flex-column list-unstyled" id="@accessRulesFormsId" />
+				<div class="d-flex flex-column list-unstyled" id="@accessRulesFormsId">
+				</div>
 			</td>
 		</tr>
 		<tr>
@@ -79,6 +105,11 @@
 <script>
 	let bufferFoProjectTags = [];
 	let timeout = null;
+
+	for(let tag of @Json.Serialize(projectTags)){
+		addProjectTag(tag);
+	}
+
 	function onProjectTagsInputChange(prefix) {
 		clearTimeout(timeout);
 
@@ -87,6 +118,32 @@
 			loadProjectTags(prefix)
 
 		}, 1000);
+	}
+
+	function loadProjectTags(prefix){
+		fetch(`/@Model.ControllerForGetProjectTags/@Model.ActionForGetProjectTags?prefix=${encodeURIComponent(prefix)}`,  {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			let select = document.getElementById('@projectTagsSelectorId');
+
+			let filteredData = [];
+
+			for(item of data){
+				if(typeof(bufferFoProjectTags.find(x=>x === item)) === 'undefined'){
+					filteredData.push(item);
+				}
+			}
+
+			select.innerHTML = '<option selected hidden disabled>Project tags</option>' + filteredData
+			.map(item => `<option value="${item}">${item}</option>`)
+			.join('');
+		})
+		.catch(error=>console.log(error));
 	}
 
 	function addProjectTag(tagName){
@@ -164,6 +221,22 @@
 		RebuildAccessRulesSelector();
 	}
 
+	function tryAddAccessRuleInSelector(skillName){
+		fetch(`/@Model.ControllerForGetSkillTypeBySkillName/@Model.ActionForGetSkillTypeBySkillName?skillName=${skillName}`, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			if(supportedAccessRuleSkillTypes.find(item=>item == data)){
+				AddAccessRule(skillName);
+			}
+		})
+		.catch(error=>console.log(error));
+	}
+
 	function loadAccessRuleForm(skillName)
 	{
 		if (!skillName) {
@@ -181,7 +254,7 @@
 			RemoveAccessRule(skillName);
 			executeScriptsInContainer(form);
 		})
-		.catch(error => console.error('Error:', error));
+		.catch(error => console.log('Error:', error));
 	}
 
 	function executeScriptsInContainer(container) {
@@ -249,7 +322,7 @@
 			.then(data=>{
 				bufferForAccessRules = bufferForAccessRules.filter(x=>x.skillId !== data);
 			})
-			.catch(error=>console.error(error));
+			.catch(error=>console.log(error));
 			RemoveAccessRule(skillName);
 		}
 	}
@@ -269,7 +342,12 @@
 
 	let bufferForSkills = [];
 	let curLoadSkills = [];
-	let selectedSkills = [];
+	let selectedSkills = @Json.Serialize(selectedSkills);
+
+	for(let skill of selectedSkills){
+		bufferForSkills.push(new PositionSkillRecord(skill));
+		tryAddAccessRuleInSelector(skill);
+	}
 
 	function activateSubmitButton(){
 		document.getElementById("@buttonForSubmitId").disabled = false;
@@ -330,7 +408,7 @@
 			curLoadSkills = data;
 			RebuildSkillSelector();
 		})
-		.catch(error=>console.error(error));
+		.catch(error=>console.log(error));
 	}
 
 
@@ -346,8 +424,9 @@
 			curLoadSkills = data;
 			RebuildSkillSelector();
 		})
-		.catch(error=>console.error(error));
+		.catch(error=>console.log(error));
 	}
+
 	function loadSkillView(skillName) {
 		if (!skillName) {
 			return;
@@ -362,20 +441,39 @@
 			AddSkill(skillName);
 			form.append(newDiv);
 		})
-		.catch(error => console.error('Error:', error));
+		.catch(error => console.log('Error:', error));
 
-		fetch(`/@Model.ControllerForGetSkillTypeBySkillName/@Model.ActionForGetSkillTypeBySkillName?skillName=${skillName}`, {
-			method: 'GET',
-			headers: {
-				'Accept': 'application/json'
-			}
-		})
-		.then(response => response.json())
-		.then(data=>{
-			if(supportedAccessRuleSkillTypes.find(item=>item == data)){
-				AddAccessRule(skillName);
-			}
-		})
-		.catch(error=>console.error(error));
+		tryAddAccessRuleInSelector(skillName);
+	}
+
+</script>
+
+<script>
+
+	let editingAccessRuleIds = @Json.Serialize(editAccessRulesIdsAndNames);
+
+	for(let item of editingAccessRuleIds){
+		loadEditingAccessRuleForm(item.id, item.skillName);
+	}
+
+	function loadEditingAccessRuleForm(id, skillName){
+		fetch(`/@Model.ControllerForGetEditingAccessRuleForm/@Model.ActionForGetEditingAccessRuleForm?accessRuleId=${encodeURIComponent(id)}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(editAccessRulesEventsHandlers)))}`)
+			.then(response => response.text())
+			.then(html => {
+				let form = document.getElementById('@accessRulesFormsId');
+				let newDiv = document.createElement('div');
+				newDiv.id = accessRuleIdPrefix + skillName;
+				newDiv.innerHTML = html;
+				form.append(newDiv);
+				RemoveAccessRule(skillName);
+				executeScriptsInContainer(form);
+			})
+			.catch(error => console.log('Error:', error));
+	}
+
+	let editingSkillNames = @Json.Serialize(editSkillNames);
+
+	for(let name of editingSkillNames){
+		loadSkillView(name);
 	}
 </script>

@@ -1,11 +1,10 @@
 ﻿using Domain.Entities;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace ITransitionProject.PagesDTOs.Recruter.Positions
 {
-    public class AddPositionAccessRulePagePartialFormDTO
+    public class EditPositionAccessRulePagePartialFormDTO
     {
-        public required Skill Skill { get; set; }
+        public required AccessRule AccessRule { get; set; }
         public Dictionary<string, string> EventHandlers { get; set; } = new();
     }
 }

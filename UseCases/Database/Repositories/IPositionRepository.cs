@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
+using UseCases.Services.ValuedSkillServices.General.DTOs;
 
 namespace UseCases.Database.Repositories
 {
@@ -11,5 +12,6 @@ namespace UseCases.Database.Repositories
     {
         public void DeleteRange(IEnumerable<Guid> ids);
         public IEnumerable<Position> GetByIds(IEnumerable<Guid> ids);
+        public IEnumerable<Position> GetPersonaledPositionsBySkills(IEnumerable<ValuedSkillDTO> valuedSkills);
     }
 }
