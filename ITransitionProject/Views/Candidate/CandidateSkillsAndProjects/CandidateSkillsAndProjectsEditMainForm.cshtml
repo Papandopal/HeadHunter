@@ -64,11 +64,11 @@
 					PropValue = project.DatePeriod
 				});
 		projectRecordDTOs.Add(new ProjectRecordDTO
-		{
-			ProjectIndex = project.Id.ToString(),
-			PropName = nameof(project.ProjectTags),
-			PropValue = string.Join(Separators.ProjectTagsSeparator, project.ProjectTags.Select(x=>x.Name))
-		});
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.ProjectTags),
+					PropValue = string.Join(Separators.ProjectTagsSeparator, project.ProjectTags.Select(x => x.Name))
+				});
 	}
 	IEnumerable<int> indexes = projectRecordDTOs.Count == 0 ? Enumerable.Empty<int>() : Enumerable.Range(0, projectRecordDTOs.Count - 1);
 
@@ -80,7 +80,9 @@
 					Project = x,
 					EventsHandlers = updatingProjectsEventHandlers,
 					ActionForGetProjectTags = Model.ActionForGetProjectTags,
-					ControllerForGetProjectTags = Model.ControllerForGetProjectTags
+					ControllerForGetProjectTags = Model.ControllerForGetProjectTags,
+					ActionForGetPopularProjectTags = Model.ActionForGetPopularProjectTags,
+					ControllerForGetPopularProjectTags = Model.ControllerForGetPopularProjectTags
 
 				};
 	});
@@ -110,7 +112,7 @@
 			</select>
 			@foreach (var partialDTO in partialSkillsDTOs)
 			{
-				<partial name="CandidateSkillsAndProjects/CandidateSkillEditPartialForm" model="@partialDTO"/>
+				<partial name="CandidateSkillsAndProjects/CandidateSkillEditPartialForm" model="@partialDTO" />
 			}
 			<div id="@CandidateSkillFormsId">
 			</div>
@@ -252,7 +254,7 @@
 </script>
 
 <script>
-	
+
 	let bufferForUpdatingProjects = @Json.Serialize(projectRecordDTOs);
 
 	function removeUpdatingProject1(projectIndex)
@@ -366,7 +368,7 @@
 				body: formData
 			});
 
-		    if(!imageURI.ok) throw new Error(imageURI.statusText);
+			if(!imageURI.ok) throw new Error(imageURI.statusText);
 
 			let currentData = {
 				SkillId: skillId,
@@ -386,7 +388,7 @@
 		} catch (error) {
 			console.error('Error:', error);
 		}
-    }
+	}
 
 
 	function removeAddedValuedSkill2(skillId, skillName)
@@ -405,7 +407,7 @@
 		}
 	}
 
-	
+
 </script>
 
 <script>

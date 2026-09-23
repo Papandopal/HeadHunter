@@ -16,5 +16,6 @@ namespace Domain.Entities
         public long Likes { get; set; }
         public IEnumerable<Recruter> LikedRecruters { get; set; } = new List<Recruter>();
         public int Version { get; set; } = 0;
+        public DateTime LastUpdateTime { get; set; }
     }
 }

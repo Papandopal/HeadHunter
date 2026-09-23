@@ -21,9 +21,12 @@ namespace UseCases.Services.ProjectServices
                 Title = projectDTO.Title,
                 Description = projectDTO.Description,
                 DatePeriod = projectDTO.DatePeriod,
-                ProjectTags = projectDTO.ProjectTags,
+                ProjectTags = projectTagService.GetByNamesOrDefault(projectDTO.ProjectTags.Select(x=>x.Name)),
                 OwnerId = ownerId
             };
+
+            projectTagService.UpdateRange(projectDTO.ProjectTags.Where(x=>x.Id != Guid.Empty));
+
             unitOfWork.StartTransaction();
             unitOfWork.ProjectRepository.Add(project);
             unitOfWork.Commit();
@@ -40,11 +43,14 @@ namespace UseCases.Services.ProjectServices
                     Title = projectDTO.Title,
                     Description = projectDTO.Description,
                     DatePeriod = projectDTO.DatePeriod,
-                    ProjectTags = projectDTO.ProjectTags,
+                    ProjectTags = projectTagService.GetByNamesOrDefault(projectDTO.ProjectTags.Select(x=>x.Name)),
                     OwnerId = ownerId
                 };
                 newProjects.Add(project);
             }
+
+            projectTagService.UpdateRange(projectDTOs.SelectMany(x => x.ProjectTags).Where(x=>x.Id != Guid.Empty));
+
             unitOfWork.StartTransaction();
             unitOfWork.ProjectRepository.AddRange(newProjects);
             unitOfWork.Commit();
@@ -54,9 +60,12 @@ namespace UseCases.Services.ProjectServices
         {
             var project = unitOfWork.ProjectRepository.GetById(projectDTO.Id);
             project.Title = projectDTO.Title ?? project.Title;
-            project.Description = projectDTO.Description ?? project.Description;    
+            project.Description = projectDTO.Description ?? project.Description;
             project.DatePeriod = projectDTO.DatePeriod ?? project.DatePeriod;
-            project.ProjectTags = projectDTO.ProjectTags ?? project.ProjectTags;
+            project.ProjectTags = projectTagService.GetByNamesOrDefault((projectDTO.ProjectTags ?? project.ProjectTags).Select(x=>x.Name));
+
+            projectTagService.UpdateRange(projectDTO.ProjectTags?.Where(x => x.Id != Guid.Empty) ?? []);
+
             unitOfWork.StartTransaction();
             unitOfWork.ProjectRepository.Update(project);
             unitOfWork.Commit();
@@ -66,21 +75,23 @@ namespace UseCases.Services.ProjectServices
         {
             IEnumerable<Project> projects = unitOfWork.ProjectRepository.GetByIds(projectDTOs.Select(x => x.Id));
             var dto = projectDTOs.GetEnumerator();
-            foreach(var project in projects)
+            foreach (var project in projects)
             {
                 dto.MoveNext();
-                project.Title = dto.Current.Title ?? project.Title;
-                project.Description = dto.Current.Description ?? project.Description;
-                project.DatePeriod = dto.Current.DatePeriod ?? project.DatePeriod;
-                project.ProjectTags = dto.Current.ProjectTags ?? project.ProjectTags;
+                project.Title = dto.Current.Title;
+                project.Description = dto.Current.Description;
+                project.DatePeriod = dto.Current.DatePeriod;
+                project.ProjectTags = projectTagService.GetByNamesOrDefault(dto.Current.ProjectTags.Select(x => x.Name));
             }
 
             var deletedProjects = unitOfWork.ProjectRepository.GetAllByOwnerIdExceptOf(ownerId, projectDTOs.Select(x => x.Id));
 
+            projectTagService.UpdateRange(projectDTOs.SelectMany(x => x.ProjectTags).Where(x => x.Id != Guid.Empty));
+
             unitOfWork.StartTransaction();
             unitOfWork.ProjectRepository.UpdateRange(projects);
             unitOfWork.ProjectRepository.DeleteRange(deletedProjects);
-            unitOfWork.Commit();    
+            unitOfWork.Commit();
         }
 
         private AddProjectDTO BuildAddDTO(IEnumerable<ProjectRecordDTO> dtos)
@@ -120,11 +131,12 @@ namespace UseCases.Services.ProjectServices
                 throw new Exception("Invalide date for build \"Project\"");
             }
             var result = new EditProjectDTO { Id = id };
-            result.Title = dtos.Where(x => x.PropName.ToLower() == "title").Select(x => x.PropValue).FirstOrDefault();
-            result.Description = dtos.Where(x => x.PropName.ToLower() == "description").Select(x => x.PropValue).FirstOrDefault();
-            result.DatePeriod = dtos.Where(x => x.PropName.ToLower() == "dateperiod").Select(x => x.PropValue).FirstOrDefault();
-            string? projectTagsJSON = dtos.Where(x => x.PropName.ToLower() == "projecttags").Select(x => x.PropValue).FirstOrDefault();
+            result.Title = dtos.Where(x => x.PropName.ToLower() == "title").Select(x => x.PropValue).First();
+            result.Description = dtos.Where(x => x.PropName.ToLower() == "description").Select(x => x.PropValue).First();
+            result.DatePeriod = dtos.Where(x => x.PropName.ToLower() == "dateperiod").Select(x => x.PropValue).First();
+            string? projectTagsJSON = dtos.Where(x => x.PropName.ToLower() == "projecttags").Select(x => x.PropValue).First();
             if (!string.IsNullOrWhiteSpace(projectTagsJSON)) result.ProjectTags = projectTagService.GetFromJSON(projectTagsJSON);
+            else result.ProjectTags = new List<ProjectTag>();
             return result;
         }
 

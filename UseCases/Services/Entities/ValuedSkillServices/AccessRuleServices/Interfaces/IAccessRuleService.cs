@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
-using UseCases.Services.AccessRuleServices.DTOs;
+using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.DTOs;
 
-namespace UseCases.Services.AccessRuleServices.Interfaces
+namespace UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces
 {
     public interface IAccessRuleService
     {

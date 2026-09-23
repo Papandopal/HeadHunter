@@ -13,5 +13,6 @@ namespace Domain.Entities
         public IEnumerable<Position> Positions { get; set; } = new List<Position>(); 
         public IEnumerable<Project> Projects { get; set; } = new List<Project>();
         public int Version { get; init; } = 0;
+        public long Popularity { get; set; }
     }
 }

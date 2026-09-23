@@ -1,14 +1,14 @@
 ﻿@model AddAccessRulePartialDTO
 @inject IOneOfManyFormater oneOfManyFormater
 @{
-	string selectId = "selectId";
-	string mainInputId = "mainInputId";
-	string extraRulesId = "extraRulesId";
+	var selectId = Guid.NewGuid();
+	var mainInputId = Guid.NewGuid();
+	var extraRulesId = Guid.NewGuid();
 	var operators = new List<FilterOperators> { FilterOperators.Equal, FilterOperators.NotEqual };
 	var ruleValues = oneOfManyFormater.Format(Model.Skill.PotentialValue);
 }
 <label>@Model.Skill.Name:</label>
-<select id="@selectId" onchange="ChangeOperatorSelector(this.value)">
+<select id="@selectId">
 	@for (int i = 0;i<operators.Count; i++)
 	{
 		<option selected="@(i==0)" value="@operators[i]">@operators[i].ToString()</option>
@@ -24,137 +24,140 @@
 <div id="@extraRulesId" class="d-flex flex-row">
 </div>
 <script>
-	let operator = "=";
-	let allSelectValues = @Html.Raw(Json.Serialize(oneOfManyFormater.Format(Model.Skill.PotentialValue)));
-	let selectedValues = [];
-	let selector = document.getElementById('@selectId');
-	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', selector.value);
-	let input = document.getElementById('@mainInputId');
-	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Value', input.value);
-	selectedValues.push(input.value);
-	AddRule();
-	UpdateSelectors();
-
-	function ChangeOperatorSelector(value){
-		@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', value);
-		let labels = document.getElementById('@extraRulesId').getElementsByTagName('label');
-		if(operator == "=") operator = "!=";
-		else operator = "=";
-		for(label of labels) {
-			label.textContent = operator; 
-		}
-	}
-
-	function AddRuleWithAddExtraValue(propValue){
-		@(Model.EventHandlers["AddExtraValueForOneOfManyRule2"])('@Model.Skill.Id', propValue);
-		if (selectedValues.indexOf(propValue) === -1) {
-			selectedValues.push(propValue);
-		}
-		AddRule(); 
+	{
+		let operator = "=";
+		let allSelectValues = @Html.Raw(Json.Serialize(oneOfManyFormater.Format(Model.Skill.PotentialValue)));
+		let selectedValues = [];
+		let selector = document.getElementById('@selectId');
+		selector.onchange = function(){ ChangeOperatorSelector(this.value) };
+		@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', selector.value);
+		let input = document.getElementById('@mainInputId');
+		@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Value', input.value);
+		selectedValues.push(input.value);
+		AddRule();
 		UpdateSelectors();
-	}
 
-	function CreateNewElement(){
-		let newSelect = document.createElement('select');
-		newSelect.id = crypto.randomUUID();
-		newSelect.onchange = function() { AddRuleWithAddExtraValue(this.value)};
-		newSelect.style="opacity: 0.5;";
-		let selectInnerHTML = '';
-			for(item of allSelectValues){
-				if(selectedValues.indexOf(item) === -1){
-					selectInnerHTML += `<option value="${item}">${item}</option>`;
-				}
+		function ChangeOperatorSelector(value){
+			@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.Skill.Id', 'Operator', value);
+			let labels = document.getElementById('@extraRulesId').getElementsByTagName('label');
+			if(operator == "=") operator = "!=";
+			else operator = "=";
+			for(label of labels) {
+				label.textContent = operator; 
 			}
-		selectInnerHTML += `<option disabled hidden selected>Value</option>`;
-		newSelect.innerHTML = selectInnerHTML;
-		let newLabel = document.createElement('label');
-		newLabel.textContent = operator;
-		newLabel.htmlFor = newSelect.id;
-		newLabel.style = "opacity: 0.5;";
-		let newButton = document.createElement('button');
-		newButton.disabled = true;
-		newButton.style = "opacity: 0.5;";
-		newButton.onclick = function(){RemoveExtraRule(newSelect.id)};
-		newButton.textContent = "-";
-		newButton.classList.add("btn", "btn-dark");
-		let newDiv = document.createElement('div');
-		newDiv.append(newLabel, newSelect, newButton);
-		return newDiv;
-	}
-
-	function AddRule(){
-		let extraRules = document.getElementById('@extraRulesId');
-		let selects = extraRules.getElementsByTagName('select');
-		let lastChildId;
-		if(selects.length !== 0) lastChildId = selects.item(selects.length-1).id;
-		else lastChildId = '@mainInputId';
-
-		let oldElement = document.getElementById(lastChildId);
-		oldElement.onchange = function(){ ChangeValueInRuleSet(this.id, this.value) };
-		oldElement.style="opacity: 1;";
-		let labels = extraRules.getElementsByTagName('label');
-		let buttons = extraRules.getElementsByTagName('button');
-		if(labels.length !== 0){
-			let lastLabel = labels.item(labels.length-1);
-			lastLabel.style = "opacity: 1;";
-			let lastButton = buttons.item(buttons.length-1);
-			lastButton.disabled = false;
-			lastButton.style = "opacity: 1;";
 		}
+
+		function AddRuleWithAddExtraValue(propValue){
+			@(Model.EventHandlers["AddExtraValueForOneOfManyRule2"])('@Model.Skill.Id', propValue);
+			if (selectedValues.indexOf(propValue) === -1) {
+				selectedValues.push(propValue);
+			}
+			AddRule(); 
+			UpdateSelectors();
+		}
+
+		function CreateNewElement(){
+			let newSelect = document.createElement('select');
+			newSelect.id = crypto.randomUUID();
+			newSelect.onchange = function() { AddRuleWithAddExtraValue(this.value)};
+			newSelect.style="opacity: 0.5;";
+			let selectInnerHTML = '';
+				for(item of allSelectValues){
+					if(selectedValues.indexOf(item) === -1){
+						selectInnerHTML += `<option value="${item}">${item}</option>`;
+					}
+				}
+			selectInnerHTML += `<option disabled hidden selected>Value</option>`;
+			newSelect.innerHTML = selectInnerHTML;
+			let newLabel = document.createElement('label');
+			newLabel.textContent = operator;
+			newLabel.htmlFor = newSelect.id;
+			newLabel.style = "opacity: 0.5;";
+			let newButton = document.createElement('button');
+			newButton.disabled = true;
+			newButton.style = "opacity: 0.5;";
+			newButton.onclick = function(){RemoveExtraRule(newSelect.id)};
+			newButton.textContent = "-";
+			newButton.classList.add("btn", "btn-dark");
+			let newDiv = document.createElement('div');
+			newDiv.append(newLabel, newSelect, newButton);
+			return newDiv;
+		}
+
+		function AddRule(){
+			let extraRules = document.getElementById('@extraRulesId');
+			let selects = extraRules.getElementsByTagName('select');
+			let lastChildId;
+			if(selects.length !== 0) lastChildId = selects.item(selects.length-1).id;
+			else lastChildId = '@mainInputId';
+
+			let oldElement = document.getElementById(lastChildId);
+			oldElement.onchange = function(){ ChangeValueInRuleSet(this.id, this.value) };
+			oldElement.style="opacity: 1;";
+			let labels = extraRules.getElementsByTagName('label');
+			let buttons = extraRules.getElementsByTagName('button');
+			if(labels.length !== 0){
+				let lastLabel = labels.item(labels.length-1);
+				lastLabel.style = "opacity: 1;";
+				let lastButton = buttons.item(buttons.length-1);
+				lastButton.disabled = false;
+				lastButton.style = "opacity: 1;";
+			}
 		
-		if(selectedValues.length === allSelectValues.length) return;
+			if(selectedValues.length === allSelectValues.length) return;
 
-		newDiv = CreateNewElement();
-		extraRules.append(newDiv);
-	}
-
-	function ChangeValueInRuleSet(itemId, value){
-		if(itemId === '@mainInputId') @(Model.EventHandlers["ChangeExtraValueForOneOfMany3"])('@Model.Skill.Id', 0, value);
-		else{ 
-			let changedRuleIndex = [...document.getElementById('@extraRulesId').querySelectorAll('select')].findIndex(x=>x.id === itemId)+1;
-			@(Model.EventHandlers["ChangeExtraValueForOneOfMany3"])('@Model.Skill.Id', changedRuleIndex, value);
-		}
-		UpdateSelectors();
-	}
-
-	function RemoveExtraRule(selectorId){
-		if(selectedValues.length === allSelectValues.length){
 			newDiv = CreateNewElement();
-			extraRules = document.getElementById('@extraRulesId');
 			extraRules.append(newDiv);
 		}
-		let selector = document.getElementById(selectorId);
-		@(Model.EventHandlers["RemoveExtraValueForOneOfMany2"])('@Model.Skill.Id', selector.value);
-		selector.parentElement.remove();
-		UpdateSelectors();
-	}
 
-	function UpdateSelectors(){
-		let mainSelector = document.getElementById('@mainInputId');
-		let selectors = document.getElementById('@extraRulesId').querySelectorAll('select');
-		selectedValues = [...selectors].map(x=>x.value);
-		selectedValues.push(mainSelector.value);
-		selectedValues = selectedValues.filter(x=>x !== 'Value');
-		let temp;
-		for(const item of selectors){
-			temp = item.value;
+		function ChangeValueInRuleSet(itemId, value){
+			if(itemId === '@mainInputId') @(Model.EventHandlers["ChangeExtraValueForOneOfMany3"])('@Model.Skill.Id', 0, value);
+			else{ 
+				let changedRuleIndex = [...document.getElementById('@extraRulesId').querySelectorAll('select')].findIndex(x=>x.id === itemId)+1;
+				@(Model.EventHandlers["ChangeExtraValueForOneOfMany3"])('@Model.Skill.Id', changedRuleIndex, value);
+			}
+			UpdateSelectors();
+		}
+
+		function RemoveExtraRule(selectorId){
+			if(selectedValues.length === allSelectValues.length){
+				newDiv = CreateNewElement();
+				extraRules = document.getElementById('@extraRulesId');
+				extraRules.append(newDiv);
+			}
+			let selector = document.getElementById(selectorId);
+			@(Model.EventHandlers["RemoveExtraValueForOneOfMany2"])('@Model.Skill.Id', selector.value);
+			selector.parentElement.remove();
+			UpdateSelectors();
+		}
+
+		function UpdateSelectors(){
+			let mainSelector = document.getElementById('@mainInputId');
+			let selectors = document.getElementById('@extraRulesId').querySelectorAll('select');
+			selectedValues = [...selectors].map(x=>x.value);
+			selectedValues.push(mainSelector.value);
+			selectedValues = selectedValues.filter(x=>x !== 'Value');
+			let temp;
+			for(const item of selectors){
+				temp = item.value;
+				newInnerHTML = '';
+				if(temp === 'Value') newInnerHTML += `<option disabled hidden selected>Value</option>`;
+				for(let val of allSelectValues){
+					if(selectedValues.indexOf(val) === -1 || val === temp){
+						newInnerHTML += `<option value="${val}" ${temp === val ? 'selected' : ''}>${val}</option>`;
+					}
+				}
+				item.innerHTML = newInnerHTML;
+			}
+
+			temp = mainSelector.value;
 			newInnerHTML = '';
-			if(temp === 'Value') newInnerHTML += `<option disabled hidden selected>Value</option>`;
 			for(let val of allSelectValues){
 				if(selectedValues.indexOf(val) === -1 || val === temp){
 					newInnerHTML += `<option value="${val}" ${temp === val ? 'selected' : ''}>${val}</option>`;
 				}
 			}
-			item.innerHTML = newInnerHTML;
+			mainSelector.innerHTML = newInnerHTML;
 		}
-
-		temp = mainSelector.value;
-		newInnerHTML = '';
-		for(let val of allSelectValues){
-			if(selectedValues.indexOf(val) === -1 || val === temp){
-				newInnerHTML += `<option value="${val}" ${temp === val ? 'selected' : ''}>${val}</option>`;
-			}
-		}
-		mainSelector.innerHTML = newInnerHTML;
 	}
 </script>

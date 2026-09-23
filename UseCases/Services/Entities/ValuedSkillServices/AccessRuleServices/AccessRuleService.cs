@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Enums;
 using UseCases.Database;
-using UseCases.Services.AccessRuleServices.DTOs;
-using UseCases.Services.AccessRuleServices.Interfaces;
+using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.DTOs;
+using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces;
 
-namespace UseCases.Services.AccessRuleServices
+namespace UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices
 {
     public class AccessRuleService(IUnitOfWork unitOfWork) : IAccessRuleService
     {

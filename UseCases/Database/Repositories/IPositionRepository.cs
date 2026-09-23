@@ -11,6 +11,7 @@ namespace UseCases.Database.Repositories
     public interface IPositionRepository : IRepository<Position>
     {
         public void DeleteRange(IEnumerable<Guid> ids);
+        public Position GetByOwnerId(Guid ownerId);
         public IEnumerable<Position> GetByIds(IEnumerable<Guid> ids);
         public IEnumerable<Position> GetPersonaledPositionsBySkills(IEnumerable<ValuedSkillDTO> valuedSkills);
     }

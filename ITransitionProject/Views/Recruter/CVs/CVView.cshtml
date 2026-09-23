@@ -1,0 +1,91 @@
+﻿@model ViewCVRecruterPageDTO
+@inject IDatePeriodFormater datePeriodFormater
+@inject IMarkdownTextFormater markdownTextFormater
+@{
+	var likeButtonId = Guid.NewGuid();
+	var likesLabelId = Guid.NewGuid();
+
+	var skillsViewDTOs = Model.CandidateSkills.Select(x => 
+		new ViewValuedSkillPartialDTO { 
+			ValuedSkill = new ValuedSkillDTO { 
+				Skill = x.Skill, Value = x.Value 
+			} 
+		});
+
+	var projectViewDTOs = Model.Projects.Select(x => new ViewProjectPartialDTO{ Project = x});
+}
+<div class="container">
+	<div class="row">
+		<div class="col-3">
+			<div class="container">
+				@foreach (var skillDTO in skillsViewDTOs)
+				{
+					<div class="row">
+						<div class="col-12">
+							<partial name="ValuedSkills/View/@skillDTO.ValuedSkill.Skill.Type" model="skillDTO"/>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+		<div class="col-9">
+			<div class="container">
+				@foreach (var projectDTO in projectViewDTOs)
+				{
+					<div class="row">
+						<partial name="Projects/ViewProject" model="projectDTO"/>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-2">
+			<label id="@likesLabelId">@Model.CV.Likes</label>
+		</div>
+		<div class="col-4">
+			<button id="@likeButtonId">Like</button> 
+		</div>
+	</div>
+</div>
+<script>
+	{
+		let button = document.getElementById('@likeButtonId');
+		let likesLabel = document.getElementById('@likesLabelId');
+		@(Model.IsCVLiked ? "likeButtonOn()" : "likeButtonOff()")
+
+		function likeButtonOn(){
+			button.classList.remove(...button.classList);
+			button.classList.add('btn');
+			button.classList.add('btn-primary');
+			button.onclick = function(){sendUnlike()};
+		}
+
+		function likesIncrement(){
+			likesLabel.textContent = Number(likesLabel.textContent) + 1;
+		}
+
+		function sendLike(){
+			likeButtonOn();
+			likesIncrement();
+			fetch(`/@Model.ControllerForLike/@Model.ActionForLike?cvId=@Model.CV.Id`)
+		}
+
+		function likeButtonOff(){
+			button.classList.remove(...button.classList);
+			button.classList.add('btn');
+			button.classList.add('btn-outline-secondary');
+			button.onclick = function(){sendLike()};
+		}
+
+		function likesDecrement(){
+			likesLabel.textContent = Number(likesLabel.textContent) - 1;
+		}
+
+		function sendUnlike(){
+			likeButtonOff();
+			likesDecrement();
+			fetch(`/@Model.ControllerForUnlike/@Model.ActionForUnlike?cvId=@Model.CV.Id`)
+		}
+	}
+</script>

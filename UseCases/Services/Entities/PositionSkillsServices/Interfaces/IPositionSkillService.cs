@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UseCases.Services.ValuedSkillServices.PositionSkillsServices.Interfaces
+namespace UseCases.Services.Entities.PositionSkillsServices.Interfaces
 {
     public interface IPositionSkillService
     {

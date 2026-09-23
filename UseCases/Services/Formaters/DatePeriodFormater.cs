@@ -15,7 +15,7 @@ namespace UseCases.Services.Formaters
             string[] list = value.Split(Separators.DatePeriodSeparator);
             var firstDate = DateTime.Parse(list[0]);
             var secondDate = DateTime.Parse(list[1]);
-            return secondDate.ToString("dd.MM.yyyy") + " - " + firstDate.ToString("dd.MM.yyyy");
+            return firstDate.ToString("dd.MM.yyyy") + " - " + secondDate.ToString("dd.MM.yyyy");
         }
     }
 }

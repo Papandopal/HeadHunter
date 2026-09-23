@@ -9,11 +9,11 @@ namespace UseCases.Services.ProjectServices.DTOs
 {
     public class ProjectRecordDTO
     {
-        [JsonPropertyName("ProjectIndex")]
+        [JsonPropertyName(nameof(ProjectIndex))]
         public string ProjectIndex { get; set; }
-        [JsonPropertyName("PropName")]
+        [JsonPropertyName(nameof(PropName))]
         public string PropName { get; set; } = string.Empty;
-        [JsonPropertyName("PropValue")]
+        [JsonPropertyName(nameof(PropValue))]
         public string PropValue { get; set; } = string.Empty;
     }
 }

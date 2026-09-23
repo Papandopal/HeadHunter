@@ -1,15 +1,15 @@
-﻿@model ViewCVPageDTO
+﻿@model ViewCVCandidatePageDTO
 @inject IDatePeriodFormater datePeriodFormater
 @inject IMarkdownTextFormater markdownTextFormater
 @{
-	var skillsViewDTOs = Model.CV.Candidate.Skills.Select(x => 
+	var skillsViewDTOs = Model.CandidateSkills.Select(x => 
 		new ViewValuedSkillPartialDTO { 
 			ValuedSkill = new ValuedSkillDTO { 
 				Skill = x.Skill, Value = x.Value 
 			} 
 		});
 
-	var projectViewDTOs = Model.Projects.Select(x => new ViewProjectPartialDTO{ Project = x});
+	var projectViewDTOs = Model.Projects.Select(x => new ViewProjectPartialDTO{ Project = x });
 }
 <div class="container">
 	<div class="row">
@@ -38,7 +38,7 @@
 	</div>
 	<div class="row">
 		<div class="col-12">
-			<a asp-action="EditCV" asp-route-cvId="@Model.CV.Id">Edit</a>
+			<a asp-controller="@Model.ControllerForEditCV" asp-action="@Model.ActionForEditCV" asp-route-cvId="@Model.CV.Id" class="btn btn-primary">Edit</a>
 		</div>
 	</div>
 </div>

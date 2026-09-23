@@ -15,6 +15,7 @@ namespace UseCases.Services.PositionServices.Interfaces
         public void UpdatePosition(EditPositionDTO positionDTO);
         public void DeleteRange(IEnumerable<Guid> ids);
         public Position GetById(Guid id);
+        public Position GetByOwnerId(Guid ownerId);
         public IEnumerable<Position> GetByIds(IEnumerable<Guid> ids);
         public IEnumerable<Position> GetAll();
         public IEnumerable<Position> GetPersonaledPositions(Candidate candidate);

@@ -1,5 +1,4 @@
-﻿@using ITransitionProject.PagesDTOs.Candidate.Profile
-@model CreateCandidateProfilePageDTO
+﻿@model CreateCandidateProfilePageDTO
 @{
 	string submitButtonId = "submitButtonId";
 }
@@ -11,7 +10,7 @@
 		<label for="lastName">Last Name:</label>
 		<input id="lastName" asp-for="LastName" onchange="addProperty('LastName')" />
 		<label for="birthDay">Birth Day:</label>
-		<input id="birthDay" type="date" asp-for="BirthDay" value="@DateTime.Today.ToString("yyyy-MM-dd")" onchange="addProperty('BirthDay')" />
+		<input id="birthDay" type="date" asp-for="BirthDay" value="@DateTime.Today.ToString("yyyy-MM-dd")" max="@DateTime.Today.ToString("yyyy-MM-dd")" onchange="addProperty('BirthDay')" />
 		<button id="submitButtonId" type="submit" disabled>Save</button>
 	</div>
 </form>

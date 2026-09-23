@@ -50,7 +50,7 @@ namespace Infrastructure.Database.Repositories
 
         IEnumerable<string> ISkillRepository.GetPopularitySkillsNames(int count)
         {
-            return skills.OrderBy(x=>x.CountOfValuedSkills).Take(count).Select(x=> x.Name); 
+            return skills.OrderBy(x=>x.Popularity).Take(count).Select(x=> x.Name); 
         }
 
         SkillTypes ISkillRepository.GetSkillTypeBySkillName(string skillName)
@@ -65,22 +65,22 @@ namespace Infrastructure.Database.Repositories
 
         void ISkillRepository.PopularityDown(Guid skillId)
         {
-            skills.First(x=>x.Id == skillId).CountOfValuedSkills--;
+            skills.First(x=>x.Id == skillId).Popularity--;
         }
 
         void ISkillRepository.PopularityUp(Guid skillId)
         {
-            skills.First(x => x.Id == skillId).CountOfValuedSkills++;
+            skills.First(x => x.Id == skillId).Popularity++;
         }
 
         async Task ISkillRepository.PopulariyDownRangeAsync(IEnumerable<Guid> skillIds)
         {
-            await skills.Where(x => skillIds.Contains(x.Id)).ForEachAsync(x=>x.CountOfValuedSkills--);
+            await skills.Where(x => skillIds.Contains(x.Id)).ForEachAsync(x=>x.Popularity--);
         }
 
         async Task ISkillRepository.PopulariyUpRangeAsync(IEnumerable<Guid> skillIds)
         {
-            await skills.Where(x => skillIds.Contains(x.Id)).ForEachAsync(x => x.CountOfValuedSkills++);
+            await skills.Where(x => skillIds.Contains(x.Id)).ForEachAsync(x => x.Popularity++);
         }
 
         void IRepository<Skill>.Update(Skill entity)

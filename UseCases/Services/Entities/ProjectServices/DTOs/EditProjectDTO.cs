@@ -10,9 +10,9 @@ namespace UseCases.Services.ProjectServices.DTOs
     public class EditProjectDTO
     {
         public Guid Id { get; set; }
-        public string? Title { get; set; } 
-        public string? Description { get; set; } 
-        public string? DatePeriod { get; set; } 
-        public IEnumerable<ProjectTag>? ProjectTags { get; set; }
+        public string Title { get; set; } 
+        public string Description { get; set; } 
+        public string DatePeriod { get; set; } 
+        public IEnumerable<ProjectTag> ProjectTags { get; set; }
     }
 }

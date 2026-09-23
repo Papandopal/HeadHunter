@@ -3,29 +3,35 @@ using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using ITransitionProject.PagesDTOs.Recruter.Categories;
+using ITransitionProject.PagesDTOs.Recruter.CVs;
 using ITransitionProject.PagesDTOs.Recruter.Positions;
 using ITransitionProject.PagesDTOs.Recruter.Profile;
 using ITransitionProject.PagesDTOs.Recruter.Skills;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.Services;
-using UseCases.Services.AccessRuleServices.Interfaces;
 using UseCases.Services.AuthServices.Interfaces;
 using UseCases.Services.CategoryServices.DTOs;
 using UseCases.Services.CategoryServices.Interfaces;
+using UseCases.Services.CVServices.Interfaces;
 using UseCases.Services.Entities.PositionServices.DTOs;
+using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces;
 using UseCases.Services.PositionServices.DTOs;
 using UseCases.Services.PositionServices.Interfaces;
+using UseCases.Services.ProjectServices.Interfaces;
+using UseCases.Services.ProjectTagServices.Interfaces;
 using UseCases.Services.RecruterServices.DTOs;
 using UseCases.Services.RecruterServices.Interfaces;
 using UseCases.Services.SkillServices.DTOs;
 using UseCases.Services.SkillServices.Interfaces;
+using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
 
 namespace ITransitionProject.Controllers
 {
     [EnumAuthorize(UserRoles.Recruter)]
     public class RecruterController(ICategoryService categoryService, ISkillService skillService, IAuthService authService,
-        IRecruterService recruterService, AlertService alertService, IPositionService positionService,
-        IAccessRuleService accessRuleService) : Controller
+        IRecruterService recruterService, IPositionService positionService, IProjectTagService projectTagService, AlertService alertService,
+        IAccessRuleService accessRuleService, ICVService cVService, IProjectService projectService, 
+        ICandidateSkillService candidateSkillService) : Controller
     {
 
         private Recruter? Recruter()
@@ -52,6 +58,8 @@ namespace ITransitionProject.Controllers
             {
                 Recruter = Recruter(),
                 Positions = positions,
+                ActionForAddPosition = "AddPosition",
+                ControllerForAddPosition = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForDeletePositions = "DeletePositions",
                 ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForViewPosition = "ViewPosition",
@@ -167,6 +175,8 @@ namespace ITransitionProject.Controllers
                 ControllerForGetAddingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetProjectTags = "GetProjectTags",
                 ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetPopularProjectTags = "GetPopularProjectTags",
+                ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetSkillTypeBySkillName = "GetSkillTypeBySkillName",
                 ControllerForGetSkillTypeBySkillName = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetSkillIdBySkillName = "GetSkillIdBySkillName",
@@ -199,8 +209,16 @@ namespace ITransitionProject.Controllers
         public IEnumerable<string> GetProjectTags(string prefix)
         {
             authService.Validate();
-            var tags = new List<string> { "aboba1", "aboba2" };
+            var tags = projectTagService.GetNamesByPrefix(prefix);
             return tags;
+        }
+
+        [HttpGet]
+        public IEnumerable<string> GetPopularProjectTags(int limit)
+        {
+            authService.Validate();
+            var projectTags = projectTagService.GetPopularTags((uint)limit).Select(x => x.Name).ToList();
+            return projectTags;
         }
 
         [HttpGet]
@@ -261,9 +279,11 @@ namespace ITransitionProject.Controllers
         public IActionResult ViewPositions()
         {
             var positons = positionService.GetAll();
-            var dto = new ViewPositionsPageDTO
+            var dto = new ViewPositionsRecruterPageDTO
             {
                 Positions = positons,
+                ActionForAddPosition = "AddPosition",
+                ControllerForAddPosition = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForDeletePositions = "DeletePositions",
                 ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForViewPosition = "ViewPosition",
@@ -312,6 +332,8 @@ namespace ITransitionProject.Controllers
                 ActionForGetPopularSkillNames = "GetPopularSkillsNames",
                 ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetEditingAccessRuleForm = "GetEditingAccessRuleForm",
+                ActionForGetPopularProjectTags = "GetPopularProjectTags",
+                ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
                 ControllerForGetEditingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
                 ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
@@ -324,6 +346,54 @@ namespace ITransitionProject.Controllers
         {
             positionService.UpdatePosition(dto);
             return RedirectToAction("ViewPosition", new { positionId = dto.Id });
+        }
+
+        [HttpGet]
+        public IActionResult ViewCVs()
+        {
+            IEnumerable<CV> cvs = cVService.GetAll();
+            IEnumerable<Position> positions = positionService.GetByIds(cvs.Select(x => x.PositionId).Distinct());
+            var dto = new ViewCVsRecruterPageDTO
+            {
+                CVs = cvs,
+                Positions = positions,
+                ActionForViewCV = "ViewCV",
+                ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName
+            };
+            return View("CVs/CVsView", dto);
+        }
+
+        [HttpGet]
+        public IActionResult ViewCV(Guid cvId)
+        {
+            CV cv = cVService.GetById(cvId);
+            IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(cv.CandidateId);
+            IEnumerable<Project> projects =
+                projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
+            var dto = new ViewCVRecruterPageDTO
+            {
+                CV = cv,
+                CandidateSkills = candidateSkills,
+                Projects = projects,
+                ActionForLike = "LikeCV",
+                ControllerForLike = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForUnlike = "UnlikeCV",
+                ControllerForUnlike = ControllerContext.ActionDescriptor.ControllerName,
+                IsCVLiked = cVService.IsCVLikedBy(cvId, Recruter())
+            };
+            return View("CVs/CVView", dto);
+        }
+
+        [HttpGet]
+        public void LikeCV(Guid cvId)
+        {
+            cVService.Like(cvId, Recruter());
+        }
+
+        [HttpGet]
+        public void UnlikeCV(Guid cvId)
+        {
+            cVService.Unlike(cvId, Recruter());
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿@model EditCVPageDTO
 @{
+	var ownerIdInputName = nameof(Model.PostedModel.OwnerId);
 	string bufferForUpdatingSkillsName = nameof(Model.PostedModel.BufferForUpdatingSkills);
 	string bufferForUpdatingProjectsName = nameof(Model.PostedModel.BufferForUpdatingProjects);
 	string buttonForSubmitId = "buttonForSubmitId";
@@ -14,8 +15,8 @@
 	updatingSkillsEventHandlers.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInUpdatingSkillBuffer3");
 	updatingSkillsEventHandlers.Add("uploadImage3", "uploadUpdatingSkillImage3");
 
-	IEnumerable<EditValuedSkillDTO> skillsDTOs = Model.CV.Candidate.Skills.Select(x => new EditValuedSkillDTO { ValuedSkillId = x.Id, Value = x.Value });
-	IEnumerable<EditCandidateSkillFormPageDTO> partialSkillsDTOs = Model.CV.Candidate.Skills.Select(x =>
+	IEnumerable<EditValuedSkillDTO> skillsDTOs = Model.CandidateSkills.Select(x => new EditValuedSkillDTO { ValuedSkillId = x.Id, Value = x.Value });
+	IEnumerable<EditCandidateSkillFormPageDTO> partialSkillsDTOs = Model.CandidateSkills.Select(x =>
 	{
 		//mapper
 		return new EditCandidateSkillFormPageDTO
@@ -36,7 +37,7 @@
 	updatingProjectsEventHandlers.Add("removeProjectTag2", "removeUpdatingProjectTag2");
 
 	List<ProjectRecordDTO> projectRecordDTOs = new List<ProjectRecordDTO>();
-	@foreach (var project in Model.CV.Candidate.Projects)
+	@foreach (var project in Model.Projects)
 	{
 		projectRecordDTOs.Add(new ProjectRecordDTO
 				{
@@ -65,7 +66,7 @@
 	}
 	IEnumerable<int> indexes = projectRecordDTOs.Count == 0 ? Enumerable.Empty<int>() : Enumerable.Range(0, projectRecordDTOs.Count - 1);
 
-	IEnumerable<EditProjectFormPageDTO> partialProjectsDTOs = Model.CV.Candidate.Projects.Select(x =>
+	IEnumerable<EditProjectFormPageDTO> partialProjectsDTOs = Model.Projects.Select(x =>
 	{
 		return new EditProjectFormPageDTO
 				{
@@ -73,7 +74,9 @@
 					Project = x,
 					EventsHandlers = updatingProjectsEventHandlers,
 					ActionForGetProjectTags = Model.ActionForGetProjectTags,
-					ControllerForGetProjectTags = Model.ControllerForGetProjectTags
+					ControllerForGetProjectTags = Model.ControllerForGetProjectTags,
+					ActionForGetPopularProjectTags = Model.ActionForGetPopularProjectTags,
+					ControllerForGetPopularProjectTags = Model.ControllerForGetPopularProjectTags
 
 				};
 	});
@@ -95,6 +98,7 @@
 	</div>
 </div>
 <form asp-action="@Model.ActionForSubmit" asp-controller="@Model.ControllerForSubmit" onsubmit="saveBufferInHiddenInput()" method="post">
+	<input type="hidden" name="@ownerIdInputName" value="@Model.CV.CandidateId"/>
 	<input id="@bufferForUpdatingSkillsName" type="hidden" name="@bufferForUpdatingSkillsName" />
 	<input id="@bufferForUpdatingProjectsName" type="hidden" name="@bufferForUpdatingProjectsName" />
 	<button id="@buttonForSubmitId" type="submit"> Save</button>
@@ -169,7 +173,7 @@
 
 <script>
 	let bufferForUpdatingSkills = @Json.Serialize(skillsDTOs);
-	let selectedSkills = @Json.Serialize(Model.CV.Candidate.Skills.Select(x => x.Skill.Name));
+	let selectedSkills = @Json.Serialize(Model.CandidateSkills.Select(x => x.Skill.Name));
 	let timeout = null;
 	let partsOfUpdatingPeriod = ['', ''];
 	let curLoadSkills = [];

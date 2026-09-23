@@ -1,4 +1,4 @@
-﻿@model ViewPositionsPageDTO
+﻿@model ViewPositionsRecruterPageDTO
 @inject IMarkdownTextFormater markdownTextFormater
 @{
 	
@@ -11,6 +11,12 @@
 					data-bs-title="Delete all selected positions"
 					class="btn btn-outline-danger">
 				<i class="bi bi-trash3"></i>
+			</button>
+			<button type="submit" asp-controller="@Model.ControllerForAddPosition" asp-action="@Model.ActionForAddPosition"
+					data-bs-toggle="tooltip" data-bs-placement="top"
+					data-bs-title="Add new position"
+					class="btn btn-outline-success">
+					+
 			</button>
 		</li>
 	</menu>

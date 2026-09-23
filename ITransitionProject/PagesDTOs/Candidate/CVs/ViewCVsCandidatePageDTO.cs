@@ -2,7 +2,7 @@
 
 namespace ITransitionProject.PagesDTOs.Candidate.CVs
 {
-    public class ViewCVsPageDTO
+    public class ViewCVsCandidatePageDTO
     {
         public IEnumerable<CV> CVs { get; set; }
         public IEnumerable<Position> Positions { get; set; }

@@ -17,6 +17,8 @@ namespace ITransitionProject.PagesDTOs.Recruter.Positions
         public required string ControllerForGetAddingAccessRuleForm { get; set; }
         public required string ActionForGetProjectTags { get; set; }
         public required string ControllerForGetProjectTags { get; set; }
+        public required string ActionForGetPopularProjectTags { get; set; }
+        public required string ControllerForGetPopularProjectTags { get; set; }
         public required string ActionForGetSkillTypeBySkillName { get; set; }
         public required string ControllerForGetSkillTypeBySkillName { get; set; }
         public required string ActionForGetSkillIdBySkillName { get; set; }

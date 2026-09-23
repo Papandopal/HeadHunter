@@ -9,7 +9,7 @@ namespace ITransitionProject
         {
             var res = new List<SkillTypes>();
             string dirPath = Path.Combine(env.ContentRootPath, "Views", "Shared", "AccessRules", "Add");
-            var pages = Directory.GetFiles(dirPath);//.Select(x=>x.Substring(x.LastIndexOf(Path.DirectorySeparatorChar)).Substring(0, x.LastIndexOf('.')));
+            var pages = Directory.GetFiles(dirPath);
             for (int i = 0;i<pages.Length;i++)
             {
                 var line = pages[i];

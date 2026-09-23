@@ -3,12 +3,11 @@ using EntityFrameworkCore.Triggered;
 using Infrastructure.Database;
 using Infrastructure.Database.Triggers.BeforeUpdating.ChangeVersion;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using UseCases.Database;
 using UseCases.Services;
-using UseCases.Services.AccessRuleServices;
-using UseCases.Services.AccessRuleServices.Interfaces;
 using UseCases.Services.AuthServices;
 using UseCases.Services.AuthServices.Interfaces;
 using UseCases.Services.CandidateServices;
@@ -17,6 +16,10 @@ using UseCases.Services.CategoryServices;
 using UseCases.Services.CategoryServices.Interfaces;
 using UseCases.Services.CVServices;
 using UseCases.Services.CVServices.Interfaces;
+using UseCases.Services.Entities.PositionSkillsServices;
+using UseCases.Services.Entities.PositionSkillsServices.Interfaces;
+using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices;
+using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces;
 using UseCases.Services.Formaters;
 using UseCases.Services.Formaters.Interfaces;
 using UseCases.Services.ImageServices;
@@ -33,8 +36,6 @@ using UseCases.Services.SkillServices;
 using UseCases.Services.SkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
-using UseCases.Services.ValuedSkillServices.PositionSkillsServices;
-using UseCases.Services.ValuedSkillServices.PositionSkillsServices.Interfaces;
 
 namespace ITransitionProject
 {
@@ -66,7 +67,7 @@ namespace ITransitionProject
             
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQLConnection"));
                 options.UseTriggers();
             });
 
@@ -106,11 +107,16 @@ namespace ITransitionProject
             builder.Services.AddTransient<AlertService>();
             builder.Services.AddTransient<SupportedAccessRuleSkillTypes>();
 
+            builder.Services.AddProblemDetails();
+
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "data-protection-keys")));
+
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler();
+                app.UseExceptionHandler("/Auth/Error");
                 app.UseHsts();
             }
 
@@ -125,6 +131,12 @@ namespace ITransitionProject
                 name: "default",
                 pattern: "{controller=Auth}/{action=Login}/{id?}")
                 .WithStaticAssets();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                dbContext.Database.Migrate();
+            }
 
             app.Run();
         }

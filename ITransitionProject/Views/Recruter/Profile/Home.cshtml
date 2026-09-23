@@ -1,8 +1,10 @@
 ﻿@model RecruterHomePageDTO
 @{
-	var partialModel = new ViewPositionsPageDTO
+	var partialModel = new ViewPositionsRecruterPageDTO
 			{
 				Positions = Model.Positions,
+				ActionForAddPosition = Model.ActionForAddPosition,
+				ControllerForAddPosition = Model.ControllerForAddPosition,
 				ActionForDeletePositions = Model.ActionForDeletePositions,
 				ControllerForDeletePositions = Model.ControllerForDeletePositions,
 				ActionForViewPosition = Model.ActionForViewPosition,

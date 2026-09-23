@@ -8,8 +8,6 @@ using UseCases.Services.AuthServices.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 
 namespace UseCases.Services.AuthServices
 {

@@ -85,23 +85,6 @@ namespace ITransitionProject.Controllers
             return View("Profile/Profile", dto);
         }
 
-        //[HttpGet]
-        //public IActionResult AddCandidateSkillsAndProjects()
-        //{
-        //    var model = new AddCandidateSkillsAndProjectsPageDTO
-        //    {
-        //        ActionForGetSkillsNames = "GetSkillsNames",
-        //        ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
-        //        ActionForGetSkillForm = "GetAddingSkillForm",
-        //        ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
-        //        ActionForGetProjectForm = "GetAddingProjectForm",
-        //        ControllerForGetProjectForm = ControllerContext.ActionDescriptor.ControllerName,
-        //        ActionForSubmit = "AddCandidateSkillsAndProjects",
-        //        ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
-        //    };
-        //    return View("CandidateSkillsAndProjects/CandidateSkillsAndProjectsAddMainForm", model);
-        //}
-
         [HttpGet]
         public IEnumerable<string> GetSkillsNames(string? prefix)
         {
@@ -128,6 +111,15 @@ namespace ITransitionProject.Controllers
             return skills;
         }
 
+
+        [HttpGet]
+        public IEnumerable<string> GetPopularProjectTags(int limit)
+        {
+            authService.Validate();
+            var projectTags = projectTagService.GetPopularTags((uint)limit).Select(x => x.Name).ToList();
+            return projectTags;
+        }
+
         [HttpGet]
         public IActionResult GetAddingSkillForm(string skillName, string eventsHandlers)
         {
@@ -151,6 +143,8 @@ namespace ITransitionProject.Controllers
                 EventsHandlers = EventsHandlers,
                 ActionForGetProjectTags = "GetProjectTagsNames",
                 ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetPopularProjectTags = "GetPopularProjectTags",
+                ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName
             };
             return PartialView("CandidateSkillsAndProjects/CandidateProjectAddPartialForm", dto);
         }
@@ -186,6 +180,8 @@ namespace ITransitionProject.Controllers
                 ControllerForUploadImage = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForGetPopularSkillNames = "GetPopularSkillsNames",
                 ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetPopularProjectTags = "GetPopularProjectTags",
+                ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
                 ActionToSubmit = "EditSkillsAndProjects",
                 ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
             };
@@ -299,8 +295,8 @@ namespace ITransitionProject.Controllers
         public IActionResult ViewCVs()
         {
             IEnumerable<CV> cvs = cVService.GetByOwnerId(Candidate().Id);
-            IEnumerable<Position> positions = positionService.GetByIds(cvs.Select(x => x.PositionId));
-            var dto = new ViewCVsPageDTO
+            IEnumerable<Position> positions = positionService.GetByIds(cvs.Select(x => x.PositionId).Distinct());
+            var dto = new ViewCVsCandidatePageDTO
             {
                 CVs = cvs,
                 Positions = positions,
@@ -314,12 +310,16 @@ namespace ITransitionProject.Controllers
         public IActionResult ViewCV(Guid cvId)
         {
             CV cv = cVService.GetById(cvId);
+            IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(cv.CandidateId);
             IEnumerable<Project> projects =
                 projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
-            var dto = new ViewCVPageDTO
+            var dto = new ViewCVCandidatePageDTO
             {
                 CV = cv,
-                Projects = projects
+                CandidateSkills = candidateSkills,
+                Projects = projects,
+                ActionForEditCV = "EditCV",
+                ControllerForEditCV = ControllerContext.ActionDescriptor.ControllerName
             };
             return View("CVs/CVView", dto);
         }
@@ -328,16 +328,22 @@ namespace ITransitionProject.Controllers
         public IActionResult EditCV(Guid cvId)
         {
             CV cv = cVService.GetById(cvId);
-
+            IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(cv.CandidateId);
+            IEnumerable<Project> projects =
+                projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
             var dto = new EditCVPageDTO
             {
                 CV = cv,
+                CandidateSkills = candidateSkills,
+                Projects = projects,
                 ActionForGetProjectTags = "GetProjectTagsNames",
                 ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForUploadImage = "UploadImage",
                 ControllerForUploadImage = ControllerContext.ActionDescriptor.ControllerName,
                 ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
                 ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForGetPopularProjectTags = "GetPopularProjectTags",
+                ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName
             };
 
             return View("CVs/CVEditMainForm", dto);

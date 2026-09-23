@@ -7,7 +7,9 @@ namespace ITransitionProject.PagesDTOs.Candidate.CandidateSkillsAndProjects
         public required string ProjectIndex { get; set; }
         public required Project Project { get; set; }
         public required Dictionary<string, string> EventsHandlers { get; set; } = new();
-        public required string ControllerForGetProjectTags { get; set; } = string.Empty;
-        public required string ActionForGetProjectTags { get; set; } = string.Empty;
+        public required string ControllerForGetProjectTags { get; set; } 
+        public required string ActionForGetProjectTags { get; set; } 
+        public required string ActionForGetPopularProjectTags {  get; set; }
+        public required string ControllerForGetPopularProjectTags { get; set; }
     }
 }

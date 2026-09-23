@@ -7,13 +7,13 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Domain.Entities;
 using UseCases.Database;
-using UseCases.Services.AccessRuleServices.DTOs;
-using UseCases.Services.AccessRuleServices.Interfaces;
 using UseCases.Services.Entities.PositionServices.DTOs;
+using UseCases.Services.Entities.PositionSkillsServices.DTOs;
+using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.DTOs;
+using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces;
 using UseCases.Services.PositionServices.DTOs;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.General.DTOs;
-using UseCases.Services.ValuedSkillServices.PositionSkillsServices.DTOs;
 
 namespace UseCases.Services.PositionServices
 {
@@ -105,6 +105,11 @@ namespace UseCases.Services.PositionServices
                     Value = x.Value
                 });
             return unitOfWork.PositionRepository.GetPersonaledPositionsBySkills(valuedSkills);
+        }
+
+        Position IPositionService.GetByOwnerId(Guid ownerId)
+        {
+           return  unitOfWork.PositionRepository.GetByOwnerId(ownerId);
         }
     }
 }

@@ -1,8 +1,7 @@
-﻿@model ViewCVsPageDTO
+﻿@model ViewCVsCandidatePageDTO
 @inject IMarkdownTextFormater markdownTextFormater
 @{
 	var positions = Model.Positions.ToDictionary(x => x.Id);
-	var cv1 = Model.CVs.First();
 }
 
 <table class="table">

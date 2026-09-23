@@ -9,9 +9,9 @@ namespace UseCases.Services.ValuedSkillServices.General.DTOs
 {
     public record EditValuedSkillDTO
     {
-        [JsonPropertyName("ValuedSkillId")]
+        [JsonPropertyName(nameof(ValuedSkillId))]
         public Guid ValuedSkillId { get; set; }
-        [JsonPropertyName("Value")]
+        [JsonPropertyName(nameof(Value))]
         public string Value { get; set; } = string.Empty;
     }
 }

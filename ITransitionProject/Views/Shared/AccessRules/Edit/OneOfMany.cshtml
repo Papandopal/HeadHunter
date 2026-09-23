@@ -1,14 +1,14 @@
 ﻿@model EditAccessRulePartialDTO
 @inject IOneOfManyFormater oneOfManyFormater
 @{
-	string selectId = "selectId";
-	string mainInputId = "mainInputId";
-	string extraRulesId = "extraRulesId";
+	var selectId = Guid.NewGuid();
+	var mainInputId = Guid.NewGuid();
+	var extraRulesId = Guid.NewGuid();
 	var operators = new List<FilterOperators> { FilterOperators.Equal, FilterOperators.NotEqual };
 	var ruleValues = oneOfManyFormater.Format(Model.AccessRule.Skill.PotentialValue);
 }
 <label>@Model.AccessRule.Skill.Name:</label>
-<select id="@selectId" onchange="ChangeOperatorSelector(this.value)">
+<select id="@selectId">
 	@for (int i = 0;i<operators.Count; i++)
 	{
 		<option selected="@(i==0)" value="@operators[i]">@operators[i].ToString()</option>
@@ -27,6 +27,7 @@
 	let allSelectValues = @Html.Raw(Json.Serialize(oneOfManyFormater.Format(Model.AccessRule.Skill.PotentialValue)));
 	let selectedValues = [];
 	let selector = document.getElementById('@selectId');
+	selector.onchange = function(){ ChangeOperatorSelector(this.value) };
 	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.AccessRule.Skill.Id', 'Operator', selector.value);
 	let input = document.getElementById('@mainInputId');
 	@(Model.EventHandlers["AddAccessRuleRecord3"])('@Model.AccessRule.Skill.Id', 'Value', input.value);

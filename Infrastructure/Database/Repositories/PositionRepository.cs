@@ -103,5 +103,10 @@ namespace Infrastructure.Database.Repositories
         {
             positions.Update(entity);
         }
+
+        Position IPositionRepository.GetByOwnerId(Guid ownerId)
+        {
+            return positions.First(x=>x.OwnerId == ownerId);
+        }
     }
 }

@@ -70,12 +70,16 @@ namespace UseCases.Services.SkillServices
 
         async Task ISkillService.PopulariyDownRangeAsync(IEnumerable<Guid> skillIds)
         {
+            unitOfWork.StartTransaction();
             await unitOfWork.SkillRepository.PopulariyDownRangeAsync(skillIds);
+            unitOfWork.Commit();
         }
 
         async Task ISkillService.PopulariyUpRangeAsync(IEnumerable<Guid> skillIds)
         {
+            unitOfWork.StartTransaction();
             await unitOfWork.SkillRepository.PopulariyUpRangeAsync(skillIds);
+            unitOfWork.Commit();
         }
 
         void ISkillService.UpdateByDTOs(IEnumerable<UpdateSkillDTO> updateSkillDTOs)

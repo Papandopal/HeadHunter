@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace UseCases.Services.ValuedSkillServices.PositionSkillsServices.DTOs
+namespace UseCases.Services.Entities.PositionSkillsServices.DTOs
 {
     public class AddPositionSkillDTO
     {

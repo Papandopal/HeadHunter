@@ -46,17 +46,17 @@ namespace Infrastructure.Database.Repositories
 
         Project IRepository<Project>.GetById(Guid id)
         {
-            return projects.First(x => x.Id == id);
+            return projects.Include(x=>x.ProjectTags).First(x => x.Id == id);
         }
 
         IEnumerable<Project> IProjectRepository.GetByIds(IEnumerable<Guid> ids)
         {
-            return projects.Where(x => ids.Contains(x.Id));
+            return projects.Include(x=>x.ProjectTags).Where(x => ids.Contains(x.Id));
         }
 
         IEnumerable<Project> IProjectRepository.GetByOwnerId(Guid ownerId)
         {
-            return projects.Where(x => x.OwnerId == ownerId);
+            return projects.Include(x=>x.ProjectTags).Where(x => x.OwnerId == ownerId);
         }
 
         IEnumerable<Project> IProjectRepository.GetPersonaledProjectsByTags(Guid ownerId, IEnumerable<ProjectTag> tags, uint limit)
@@ -64,7 +64,7 @@ namespace Infrastructure.Database.Repositories
             List<Project> result = new();
             foreach (var tag in tags)
             {
-                result.AddRange(projects.Where(x => x.OwnerId == ownerId && x.ProjectTags.Select(y => y.Name).Contains(tag.Name)));
+                result.AddRange(projects.Include(x=>x.ProjectTags).Where(x => x.OwnerId == ownerId && x.ProjectTags.Select(y => y.Name).Contains(tag.Name)));
                 if (result.Count > limit) break;
             }
             return result.Take((int)limit);

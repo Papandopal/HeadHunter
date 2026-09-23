@@ -110,6 +110,8 @@
 		addProjectTag(tag);
 	}
 
+	loadPopularProjectTags(10);
+
 	function onProjectTagsInputChange(prefix) {
 		clearTimeout(timeout);
 
@@ -117,7 +119,37 @@
 
 			loadProjectTags(prefix)
 
-		}, 1000);
+		}, 500);
+	}
+
+	function updateProjectTagSelector(data){
+		let select = document.getElementById('@projectTagsSelectorId');
+		let selectedTags = [...document.getElementById('@projectTagsRowId').getElementsByTagName('label')].map(x=>x.textContent);
+		let filteredData = [];
+
+		for(item of data){
+			if(typeof(selectedTags.find(x=>x === item)) === 'undefined'){
+				filteredData.push(item);
+			}
+		}
+
+		select.innerHTML = '<option selected hidden disabled>Project tags</option>' + filteredData
+		.map(item => `<option value="${item}">${item}</option>`)
+		.join('');
+	}
+
+	function loadPopularProjectTags(limit){
+		fetch(`/@Model.ControllerForGetPopularProjectTags/@Model.ActionForGetPopularProjectTags?limit=${encodeURIComponent(limit)}`,  {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data=>{
+			updateProjectTagSelector(data);
+		})
+		.catch(error=>console.error(error));
 	}
 
 	function loadProjectTags(prefix){
@@ -129,36 +161,27 @@
 		})
 		.then(response => response.json())
 		.then(data=>{
-			let select = document.getElementById('@projectTagsSelectorId');
-
-			let filteredData = [];
-
-			for(item of data){
-				if(typeof(bufferFoProjectTags.find(x=>x === item)) === 'undefined'){
-					filteredData.push(item);
-				}
-			}
-
-			select.innerHTML = '<option selected hidden disabled>Project tags</option>' + filteredData
-			.map(item => `<option value="${item}">${item}</option>`)
-			.join('');
+			updateProjectTagSelector(data);
 		})
-		.catch(error=>console.log(error));
+		.catch(error=>console.error(error));
 	}
 
 	function addProjectTag(tagName){
 		let projectTagsSelector = document.getElementById('@projectTagsSelectorId');
 
+		let newProjectTag = document.createElement('div');
+		newProjectTag.id = tagName;
+
 		let newProjectTagName = document.createElement('label')
 		newProjectTagName.textContent = tagName;
 
 		let newProjectTagRemoveButton = document.createElement('button');
-		newProjectTagRemoveButton.onclick = function(){ removeProjectTag(tagName) };
+		newProjectTagRemoveButton.onclick = function(){ removeProjectTag(newProjectTag.id, tagName) };
 		newProjectTagRemoveButton.innerText = "-";
 		newProjectTagRemoveButton.classList.add("btn");
+		newProjectTagRemoveButton.classList.add("btn-outline-danger");
 
-		let newProjectTag = document.createElement('div');
-		newProjectTag.id = tagName;
+
 		newProjectTag.appendChild(newProjectTagName);
 		newProjectTag.appendChild(newProjectTagRemoveButton);
 
@@ -169,7 +192,7 @@
 		bufferFoProjectTags.push(tagName);
 	}
 
-	function removeProjectTag(tagName){
+	function removeProjectTag(id, tagName){
 		let projectTagsSelector = document.getElementById('@projectTagsSelectorId');
 		let newOption = document.createElement('option');
 		newOption.value = tagName;
@@ -177,6 +200,7 @@
 		projectTagsSelector.appendChild(newOption);
 
 		bufferFoProjectTags = bufferFoProjectTags.filter(x=>x!== tagName);
+		document.getElementById(id).remove();
 	}
 </script>
 
