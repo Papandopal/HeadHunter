@@ -1,6 +1,7 @@
 ﻿@model EditSkillsPageDTO
 @{
 	string inputForSubmitId = "inputForSubmitId";
+	Dictionary<Guid, long> skillsVersions = new(Model.Skills.Select(x => new KeyValuePair<Guid, long>(x.Id, x.Version)));
 }
 @foreach (var skill in Model.Skills)
 {
@@ -35,6 +36,14 @@
 
 	}
 	let data = [];
+
+
+	let skillsVersions = @Json.Serialize(skillsVersions);
+
+	for(let [key, value] of Object.entries(skillsVersions)){
+		data.push(new Record(key, 'Version', String(value)));
+	}
+
 	function addProperty(skillId, propName, propValue) {
 		let item = data.find(item => item.SkillId === skillId && item.PropName === propName);
 		if (typeof item !== 'undefined') {

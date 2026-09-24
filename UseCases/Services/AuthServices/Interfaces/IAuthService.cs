@@ -13,6 +13,6 @@ namespace UseCases.Services.AuthServices.Interfaces
         public Task<AuthorizedUserDTO?> Verify(VerifyUserDTO verifyUserDTO);
         public Task<AuthorizedUserDTO?> Registrate(RegistrateUserDTO registrateUserDTO);
         public Task<AuthorizedUserDTO?> TryAuthorizeFromGoogle(VerifyUserFromGoogleDTO verifyUserFromGoogleDTO);
-        public void Validate();
+        public bool Validate();
     }
 }

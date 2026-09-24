@@ -2,15 +2,18 @@
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
+using Infrastructure.Database.Exceptions;
 using ITransitionProject.PagesDTOs.Administrator.Positions;
 using ITransitionProject.PagesDTOs.Candidate.CVs;
 using ITransitionProject.PagesDTOs.Recruter.Positions;
 using Microsoft.AspNetCore.Mvc;
+using UseCases.Services;
 using UseCases.Services.AuthServices.Interfaces;
 using UseCases.Services.CVServices.Interfaces;
 using UseCases.Services.Entities.CVServices.DTOs;
 using UseCases.Services.Entities.PositionServices.DTOs;
 using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces;
+using UseCases.Services.Exceptions;
 using UseCases.Services.ImageServices.Interfaces;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.ProjectServices.DTOs;
@@ -25,8 +28,56 @@ namespace ITransitionProject.Controllers
     [EnumAuthorize(UserRoles.Administrator)]
     public class AdministratorController(ICVService cVService, IPositionService positionService, IProjectService projectService,
         ICandidateSkillService candidateSkillService, IConfiguration configuration, IImageService imageService, ISkillService skillService,
-        IAuthService authService, IProjectTagService projectTagService, IAccessRuleService accessRuleService) : Controller
+        IAuthService authService, IProjectTagService projectTagService, IAccessRuleService accessRuleService,
+        AlertService alertService) : Controller
     {
+        private IActionResult ValidationDecorator(Func<IActionResult> action, string reconnectActionName)
+        {
+            try
+            {
+                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
+                return action.Invoke();
+            }
+            catch (NotEqualItemVersionException ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
+                return RedirectToAction(reconnectActionName);
+            }
+            catch (FailedAuthValidationException ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
+                return RedirectToAction(nameof(Home));
+            }
+            catch (Exception ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Warning);
+                return RedirectToAction("Logout", "Auth");
+            }
+        }
+
+        private async Task<IActionResult> ValidationDecoratorAsync(Func<Task<IActionResult>> action, string reconnectActionName)
+        {
+            try
+            {
+                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
+                return await action.Invoke();
+            }
+            catch (NotEqualItemVersionException ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
+                return RedirectToAction(reconnectActionName);
+            }
+            catch (FailedAuthValidationException ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
+                return RedirectToAction("Logout", "Auth");
+            }
+            catch (Exception ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Warning);
+                return RedirectToAction(nameof(Home));
+            }
+        }
         public IActionResult Home()
         {
             return View("Profile/Home");
@@ -35,65 +86,73 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IActionResult ViewCVs()
         {
-            IEnumerable<CV> cvs = cVService.GetAll();
-            IEnumerable<Position> positions = positionService.GetByIds(cvs.Select(x => x.PositionId).Distinct());
-            var dto = new ViewCVsCandidatePageDTO
+            return ValidationDecorator(() =>
             {
-                CVs = cvs,
-                Positions = positions,
-                ActionForViewCV = "ViewCV",
-                ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("../Candidate/CVs/CVsView", dto);
+                IEnumerable<CV> cvs = cVService.GetAll();
+                IEnumerable<Position> positions = positionService.GetByIds(cvs.Select(x => x.PositionId).Distinct());
+                var dto = new ViewCVsCandidatePageDTO
+                {
+                    CVs = cvs,
+                    Positions = positions,
+                    ActionForViewCV = "ViewCV",
+                    ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("../Candidate/CVs/CVsView", dto);
+            }, nameof(Home));
         }
 
         [HttpGet]
         public IActionResult ViewCV(Guid cvId)
         {
-            CV cv = cVService.GetById(cvId);
-            IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(cv.CandidateId);
-            IEnumerable<Project> projects =
-                projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
-            var dto = new ViewCVCandidatePageDTO
+            return ValidationDecorator(() =>
             {
-                CV = cv,
-                CandidateSkills = candidateSkills,
-                Projects = projects,
-                ActionForEditCV = nameof(EditCV),
-                ControllerForEditCV = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("../Candidate/CVs/CVView", dto);
+                CV cv = cVService.GetById(cvId);
+                IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(cv.CandidateId);
+                IEnumerable<Project> projects =
+                    projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
+                var dto = new ViewCVCandidatePageDTO
+                {
+                    CV = cv,
+                    CandidateSkills = candidateSkills,
+                    Projects = projects,
+                    ActionForEditCV = nameof(EditCV),
+                    ControllerForEditCV = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("../Candidate/CVs/CVView", dto);
+            }, nameof(ViewCVs));
         }
 
         [HttpGet]
         public IActionResult EditCV(Guid cvId)
         {
-            CV cv = cVService.GetById(cvId);
-            IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(cv.CandidateId);
-            IEnumerable<Project> projects =
-                projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
-            var dto = new EditCVPageDTO
+            return ValidationDecorator(() =>
             {
-                CV = cv,
-                CandidateSkills = candidateSkills,
-                Projects = projects,
-                ActionForGetProjectTags = nameof(GetProjectTagsNames),
-                ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForUploadImage = nameof(UploadImage),
-                ControllerForUploadImage = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetPopularProjectTags = nameof(GetPopularProjectTags),
-                ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
-                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
-            };
+                CV cv = cVService.GetById(cvId);
+                IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(cv.CandidateId);
+                IEnumerable<Project> projects =
+                    projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
+                var dto = new EditCVPageDTO
+                {
+                    CV = cv,
+                    CandidateSkills = candidateSkills,
+                    Projects = projects,
+                    ActionForGetProjectTags = nameof(GetProjectTagsNames),
+                    ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForUploadImage = nameof(UploadImage),
+                    ControllerForUploadImage = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetPopularProjectTags = nameof(GetPopularProjectTags),
+                    ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
+                    ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
+                };
 
-            return View("../Candidate/CVs/CVEditMainForm", dto);
+                return View("../Candidate/CVs/CVEditMainForm", dto);
+            }, nameof(ViewCVs));
         }
 
         [HttpGet]
         public IEnumerable<string> GetSkillsNames(string prefix)
         {
-            authService.Validate();
             var skills = skillService.GetAllSkillsNamesByPrefix(prefix);
             return skills;
         }
@@ -101,7 +160,6 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IEnumerable<string> GetPopularSkillsNames(int count)
         {
-            authService.Validate();
             var skills = skillService.GetPopularSkillsNames(count);
             return skills;
         }
@@ -109,7 +167,6 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IEnumerable<string> GetProjectTags(string prefix)
         {
-            authService.Validate();
             var tags = projectTagService.GetNamesByPrefix(prefix);
             return tags;
         }
@@ -117,7 +174,6 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IEnumerable<string> GetProjectTagsNames(string? prefix)
         {
-            authService.Validate();
             var i = HttpContext.Request.Query["prefix"];
             var projectTags = projectTagService.GetNamesByPrefix(i);
             return projectTags;
@@ -126,7 +182,6 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IEnumerable<string> GetPopularProjectTags(int limit)
         {
-            authService.Validate();
             var projectTags = projectTagService.GetPopularTags((uint)limit).Select(x => x.Name).ToList();
             return projectTags;
         }
@@ -134,14 +189,12 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public string GetSkillTypeBySkillName(string skillName)
         {
-            authService.Validate();
             return skillService.GetSkillTypeBySkillName(skillName).ToString();
         }
 
         [HttpGet]
         public string GetSkillIdBySkillName(string skillName)
         {
-            authService.Validate();
             return skillService.GetIdBySkillName(skillName).ToString();
         }
 
@@ -206,79 +259,97 @@ namespace ITransitionProject.Controllers
         [HttpPost]
         public async Task<IActionResult> EditCV(EditCVDTO dto)
         {
-            await TryUpdateItems(dto.OwnerId, dto.BufferForUpdatingSkills, dto.BufferForUpdatingProjects);
-            return RedirectToAction("ViewCV", new { cvId = dto.OwnerId });
+            return await ValidationDecoratorAsync(async () =>
+            {
+                await TryUpdateItems(dto.OwnerId, dto.BufferForUpdatingSkills, dto.BufferForUpdatingProjects);
+                return RedirectToAction("ViewCV", new { cvId = dto.OwnerId });
+            }, nameof(ViewCVs));
         }
 
         [HttpGet]
         public IActionResult ViewPositions()
         {
-            var positons = positionService.GetAll();
-            var dto = new ViewPositionsAdministratorPageDTO
+            return ValidationDecorator(() =>
             {
-                Positions = positons,
-                ActionForDeletePositions = nameof(DeletePositions),
-                ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForViewPosition = nameof(ViewPosition),
-                ControllerForViewPosition = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("Positions/PositionsView", dto);
+                var positons = positionService.GetAll();
+                var dto = new ViewPositionsAdministratorPageDTO
+                {
+                    Positions = positons,
+                    ActionForDeletePositions = nameof(DeletePositions),
+                    ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForViewPosition = nameof(ViewPosition),
+                    ControllerForViewPosition = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("Positions/PositionsView", dto);
+            }, nameof(Home));
         }
         [HttpGet]
         public IActionResult ViewPosition(Guid positionId)
         {
-            var position = positionService.GetById(positionId);
-            var dto = new ViewPositionPageDTO
+            return ValidationDecorator(() =>
             {
-                Position = position,
-                ActionForEditPosition = nameof(EditPosition),
-                ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName,
-            };
-            return View("../Recruter/Positions/PositionView", dto);
+                var position = positionService.GetById(positionId);
+                var dto = new ViewPositionPageDTO
+                {
+                    Position = position,
+                    ActionForEditPosition = nameof(EditPosition),
+                    ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName,
+                };
+                return View("../Recruter/Positions/PositionView", dto);
+            }, nameof(ViewPositions));
         }
         [HttpGet]
         public IActionResult DeletePositions(IEnumerable<Guid> positions)
         {
-            positionService.DeleteRange(positions);
-            return RedirectToAction("ViewPositions");
+            return ValidationDecorator(() =>
+            {
+                positionService.DeleteRange(positions);
+                return RedirectToAction("ViewPositions");
+            }, nameof(ViewPositions));
         }
 
         [HttpGet]
         public IActionResult EditPosition(Guid positionId)
         {
-            var position = positionService.GetById(positionId);
-            var dto = new EditPositionPageDTO
+            return ValidationDecorator(() =>
             {
-                Position = position,
-                ActionForGetSkillsNames = nameof(GetSkillsNames),
-                ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillForm = "GetPositionSkillPartialForm",
-                ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetAddingAccessRuleForm = "GetAddingAccessRuleForm",
-                ControllerForGetAddingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetProjectTags = "GetProjectTags",
-                ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillTypeBySkillName = "GetSkillTypeBySkillName",
-                ControllerForGetSkillTypeBySkillName = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillIdBySkillName = "GetSkillIdBySkillName",
-                ControllerForGetSkillIdBySkillName = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetPopularSkillNames = "GetPopularSkillsNames",
-                ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetEditingAccessRuleForm = "GetEditingAccessRuleForm",
-                ActionForGetPopularProjectTags = "GetPopularProjectTags",
-                ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-                ControllerForGetEditingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
-                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("../Recruter/Positions/PositionEditMainForm", dto);
+                var position = positionService.GetById(positionId);
+                var dto = new EditPositionPageDTO
+                {
+                    Position = position,
+                    ActionForGetSkillsNames = nameof(GetSkillsNames),
+                    ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSkillForm = "GetPositionSkillPartialForm",
+                    ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetAddingAccessRuleForm = "GetAddingAccessRuleForm",
+                    ControllerForGetAddingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetProjectTags = "GetProjectTags",
+                    ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSkillTypeBySkillName = "GetSkillTypeBySkillName",
+                    ControllerForGetSkillTypeBySkillName = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSkillIdBySkillName = "GetSkillIdBySkillName",
+                    ControllerForGetSkillIdBySkillName = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetPopularSkillNames = "GetPopularSkillsNames",
+                    ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetEditingAccessRuleForm = "GetEditingAccessRuleForm",
+                    ActionForGetPopularProjectTags = "GetPopularProjectTags",
+                    ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                    ControllerForGetEditingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
+                    ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("../Recruter/Positions/PositionEditMainForm", dto);
+            }, nameof(ViewPositions));
         }
 
         [HttpPost]
         public IActionResult EditPosition(EditPositionDTO dto)
         {
-            positionService.UpdatePosition(dto);
-            return RedirectToAction("ViewPosition", new { positionId = dto.Id });
+            return ValidationDecorator(() =>
+            {
+                positionService.UpdatePosition(dto);
+                return RedirectToAction("ViewPosition", new { positionId = dto.Id });
+            }, nameof(ViewPositions));
         }
     }
 }

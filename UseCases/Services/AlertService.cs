@@ -7,14 +7,14 @@ namespace UseCases.Services
     {
         public void RaiseAlert(string message, AlertTypes type)
         {
-            httpContextAccessor.HttpContext?.Items.Add("Alert", message);
-            httpContextAccessor.HttpContext?.Items.Add("AlertType", type);
+            httpContextAccessor.HttpContext?.Response.Cookies.Append("Alert", message);
+            httpContextAccessor.HttpContext?.Response.Cookies.Append("AlertType", type.ToString());
         }
 
         public void RaiseSuccess(string message = "Success")
         {
-            httpContextAccessor.HttpContext?.Items.Add("Alert", message);
-            httpContextAccessor.HttpContext?.Items.Add("AlertType", AlertTypes.Success);
+            httpContextAccessor.HttpContext?.Response.Cookies.Append("Alert", message);
+            httpContextAccessor.HttpContext?.Response.Cookies.Append("AlertType", AlertTypes.Success.ToString());
         }
     }
 }

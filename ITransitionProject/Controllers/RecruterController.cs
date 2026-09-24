@@ -2,6 +2,7 @@
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
+using Infrastructure.Database.Exceptions;
 using ITransitionProject.PagesDTOs.Recruter.Categories;
 using ITransitionProject.PagesDTOs.Recruter.CVs;
 using ITransitionProject.PagesDTOs.Recruter.Positions;
@@ -15,6 +16,7 @@ using UseCases.Services.CategoryServices.Interfaces;
 using UseCases.Services.CVServices.Interfaces;
 using UseCases.Services.Entities.PositionServices.DTOs;
 using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces;
+using UseCases.Services.Exceptions;
 using UseCases.Services.PositionServices.DTOs;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.ProjectServices.Interfaces;
@@ -30,7 +32,7 @@ namespace ITransitionProject.Controllers
     [EnumAuthorize(UserRoles.Recruter)]
     public class RecruterController(ICategoryService categoryService, ISkillService skillService, IAuthService authService,
         IRecruterService recruterService, IPositionService positionService, IProjectTagService projectTagService, AlertService alertService,
-        IAccessRuleService accessRuleService, ICVService cVService, IProjectService projectService, 
+        IAccessRuleService accessRuleService, ICVService cVService, IProjectService projectService,
         ICandidateSkillService candidateSkillService) : Controller
     {
 
@@ -39,11 +41,60 @@ namespace ITransitionProject.Controllers
             return recruterService.GetItemOrDefaultByOwnerId(authService.User().Id);
         }
 
+        private IActionResult ValidationDecorator(Func<IActionResult> action, string reconnectActionName)
+        {
+            try
+            {
+                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
+                if (Recruter() is null) throw new FailedAuthValidationException("Recruter not created");
+                return action.Invoke();
+            }
+            catch (NotEqualItemVersionException ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
+                return RedirectToAction(reconnectActionName);
+            }
+            catch (FailedAuthValidationException ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
+                return RedirectToAction(nameof(Home));
+            }
+            catch (Exception ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Warning);
+                return RedirectToAction("Logout", "Auth");
+            }
+        }
+
+        private async Task<IActionResult> ValidationDecoratorAsync(Func<Task<IActionResult>> action, string reconnectActionName)
+        {
+            try
+            {
+                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
+                if (Recruter() is null) throw new Exception("Recruter not created");
+                return await action.Invoke();
+            }
+            catch (NotEqualItemVersionException ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
+                return RedirectToAction(reconnectActionName);
+            }
+            catch (FailedAuthValidationException ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
+                return RedirectToAction("Logout", "Auth");
+            }
+            catch (Exception ex)
+            {
+                alertService.RaiseAlert(ex.Message, AlertTypes.Warning);
+                return RedirectToAction(nameof(Home));
+            }
+        }
+
         [HttpGet]
         public IActionResult Home()
         {
-            authService.Validate();
-            if (recruterService.GetItemOrDefaultByOwnerId(authService.User().Id) is null)
+            if (Recruter() is null)
             {
                 var createRecruterDTO = new CreateRecruterProfilePageDTO
                 {
@@ -56,7 +107,7 @@ namespace ITransitionProject.Controllers
             var positions = positionService.GetAll();
             var homeDTO = new RecruterHomePageDTO
             {
-                Recruter = Recruter(),
+                Recruter = Recruter()!,
                 Positions = positions,
                 ActionForAddPosition = "AddPosition",
                 ControllerForAddPosition = ControllerContext.ActionDescriptor.ControllerName,
@@ -83,116 +134,140 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IActionResult Profile()
         {
-            var dto = new RecruterProfilePageDTO
+            return ValidationDecorator(() =>
             {
-                Recruter = Recruter()
-            };
-            return View("Profile/Profile", dto);
+                var dto = new RecruterProfilePageDTO
+                {
+                    Recruter = Recruter()
+                };
+                return View("Profile/Profile", dto);
+            }, nameof(Home));
+
         }
 
         [HttpGet]
         public IActionResult AddSkill()
         {
-            var dto = new AddSkillPageDTO
+            return ValidationDecorator(() =>
             {
-                ActionToSubmit = ControllerContext.ActionDescriptor.ActionName,
-                ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName,
-                Categories = categoryService.GetAll(),
-                CountOfRequiredProperties = 4
-            };
-            return View("Skills/SkillAdd", dto);
+                var dto = new AddSkillPageDTO
+                {
+                    ActionToSubmit = ControllerContext.ActionDescriptor.ActionName,
+                    ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName,
+                    Categories = categoryService.GetAll(),
+                    CountOfRequiredProperties = 4
+                };
+                return View("Skills/SkillAdd", dto);
+            }, nameof(Home));
         }
 
         [HttpPost]
         public async Task<IActionResult> AddSkill(AddSkillDTO addSkillDTO)
         {
-            var category = await categoryService.GetByNameAsync(addSkillDTO.CategoryName);
-
-            var newSkill = new Skill
+            return await ValidationDecoratorAsync(async () =>
             {
-                Category = category,
-                Name = addSkillDTO.Name,
-                PotentialValue = addSkillDTO.PotencialValue,
-                Type = Enum.Parse<SkillTypes>(addSkillDTO.TypeName),
-            };
+                var category = await categoryService.GetByNameAsync(addSkillDTO.CategoryName);
 
-            await skillService.AddAsync(newSkill);
-            return RedirectToAction("AddSkill");
+                var newSkill = new Skill
+                {
+                    Category = category,
+                    Name = addSkillDTO.Name,
+                    PotentialValue = addSkillDTO.PotencialValue,
+                    Type = Enum.Parse<SkillTypes>(addSkillDTO.TypeName),
+                };
+
+                await skillService.AddAsync(newSkill);
+                return RedirectToAction("AddSkill");
+            }, nameof(AddSkill));
         }
 
         [HttpGet]
 
         public IActionResult EditSkill()
         {
-            var dto = new EditSkillsPageDTO
+            return ValidationDecorator(() =>
             {
-                Skills = skillService.GetAll(),
-                Categories = categoryService.GetAll(),
-                ActionToSubmit = ControllerContext.ActionDescriptor.ActionName,
-                ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("Skills/SkillsEdit", dto);
+                var dto = new EditSkillsPageDTO
+                {
+                    Skills = skillService.GetAll(),
+                    Categories = categoryService.GetAll(),
+                    ActionToSubmit = ControllerContext.ActionDescriptor.ActionName,
+                    ControllerToSubmit = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("Skills/SkillsEdit", dto);
+            }, nameof(Home));
         }
 
         [HttpPost]
         public IActionResult EditSkill(string json)
         {
-            List<UpdateSkillDTO> dtos = JsonSerializer.Deserialize<List<UpdateSkillDTO>>(json);
-            skillService.UpdateByDTOs(dtos);
-            return RedirectToAction("Profile");
+            return ValidationDecorator(() =>
+            {
+                List<UpdateSkillDTO> dtos = JsonSerializer.Deserialize<List<UpdateSkillDTO>>(json);
+                skillService.UpdateByDTOs(dtos);
+                return RedirectToAction("Profile");
+            }, nameof(EditSkill));
         }
 
         [HttpGet]
         public IActionResult AddCategory()
         {
-            var dto = new AddCategoryPageDTO
+            return ValidationDecorator(() =>
             {
-                ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
-                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
-            };
+                var dto = new AddCategoryPageDTO
+                {
+                    ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
+                    ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
+                };
 
-            return View("Categories/CategoryAdd", dto);
+                return View("Categories/CategoryAdd", dto);
+            }, nameof(Home));
         }
 
         [HttpPost]
         public IActionResult AddCategory(AddCategoryDTO dto)
         {
-            var newCategory = new Category { Name = dto.Name };
-            categoryService.Add(newCategory);
-            return RedirectToAction("AddCategory");
+            return ValidationDecorator(() =>
+            {
+                var newCategory = new Category { Name = dto.Name };
+                categoryService.Add(newCategory);
+                return RedirectToAction("AddCategory");
+            }, nameof(Home));
         }
 
         [HttpGet]
         public IActionResult AddPosition()
         {
-            var dto = new AddPositionPageMainFormDTO
+            return ValidationDecorator(() =>
             {
-                ActionForGetSkillsNames = "GetSkillsNames",
-                ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillForm = "GetPositionSkillPartialForm",
-                ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetAddingAccessRuleForm = "GetAddingAccessRuleForm",
-                ControllerForGetAddingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetProjectTags = "GetProjectTags",
-                ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetPopularProjectTags = "GetPopularProjectTags",
-                ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillTypeBySkillName = "GetSkillTypeBySkillName",
-                ControllerForGetSkillTypeBySkillName = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillIdBySkillName = "GetSkillIdBySkillName",
-                ControllerForGetSkillIdBySkillName = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetPopularSkillNames = "GetPopularSkillsNames",
-                ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
-                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("Positions/PositionAddMainForm", dto);
+                var dto = new AddPositionPageMainFormDTO
+                {
+                    ActionForGetSkillsNames = "GetSkillsNames",
+                    ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSkillForm = "GetPositionSkillPartialForm",
+                    ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetAddingAccessRuleForm = "GetAddingAccessRuleForm",
+                    ControllerForGetAddingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetProjectTags = "GetProjectTags",
+                    ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetPopularProjectTags = "GetPopularProjectTags",
+                    ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSkillTypeBySkillName = "GetSkillTypeBySkillName",
+                    ControllerForGetSkillTypeBySkillName = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSkillIdBySkillName = "GetSkillIdBySkillName",
+                    ControllerForGetSkillIdBySkillName = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetPopularSkillNames = "GetPopularSkillsNames",
+                    ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
+                    ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("Positions/PositionAddMainForm", dto);
+            }, nameof(Home));
         }
 
         [HttpGet]
         public IEnumerable<string> GetSkillsNames(string prefix)
         {
-            authService.Validate();
             var skills = skillService.GetAllSkillsNamesByPrefix(prefix);
             return skills;
         }
@@ -200,7 +275,6 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IEnumerable<string> GetPopularSkillsNames(int count)
         {
-            authService.Validate();
             var skills = skillService.GetPopularSkillsNames(count);
             return skills;
         }
@@ -208,7 +282,6 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IEnumerable<string> GetProjectTags(string prefix)
         {
-            authService.Validate();
             var tags = projectTagService.GetNamesByPrefix(prefix);
             return tags;
         }
@@ -216,7 +289,6 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IEnumerable<string> GetPopularProjectTags(int limit)
         {
-            authService.Validate();
             var projectTags = projectTagService.GetPopularTags((uint)limit).Select(x => x.Name).ToList();
             return projectTags;
         }
@@ -224,14 +296,12 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public string GetSkillTypeBySkillName(string skillName)
         {
-            authService.Validate();
             return skillService.GetSkillTypeBySkillName(skillName).ToString();
         }
 
         [HttpGet]
         public string GetSkillIdBySkillName(string skillName)
         {
-            authService.Validate();
             return skillService.GetIdBySkillName(skillName).ToString();
         }
 
@@ -271,117 +341,141 @@ namespace ITransitionProject.Controllers
         [HttpPost]
         public IActionResult AddPosition(AddPositionDTO addPositionDTO)
         {
-            positionService.AddPosition(addPositionDTO, Recruter().Id);
-            return RedirectToAction("Profile");
+            return ValidationDecorator(() =>
+            {
+                positionService.AddPosition(addPositionDTO, Recruter().Id);
+                return RedirectToAction("Profile");
+            }, nameof(AddPosition));
         }
 
         [HttpGet]
         public IActionResult ViewPositions()
         {
-            var positons = positionService.GetAll();
-            var dto = new ViewPositionsRecruterPageDTO
+            return ValidationDecorator(() =>
             {
-                Positions = positons,
-                ActionForAddPosition = "AddPosition",
-                ControllerForAddPosition = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForDeletePositions = "DeletePositions",
-                ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForViewPosition = "ViewPosition",
-                ControllerForViewPosition = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("Positions/PositionsView", dto);
+                var positons = positionService.GetAll();
+                var dto = new ViewPositionsRecruterPageDTO
+                {
+                    Positions = positons,
+                    ActionForAddPosition = "AddPosition",
+                    ControllerForAddPosition = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForDeletePositions = "DeletePositions",
+                    ControllerForDeletePositions = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForViewPosition = "ViewPosition",
+                    ControllerForViewPosition = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("Positions/PositionsView", dto);
+            }, nameof(Home));
         }
         [HttpGet]
         public IActionResult ViewPosition(Guid positionId)
         {
-            var position = positionService.GetById(positionId);
-            var dto = new ViewPositionPageDTO
+            return ValidationDecorator(() =>
             {
-                Position = position,
-                ActionForEditPosition = "EditPosition",
-                ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName,
-            };
-            return View("Positions/PositionView", dto);
+                var position = positionService.GetById(positionId);
+                var dto = new ViewPositionPageDTO
+                {
+                    Position = position,
+                    ActionForEditPosition = "EditPosition",
+                    ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName,
+                };
+                return View("Positions/PositionView", dto);
+            }, nameof(ViewPositions));
         }
         [HttpGet]
         public IActionResult DeletePositions(IEnumerable<Guid> positions)
         {
-            positionService.DeleteRange(positions);
-            return RedirectToAction("ViewPositions");
+            return ValidationDecorator(() =>
+            {
+                positionService.DeleteRange(positions);
+                return RedirectToAction("ViewPositions");
+            }, nameof(ViewPositions));
         }
 
         [HttpGet]
         public IActionResult EditPosition(Guid positionId)
         {
-            var position = positionService.GetById(positionId);
-            var dto = new EditPositionPageDTO
+            return ValidationDecorator(() =>
             {
-                Position = position,
-                ActionForGetSkillsNames = "GetSkillsNames",
-                ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillForm = "GetPositionSkillPartialForm",
-                ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetAddingAccessRuleForm = "GetAddingAccessRuleForm",
-                ControllerForGetAddingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetProjectTags = "GetProjectTags",
-                ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillTypeBySkillName = "GetSkillTypeBySkillName",
-                ControllerForGetSkillTypeBySkillName = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetSkillIdBySkillName = "GetSkillIdBySkillName",
-                ControllerForGetSkillIdBySkillName = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetPopularSkillNames = "GetPopularSkillsNames",
-                ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForGetEditingAccessRuleForm = "GetEditingAccessRuleForm",
-                ActionForGetPopularProjectTags = "GetPopularProjectTags",
-                ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
-                ControllerForGetEditingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
-                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("Positions/PositionEditMainForm", dto);
+                var position = positionService.GetById(positionId);
+                var dto = new EditPositionPageDTO
+                {
+                    Position = position,
+                    ActionForGetSkillsNames = "GetSkillsNames",
+                    ControllerForGetSkillsNames = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSkillForm = "GetPositionSkillPartialForm",
+                    ControllerForGetSkillForm = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetAddingAccessRuleForm = "GetAddingAccessRuleForm",
+                    ControllerForGetAddingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetProjectTags = "GetProjectTags",
+                    ControllerForGetProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSkillTypeBySkillName = "GetSkillTypeBySkillName",
+                    ControllerForGetSkillTypeBySkillName = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSkillIdBySkillName = "GetSkillIdBySkillName",
+                    ControllerForGetSkillIdBySkillName = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetPopularSkillNames = "GetPopularSkillsNames",
+                    ControllerForGetPopularSkillNames = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetEditingAccessRuleForm = "GetEditingAccessRuleForm",
+                    ActionForGetPopularProjectTags = "GetPopularProjectTags",
+                    ControllerForGetPopularProjectTags = ControllerContext.ActionDescriptor.ControllerName,
+                    ControllerForGetEditingAccessRuleForm = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
+                    ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("Positions/PositionEditMainForm", dto);
+            }, nameof(ViewPositions));
         }
 
         [HttpPost]
         public IActionResult EditPosition(EditPositionDTO dto)
         {
-            positionService.UpdatePosition(dto);
-            return RedirectToAction("ViewPosition", new { positionId = dto.Id });
+            return ValidationDecorator(() =>
+            {
+                positionService.UpdatePosition(dto);
+                return RedirectToAction("ViewPosition", new { positionId = dto.Id });
+            }, nameof(EditPosition));
         }
 
         [HttpGet]
         public IActionResult ViewCVs()
         {
-            IEnumerable<CV> cvs = cVService.GetAll();
-            IEnumerable<Position> positions = positionService.GetByIds(cvs.Select(x => x.PositionId).Distinct());
-            var dto = new ViewCVsRecruterPageDTO
+            return ValidationDecorator(() =>
             {
-                CVs = cvs,
-                Positions = positions,
-                ActionForViewCV = "ViewCV",
-                ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName
-            };
-            return View("CVs/CVsView", dto);
+                IEnumerable<CV> cvs = cVService.GetAll();
+                IEnumerable<Position> positions = positionService.GetByIds(cvs.Select(x => x.PositionId).Distinct());
+                var dto = new ViewCVsRecruterPageDTO
+                {
+                    CVs = cvs,
+                    Positions = positions,
+                    ActionForViewCV = "ViewCV",
+                    ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("CVs/CVsView", dto);
+            }, nameof(Home));
         }
 
         [HttpGet]
         public IActionResult ViewCV(Guid cvId)
         {
-            CV cv = cVService.GetById(cvId);
-            IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(cv.CandidateId);
-            IEnumerable<Project> projects =
-                projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
-            var dto = new ViewCVRecruterPageDTO
+            return ValidationDecorator(() =>
             {
-                CV = cv,
-                CandidateSkills = candidateSkills,
-                Projects = projects,
-                ActionForLike = "LikeCV",
-                ControllerForLike = ControllerContext.ActionDescriptor.ControllerName,
-                ActionForUnlike = "UnlikeCV",
-                ControllerForUnlike = ControllerContext.ActionDescriptor.ControllerName,
-                IsCVLiked = cVService.IsCVLikedBy(cvId, Recruter())
-            };
-            return View("CVs/CVView", dto);
+                CV cv = cVService.GetById(cvId);
+                IEnumerable<CandidateSkill> candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(cv.CandidateId);
+                IEnumerable<Project> projects =
+                    projectService.GetPersonaledProjectsByTags(cv.CandidateId, cv.Position.ProjectTags, (uint)cv.Position.MaxCountOfProject);
+                var dto = new ViewCVRecruterPageDTO
+                {
+                    CV = cv,
+                    CandidateSkills = candidateSkills,
+                    Projects = projects,
+                    ActionForLike = "LikeCV",
+                    ControllerForLike = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForUnlike = "UnlikeCV",
+                    ControllerForUnlike = ControllerContext.ActionDescriptor.ControllerName,
+                    IsCVLiked = cVService.IsCVLikedBy(cvId, Recruter())
+                };
+                return View("CVs/CVView", dto);
+            }, nameof(ViewCVs));
         }
 
         [HttpGet]

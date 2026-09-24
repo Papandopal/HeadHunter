@@ -72,9 +72,9 @@ namespace UseCases.Services.AuthServices
             return authorizedUser;
         }
 
-        void IAuthService.Validate()
+        bool IAuthService.Validate()
         {
-            accessValidator.Validate();
+            return accessValidator.Validate();
         }
 
         async Task<AuthorizedUserDTO?> IAuthService.TryAuthorizeFromGoogle(VerifyUserFromGoogleDTO verifyUserFromGoogleDTO)

@@ -1,13 +1,30 @@
-﻿<script>
-	if("@Context.Items["Alert"]" != ""){
-		const alertDiv = document.createElement('div');
-		let type = String("@Context.Items["AlertType"]");
-		type = type.toLowerCase();
-		alertDiv.className = 'alert alert-'+type;
-		alertDiv.textContent = "@Context.Items["Alert"]";
-			document.body.prepend(alertDiv);
-			setTimeout(() => {alertDiv.remove();}, 3000);
-		let a = "@Context.Items.Remove("Alert")";
-		let b = "@Context.Items.Remove("AlertType")";
+﻿@{
+	string alertMessage = Context.Request.Cookies["Alert"] ?? "";
+	string alertType = Context.Request.Cookies["AlertType"]?.ToLower() ?? "";
+	bool hasAlert = !string.IsNullOrEmpty(alertMessage);
+
+	if (hasAlert)
+	{
+		Context.Response.Cookies.Delete("Alert");
+		Context.Response.Cookies.Delete("AlertType");
 	}
-</script>
+}
+
+@if (hasAlert)
+{
+	<script>
+		addAlert();
+		function addAlert() {
+			let alertDiv = document.createElement('div');
+
+			alertDiv.className = 'alert alert-@alertType';
+			alertDiv.textContent = "@alertMessage";
+
+			document.body.prepend(alertDiv);
+
+			setTimeout(() => {
+				alertDiv.remove();
+			}, 3000);
+		}
+	</script>
+}
