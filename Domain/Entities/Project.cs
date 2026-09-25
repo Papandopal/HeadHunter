@@ -15,6 +15,6 @@ namespace Domain.Entities
         public string DatePeriod { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public IEnumerable<ProjectTag> ProjectTags { get; set; } = new List<ProjectTag>();
-        public int Version { get; init; } = 0;
+        public long Version { get; set; } = 0;
     }
 }

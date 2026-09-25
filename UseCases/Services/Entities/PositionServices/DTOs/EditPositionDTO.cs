@@ -15,5 +15,6 @@ namespace UseCases.Services.Entities.PositionServices.DTOs
         public string BufferForAccessRules { get; set; } = string.Empty;
         public string BufferForProjectTags { get; set; } = string.Empty;
         public int MaxCountOfProject { get; set; }
+        public long Version { get; set; }   
     }
 }

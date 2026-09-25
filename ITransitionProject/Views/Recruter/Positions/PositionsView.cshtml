@@ -1,7 +1,7 @@
 ﻿@model ViewPositionsRecruterPageDTO
 @inject IMarkdownTextFormater markdownTextFormater
 @{
-	
+
 }
 <form>
 	<menu class="d-flex flex-row list-unstyled">
@@ -16,42 +16,42 @@
 					data-bs-toggle="tooltip" data-bs-placement="top"
 					data-bs-title="Add new position"
 					class="btn btn-outline-success">
-					+
+				+
 			</button>
 		</li>
 	</menu>
-<table class="table">
-	<thead>
-		<tr>
-			<th><input type="checkbox" id="selectAll" /></th>
-			<th>@(nameof(Position.Title))</th>
-			<th>@(nameof(Position.Description))</th>
-			<th>@(nameof(Position.PositionSkills))</th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var position in Model.Positions)
-		{
+	<table class="table">
+		<thead>
 			<tr>
-				<td>
-					<input type="checkbox" class="item" name="positions" value="@position.Id" />
-				</td>
-				<td>
-					<a asp-controller="@Model.ControllerForViewPosition" asp-action="@Model.ActionForViewPosition" asp-route-positionId="@position.Id">@position.Title</a>
-				</td>
-				<td>
-					@Html.Raw(markdownTextFormater.Format(position.Description))
-				</td>
-				<td>
-					@foreach (var skill in position.PositionSkills.Take(10))
-					{
-						<label>@skill.Skill.Name</label>
-					}
-				</td>
+				<th><input type="checkbox" id="selectAll" /></th>
+				<th>@(nameof(Position.Title))</th>
+				<th>@(nameof(Position.Description))</th>
+				<th>@(nameof(Position.PositionSkills))</th>
 			</tr>
-		}
-	</tbody>
-</table>
+		</thead>
+		<tbody>
+			@foreach (var position in Model.Positions)
+			{
+				<tr>
+					<td>
+						<input type="checkbox" class="item" name="positions" value="@position.Id" />
+					</td>
+					<td>
+						<a class="link-underline link-underline-opacity-0" asp-controller="@Model.ControllerForViewPosition" asp-action="@Model.ActionForViewPosition" asp-route-positionId="@position.Id">@position.Title</a>
+					</td>
+					<td>
+						@Html.Raw(markdownTextFormater.Format(position.Description))
+					</td>
+					<td>
+						@foreach (var skill in position.PositionSkills.Take(10))
+						{
+							<label>@skill.Skill.Name</label>
+						}
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
 </form>
 <script>
 	const selectAll = document.getElementById('selectAll');

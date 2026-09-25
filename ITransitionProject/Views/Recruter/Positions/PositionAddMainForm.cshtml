@@ -150,7 +150,6 @@
 		newProjectTagRemoveButton.innerText = "-";
 		newProjectTagRemoveButton.classList.add("btn");
 		newProjectTagRemoveButton.classList.add("btn-outline-danger");
-
 		
 		newProjectTag.appendChild(newProjectTagName);
 		newProjectTag.appendChild(newProjectTagRemoveButton);
@@ -159,6 +158,14 @@
 		projectTagsRowId.appendChild(newProjectTag);
 		let option = projectTagsSelector.querySelector(`option:checked`);
 		projectTagsSelector.removeChild(option);
+
+		let newDefaultOption = document.createElement('option');
+		newDefaultOption.selected = true;
+		newDefaultOption.disabled = true;
+		newDefaultOption.hidden = true;
+		newDefaultOption.value = "Project tags";
+		newDefaultOption.text = "Project tags";
+
 		bufferFoProjectTags.push(tagName);
 	}
 

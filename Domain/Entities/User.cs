@@ -9,6 +9,6 @@ namespace Domain.Entities
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public UserStatus Status { get; set; }
-        public int Version { get; init; } = 0;
+        public long Version { get; set; } = 0;
     }
 }

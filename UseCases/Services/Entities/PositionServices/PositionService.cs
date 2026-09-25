@@ -13,11 +13,13 @@ using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.DTOs;
 using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces;
 using UseCases.Services.PositionServices.DTOs;
 using UseCases.Services.PositionServices.Interfaces;
+using UseCases.Services.ProjectTagServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.General.DTOs;
 
 namespace UseCases.Services.PositionServices
 {
-    public class PositionService(IUnitOfWork unitOfWork, IAccessRuleService accessRuleService) : IPositionService
+    public class PositionService(IUnitOfWork unitOfWork, IAccessRuleService accessRuleService,
+        IProjectTagService projectTagService) : IPositionService
     {
         private IEnumerable<AccessRule> GetRulesFromRecordsJSON(string json)
         {
@@ -44,7 +46,7 @@ namespace UseCases.Services.PositionServices
                 Title = positionDTO.Title,
                 Description = positionDTO.Description,
                 AccessRules = accessRules,
-                ProjectTags = projectTags,
+                ProjectTags = projectTagService.GetByNamesOrDefault(projectTags.Select(x=>x.Name)),
                 MaxCountOfProject = positionDTO.MaxCountOfProject,
             };
             newPosition.PositionSkills = GetSkillsFromRecordsJSON(positionDTO.BufferForSkills, newPosition);
@@ -66,8 +68,9 @@ namespace UseCases.Services.PositionServices
             position.Description = positionDTO.Description;
             position.MaxCountOfProject = positionDTO.MaxCountOfProject;
             position.AccessRules = accessRules;
-            position.ProjectTags = projectTags;
+            position.ProjectTags = projectTagService.GetByNamesOrDefault(projectTags.Select(x => x.Name));
             position.PositionSkills = positionSkills;
+            position.Version = positionDTO.Version;
 
             unitOfWork.StartTransaction();
             unitOfWork.PositionRepository.Update(position);

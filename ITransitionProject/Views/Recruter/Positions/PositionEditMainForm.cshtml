@@ -6,6 +6,7 @@
 	string titlePropName = nameof(Model.PostedModel.Title);
 	string descriptionPropName = nameof(Model.PostedModel.Description);
 	string maxCountOfProjectsPropName = nameof(Model.PostedModel.MaxCountOfProject);
+	string versionInputName = nameof(Model.PostedModel.Version);
 	string mainFormId = "mainFormId";
 	string bufferForSkillsInputName = nameof(Model.PostedModel.BufferForSkills);
 	string buttonForSubmitId = "buttonForSubmitId";
@@ -24,8 +25,6 @@
 
 	var editSkillsEventsHandlers = new Dictionary<string, string>();
 	editSkillsEventsHandlers.Add("RemoveSkill2", "RemoveSkill2");
-
-	var editSkillNames = Model.Position.PositionSkills.Select(x => x.Skill.Name);
 
 	var editAccessRulesEventsHandlers = new Dictionary<string, string>();
 
@@ -55,6 +54,7 @@
 			<input required id="@maxCountOfProjectsPropName" name="@maxCountOfProjectsPropName" type="number" min="0" max="@int.MaxValue" step="1" value="@Model.Position.MaxCountOfProject" />
 		</div>
 		<input id="@idPropName" name="@idPropName" type="hidden" value="@Model.Position.Id" />
+		<input id="@versionInputName" name="@versionInputName" type="hidden" value="@Model.Position.Version"/>
 		<input id="@bufferForSkillsInputName" name="@bufferForSkillsInputName" type="hidden" />
 		<input id="@bufferForAccessRulesInputName" name="@bufferForAccessRulesInputName" type="hidden" />
 		<input id="@bufferForProjectTagsName" name="@bufferForProjectTagsName" type="hidden" />
@@ -222,6 +222,27 @@
 	let accessRuleIdPrefix = '@accessRulePrefix';
 	let accessRules = [];
 
+	let editingAccessRuleIds = @Json.Serialize(editAccessRulesIdsAndNames);
+
+	for(let item of editingAccessRuleIds){
+		loadEditingAccessRuleForm(item.id, item.skillName);
+	}
+
+	function loadEditingAccessRuleForm(id, skillName){
+		fetch(`/@Model.ControllerForGetEditingAccessRuleForm/@Model.ActionForGetEditingAccessRuleForm?accessRuleId=${encodeURIComponent(id)}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(editAccessRulesEventsHandlers)))}`)
+			.then(response => response.text())
+			.then(html => {
+				let form = document.getElementById('@accessRulesFormsId');
+				let newDiv = document.createElement('div');
+				newDiv.id = accessRuleIdPrefix + skillName;
+				newDiv.innerHTML = html;
+				form.append(newDiv);
+				RemoveAccessRule(skillName);
+				executeScriptsInContainer(form);
+			})
+			.catch(error => console.log('Error:', error));
+	}
+
 	function RebuildAccessRulesSelector(){
 		let selector = document.getElementById('@accessRulesTypeSelectorId');
 		selector.innerHTML = '';
@@ -366,11 +387,11 @@
 
 	let bufferForSkills = [];
 	let curLoadSkills = [];
-	let selectedSkills = @Json.Serialize(selectedSkills);
+	let selectedSkills = [];
+	let editingSkillsNames = @Json.Serialize(selectedSkills);
 
-	for(let skill of selectedSkills){
-		bufferForSkills.push(new PositionSkillRecord(skill));
-		tryAddAccessRuleInSelector(skill);
+	for(let skill of editingSkillsNames){
+		loadSkillView(skill);
 	}
 
 	function activateSubmitButton(){
@@ -470,34 +491,4 @@
 		tryAddAccessRuleInSelector(skillName);
 	}
 
-</script>
-
-<script>
-
-	let editingAccessRuleIds = @Json.Serialize(editAccessRulesIdsAndNames);
-
-	for(let item of editingAccessRuleIds){
-		loadEditingAccessRuleForm(item.id, item.skillName);
-	}
-
-	function loadEditingAccessRuleForm(id, skillName){
-		fetch(`/@Model.ControllerForGetEditingAccessRuleForm/@Model.ActionForGetEditingAccessRuleForm?accessRuleId=${encodeURIComponent(id)}&eventsHandlers=${encodeURIComponent(JSON.stringify(@Json.Serialize(editAccessRulesEventsHandlers)))}`)
-			.then(response => response.text())
-			.then(html => {
-				let form = document.getElementById('@accessRulesFormsId');
-				let newDiv = document.createElement('div');
-				newDiv.id = accessRuleIdPrefix + skillName;
-				newDiv.innerHTML = html;
-				form.append(newDiv);
-				RemoveAccessRule(skillName);
-				executeScriptsInContainer(form);
-			})
-			.catch(error => console.log('Error:', error));
-	}
-
-	let editingSkillNames = @Json.Serialize(editSkillNames);
-
-	for(let name of editingSkillNames){
-		loadSkillView(name);
-	}
 </script>

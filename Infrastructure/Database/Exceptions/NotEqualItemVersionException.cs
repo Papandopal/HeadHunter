@@ -8,6 +8,9 @@ namespace Infrastructure.Database.Exceptions
 {
     public class NotEqualItemVersionException : Exception
     {
+        public NotEqualItemVersionException(string message) : base(message)
+        {
 
+        }
     }
 }

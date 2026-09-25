@@ -73,7 +73,7 @@ namespace ITransitionProject.Controllers
             if (user is null)
             {
                 _alertService.RaiseAlert("User not found", AlertTypes.Warning);
-                return View();
+                return RedirectToAction(nameof(Login));
             }
             return RedirectToAction("Home", user.Role.Name);
         }
@@ -86,7 +86,7 @@ namespace ITransitionProject.Controllers
             if (user is null)
             {
                 _alertService.RaiseAlert("Cant registrate user", AlertTypes.Danger);
-                return View();
+                return RedirectToAction(nameof(Registration));
             }
             return RedirectToAction("Home", user.Role.Name);
         }

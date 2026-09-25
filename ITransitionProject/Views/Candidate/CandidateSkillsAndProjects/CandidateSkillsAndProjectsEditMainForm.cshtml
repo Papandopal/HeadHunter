@@ -20,7 +20,7 @@
 	updatingSkillsEventHandlers.Add("removeValuedSkill2", "removeUpdatingValuedSkill2");
 	updatingSkillsEventHandlers.Add("uploadImage3", "uploadUpdatingSkillImage3");
 
-	IEnumerable<EditValuedSkillDTO> skillsDTOs = Model.CandidateSkills.Select(x => new EditValuedSkillDTO { ValuedSkillId = x.Id, Value = x.Value });
+	IEnumerable<EditValuedSkillDTO> skillsDTOs = Model.CandidateSkills.Select(x => new EditValuedSkillDTO { ValuedSkillId = x.Id, Value = x.Value, Version = x.Version });
 	IEnumerable<EditCandidateSkillFormPageDTO> partialSkillsDTOs = Model.CandidateSkills.Select(x =>
 	{
 		//mapper
@@ -68,6 +68,12 @@
 					ProjectIndex = project.Id.ToString(),
 					PropName = nameof(project.ProjectTags),
 					PropValue = string.Join(Separators.ProjectTagsSeparator, project.ProjectTags.Select(x => x.Name))
+				});
+		projectRecordDTOs.Add(new ProjectRecordDTO
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.Version),
+					PropValue = project.Version.ToString()
 				});
 	}
 	IEnumerable<int> indexes = projectRecordDTOs.Count == 0 ? Enumerable.Empty<int>() : Enumerable.Range(0, projectRecordDTOs.Count - 1);

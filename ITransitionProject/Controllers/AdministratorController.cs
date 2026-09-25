@@ -262,7 +262,7 @@ namespace ITransitionProject.Controllers
             return await ValidationDecoratorAsync(async () =>
             {
                 await TryUpdateItems(dto.OwnerId, dto.BufferForUpdatingSkills, dto.BufferForUpdatingProjects);
-                return RedirectToAction("ViewCV", new { cvId = dto.OwnerId });
+                return RedirectToAction("ViewCVs");
             }, nameof(ViewCVs));
         }
 

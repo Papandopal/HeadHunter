@@ -9,14 +9,14 @@ using Infrastructure.Database.Exceptions;
 
 namespace Infrastructure.Database.Triggers.BeforeUpdating.ChangeVersion
 {
-    public class ChangeCVVersionTrigger : IBeforeSaveTrigger<CV>
+    public class ChangeProjectVersionTrigger : IBeforeSaveTrigger<Project>
     {
-        Task IBeforeSaveTrigger<CV>.BeforeSave(ITriggerContext<CV> context, CancellationToken cancellationToken)
+        Task IBeforeSaveTrigger<Project>.BeforeSave(ITriggerContext<Project> context, CancellationToken cancellationToken)
         {
             if (context.UnmodifiedEntity is null) return Task.CompletedTask;
             if (context.Entity.Version != context.UnmodifiedEntity.Version)
             {
-                throw new NotEqualItemVersionException();
+                throw new NotEqualItemVersionException("Project changed before you edit they. Try edit again");
             }
             context.Entity.Version++;
             return Task.CompletedTask;

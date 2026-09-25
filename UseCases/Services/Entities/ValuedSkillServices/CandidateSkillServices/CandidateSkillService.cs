@@ -36,6 +36,7 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
         {
             var candidateSkill = unitOfWork.CandidateSkillRepository.GetById(skillDTO.ValuedSkillId);
             candidateSkill.ChangeValue(skillDTO.Value);
+            candidateSkill.UpdateVersion(skillDTO.Version);
             unitOfWork.StartTransaction();
             unitOfWork.CandidateSkillRepository.Update(candidateSkill);
             unitOfWork.Commit();
@@ -73,6 +74,7 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
             {
                 iterator.MoveNext();
                 skill.ChangeValue(iterator.Current.Value);
+                skill.UpdateVersion(iterator.Current.Version);
             }
 
             unitOfWork.StartTransaction();
@@ -88,6 +90,7 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
             {
                 iterator.MoveNext();
                 skill.ChangeValue(iterator.Current.Value);
+                skill.UpdateVersion(iterator.Current.Version);
             }
 
             var deletedCandidateSkills = unitOfWork.CandidateSkillRepository.GetAllExceptOf(skillDTOs.Select(x => x.ValuedSkillId), ownerId);

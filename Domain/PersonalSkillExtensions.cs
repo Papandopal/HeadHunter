@@ -29,5 +29,9 @@ namespace Domain
                     break;
             }
         }
+        public static void UpdateVersion(this CandidateSkill skill, long newVersion)
+        {
+            skill.Version = newVersion;
+        }
     }
 }

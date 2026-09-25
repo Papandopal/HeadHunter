@@ -15,6 +15,6 @@ namespace Domain.Entities
         public Guid SkillId { get; set; }
         public Skill Skill { get; set; }
         public string Value { get; set; } = string.Empty;
-        public int Version { get; set; } = 0;
+        public long Version { get; set; } = 0;
     }
 }

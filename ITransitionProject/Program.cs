@@ -98,9 +98,9 @@ namespace ITransitionProject
             builder.Services.AddTransient<IDatePeriodFormater, DatePeriodFormater>();
 
             builder.Services.AddTransient<IBeforeSaveTrigger<CandidateSkill>, ChangeCandidateSkillVersionTrigger>();
-            builder.Services.AddTransient<IBeforeSaveTrigger<CV>, ChangeCVVersionTrigger>();
             builder.Services.AddTransient<IBeforeSaveTrigger<Position>, ChangePositionVersionTrigger>();
             builder.Services.AddTransient<IBeforeSaveTrigger<Skill>, ChangeSkillVersionTrigger>();
+            builder.Services.AddTransient<IBeforeSaveTrigger<Project>, ChangeProjectVersionTrigger>();
 
             builder.Services.AddTransient<AccessValidator>();
             builder.Services.AddTransient<CryptService>();

@@ -11,7 +11,11 @@ namespace UseCases.Services.ValuedSkillServices.General.DTOs
     {
         [JsonPropertyName(nameof(ValuedSkillId))]
         public Guid ValuedSkillId { get; set; }
+
         [JsonPropertyName(nameof(Value))]
         public string Value { get; set; } = string.Empty;
+
+        [JsonPropertyName(nameof(Version))]
+        public long Version { get; set; }
     }
 }

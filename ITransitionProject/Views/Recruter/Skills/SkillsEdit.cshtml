@@ -3,21 +3,25 @@
 	string inputForSubmitId = "inputForSubmitId";
 	Dictionary<Guid, long> skillsVersions = new(Model.Skills.Select(x => new KeyValuePair<Guid, long>(x.Id, x.Version)));
 }
-@foreach (var skill in Model.Skills)
-{
-	<input value="@skill.Name" onchange="addProperty('@skill.Id', 'Name', this.value)" />
-	<input value="@skill.PotentialValue" onchange="addProperty('@skill.Id', 'PotentialValue', this.value)"
-		   data-bs-toggle="tooltip" data-bs-placement="top"
-		   data-bs-title='For OneOfMany potencial value is list of options(example: "first;second;...;last").
-				   For other types is placeholder.' />
+<div class="d-flex flex-column">
+	@foreach (var skill in Model.Skills)
+	{
+		<div >
+			<input value="@skill.Name" onchange="addProperty('@skill.Id', 'Name', this.value)" />
+			<input value="@skill.PotentialValue" onchange="addProperty('@skill.Id', 'PotentialValue', this.value)"
+				   data-bs-toggle="tooltip" data-bs-placement="top"
+				   data-bs-title='For OneOfMany potencial value is list of options(example: "first;second;...;last").
+						   For other types is placeholder.' />
 
-	<select onchange="addProperty('@skill.Id', 'Category', this.options[this.selectedIndex].text)">
-		@foreach (var category in Model.Categories)
-		{
-			<!option value="@category">@category.Name</!option>
-		}
-	</select>
-}
+			<select onchange="addProperty('@skill.Id', 'Category', this.options[this.selectedIndex].text)">
+				@foreach (var category in Model.Categories)
+				{
+					<!option value="@category">@category.Name</!option>
+				}
+			</select>
+		</div>
+	}
+</div>
 <form action="/@Model.ControllerToSubmit/@Model.ActionToSubmit" onsubmit="saveDataInInput()" method="post">
 	<input id="@inputForSubmitId" name="json" type="hidden" value="{}" />
 	<button type="submit">Save</button>

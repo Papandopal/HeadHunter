@@ -63,6 +63,7 @@ namespace UseCases.Services.ProjectServices
             project.Description = projectDTO.Description ?? project.Description;
             project.DatePeriod = projectDTO.DatePeriod ?? project.DatePeriod;
             project.ProjectTags = projectTagService.GetByNamesOrDefault((projectDTO.ProjectTags ?? project.ProjectTags).Select(x=>x.Name));
+            project.Version = projectDTO.Version;
 
             projectTagService.UpdateRange(projectDTO.ProjectTags?.Where(x => x.Id != Guid.Empty) ?? []);
 
@@ -82,6 +83,7 @@ namespace UseCases.Services.ProjectServices
                 project.Description = dto.Current.Description;
                 project.DatePeriod = dto.Current.DatePeriod;
                 project.ProjectTags = projectTagService.GetByNamesOrDefault(dto.Current.ProjectTags.Select(x => x.Name));
+                project.Version = dto.Current.Version;
             }
 
             var deletedProjects = unitOfWork.ProjectRepository.GetAllByOwnerIdExceptOf(ownerId, projectDTOs.Select(x => x.Id));
@@ -131,12 +133,34 @@ namespace UseCases.Services.ProjectServices
                 throw new Exception("Invalide date for build \"Project\"");
             }
             var result = new EditProjectDTO { Id = id };
-            result.Title = dtos.Where(x => x.PropName.ToLower() == "title").Select(x => x.PropValue).First();
-            result.Description = dtos.Where(x => x.PropName.ToLower() == "description").Select(x => x.PropValue).First();
-            result.DatePeriod = dtos.Where(x => x.PropName.ToLower() == "dateperiod").Select(x => x.PropValue).First();
-            string? projectTagsJSON = dtos.Where(x => x.PropName.ToLower() == "projecttags").Select(x => x.PropValue).First();
+            result.Title = dtos
+                .Where(x => x.PropName.ToLower() == nameof(EditProjectDTO.Title).ToLower())
+                .Select(x => x.PropValue)
+                .First();
+
+            result.Description = dtos
+                .Where(x => x.PropName.ToLower() == nameof(EditProjectDTO.Description).ToLower())
+                .Select(x => x.PropValue)
+                .First();
+
+            result.DatePeriod = dtos
+                .Where(x => x.PropName.ToLower() == nameof(EditProjectDTO.DatePeriod).ToLower())
+                .Select(x => x.PropValue)
+                .First();
+
+            string? projectTagsJSON = dtos
+                .Where(x => x.PropName.ToLower() == nameof(EditProjectDTO.ProjectTags).ToLower())
+                .Select(x => x.PropValue)
+                .First();
+
             if (!string.IsNullOrWhiteSpace(projectTagsJSON)) result.ProjectTags = projectTagService.GetFromJSON(projectTagsJSON);
             else result.ProjectTags = new List<ProjectTag>();
+
+            result.Version = long.Parse(dtos
+                .Where(x=>x.PropName.ToLower() == nameof(EditProjectDTO.Version).ToLower())
+                .Select(x=>x.PropValue)
+                .First());
+
             return result;
         }
 
@@ -180,6 +204,7 @@ namespace UseCases.Services.ProjectServices
 
         IEnumerable<Project> IProjectService.GetPersonaledProjectsByTags(Guid ownerId, IEnumerable<ProjectTag> tags, uint limit)
         {
+            if (limit == 0) limit = int.MaxValue;
             List<Project> result = unitOfWork.ProjectRepository.GetPersonaledProjectsByTags(ownerId, tags, limit).ToList();
             if (result.Count < limit)
             {

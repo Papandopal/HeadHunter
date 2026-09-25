@@ -14,5 +14,6 @@ namespace UseCases.Services.ProjectServices.DTOs
         public string Description { get; set; } 
         public string DatePeriod { get; set; } 
         public IEnumerable<ProjectTag> ProjectTags { get; set; }
+        public long Version { get; set; }
     }
 }

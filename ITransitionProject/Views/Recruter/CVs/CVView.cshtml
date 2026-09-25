@@ -4,6 +4,7 @@
 @{
 	var likeButtonId = Guid.NewGuid();
 	var likesLabelId = Guid.NewGuid();
+	var heartIconId = Guid.NewGuid();
 
 	var skillsViewDTOs = Model.CandidateSkills.Select(x => 
 		new ViewValuedSkillPartialDTO { 
@@ -40,7 +41,8 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-2">
+		<div class="col-2 d-flex flex-row">
+			<i id="@heartIconId" class="bi bi-suit-heart"></i>
 			<label id="@likesLabelId">@Model.CV.Likes</label>
 		</div>
 		<div class="col-4">
@@ -52,6 +54,7 @@
 	{
 		let button = document.getElementById('@likeButtonId');
 		let likesLabel = document.getElementById('@likesLabelId');
+		let heartIcon = document.getElementById('@heartIconId');
 		@(Model.IsCVLiked ? "likeButtonOn()" : "likeButtonOff()")
 
 		function likeButtonOn(){

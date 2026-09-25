@@ -176,6 +176,8 @@
 		} catch (error) {
 			console.error('Error:', error);
 		}
+		countOfRequiredProperties--;
+		if(countOfRequiredProperties == 0) activateSubmitButton();
 	}
 
 	function addDatePeriodUpdateInValuedSkillBuffer3(newValue, index, skillId){

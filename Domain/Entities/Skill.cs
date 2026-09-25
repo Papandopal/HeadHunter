@@ -16,6 +16,6 @@ namespace Domain.Entities
         public string PotentialValue { get; set; } = string.Empty;
         public SkillTypes Type { get; set; }
         public long Popularity { get; set; }    
-        public int Version { get; set; } = 0;
+        public long Version { get; set; } = 0;
     }
 }

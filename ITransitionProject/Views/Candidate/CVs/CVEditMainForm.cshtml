@@ -15,7 +15,7 @@
 	updatingSkillsEventHandlers.Add("addDatePeriodUpdateInBuffer3", "addDatePeriodUpdateInUpdatingSkillBuffer3");
 	updatingSkillsEventHandlers.Add("uploadImage3", "uploadUpdatingSkillImage3");
 
-	IEnumerable<EditValuedSkillDTO> skillsDTOs = Model.CandidateSkills.Select(x => new EditValuedSkillDTO { ValuedSkillId = x.Id, Value = x.Value });
+	IEnumerable<EditValuedSkillDTO> skillsDTOs = Model.CandidateSkills.Select(x => new EditValuedSkillDTO { ValuedSkillId = x.Id, Value = x.Value, Version = x.Version });
 	IEnumerable<EditCandidateSkillFormPageDTO> partialSkillsDTOs = Model.CandidateSkills.Select(x =>
 	{
 		//mapper
@@ -63,7 +63,13 @@
 					PropName = nameof(project.ProjectTags),
 					PropValue = string.Join(Separators.ProjectTagsSeparator, project.ProjectTags.Select(x => x.Name))
 				});
-	}
+		projectRecordDTOs.Add(new ProjectRecordDTO
+				{
+					ProjectIndex = project.Id.ToString(),
+					PropName = nameof(project.Version),
+					PropValue = project.Version.ToString()
+				});
+			}
 	IEnumerable<int> indexes = projectRecordDTOs.Count == 0 ? Enumerable.Empty<int>() : Enumerable.Range(0, projectRecordDTOs.Count - 1);
 
 	IEnumerable<EditProjectFormPageDTO> partialProjectsDTOs = Model.Projects.Select(x =>
@@ -86,19 +92,19 @@
 		<div class="col">
 			@foreach (var partialDTO in partialSkillsDTOs)
 			{
-				<partial name="CVS/CVCandidateSkillEditPartialForm" model="@partialDTO" />
+				<partial name="../Candidate/CVs/CVCandidateSkillEditPartialForm" model="@partialDTO" />
 			}
 		</div>
 		<div class="col">
 			@foreach (var partialDTO in partialProjectsDTOs)
 			{
-				<partial name="CVs/CVProjectEditPartialForm" model="@partialDTO" />
+				<partial name="../Candidate/CVs/CVProjectEditPartialForm" model="@partialDTO" />
 			}
 		</div>
 	</div>
 </div>
 <form asp-action="@Model.ActionForSubmit" asp-controller="@Model.ControllerForSubmit" onsubmit="saveBufferInHiddenInput()" method="post">
-	<input type="hidden" name="@ownerIdInputName" value="@Model.CV.CandidateId"/>
+	<input type="hidden" name="@ownerIdInputName" value="@Model.CV.CandidateId" />
 	<input id="@bufferForUpdatingSkillsName" type="hidden" name="@bufferForUpdatingSkillsName" />
 	<input id="@bufferForUpdatingProjectsName" type="hidden" name="@bufferForUpdatingProjectsName" />
 	<button id="@buttonForSubmitId" type="submit"> Save</button>
