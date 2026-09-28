@@ -1,17 +1,19 @@
 ﻿@model CreateRecruterProfilePageDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	string submitButtonId = "submitButtonId";
+	var formId = "formId";
 }
-<form asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" method="post">
-	<div>
-		<label for="Name">Name:</label>
+<form id="@formId" asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" method="post">
+	<div class="d-flex flex-column">
+		<label for="Name">@UILocalizationFormater.Format("Name"):</label>
 		<input id="Name" asp-for="Name" onchange="addProperty('Name')" />
-		<button id="@submitButtonId" disabled type="submit">Save</button>
+		<button id="@submitButtonId" disabled type="submit">@UILocalizationFormater.Format("Save")</button>
 	</div>
 </form>
 
 <script>
-	let propsCount = 1;
+	let propsCount = document.getElementById('@formId').querySelectorAll('input').length;
 	if(propsCount==0) activateSubmitButton();
 	let data = [];
 

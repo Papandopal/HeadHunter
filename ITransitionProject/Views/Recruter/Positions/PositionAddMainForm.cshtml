@@ -1,4 +1,5 @@
 ﻿@model AddPositionPageMainFormDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @inject SupportedAccessRuleSkillTypes supportedAccessRuleSkillTypes
 @{
 	string accessRulePrefix = "access rule";
@@ -20,16 +21,16 @@
 <form id="@mainFormId" asp-action="@Model.ActionForSubmit" asp-controller="@Model.ControllerForSubmit" onsubmit="saveBufferInHiddenInput()" method="post">
 	<div class="d-flex flex-column justify-content-center">
 		<div>
-			<label for="@Model.PostedModel.Title">Title:</label>
+			<label for="@Model.PostedModel.Title">@UILocalizationFormater.Format("Title"):</label>
 			<input required name="Title" type="text" />
 		</div>
 		<div>
-			<label for="@Model.PostedModel.Description">Description:</label>
+			<label for="@Model.PostedModel.Description">@UILocalizationFormater.Format("Description"):</label>
 			<input required name="Description" type="text" />
 		</div>
 		<div>
-			<label for="@Model.PostedModel.MaxCountOfProject">Max count of projects(0 if not restrictions):</label>
-			<input required name="MaxCountOfProject" type="number" min="0" max="@int.MaxValue" step="1" placeholder="0 if not restrictions" />
+			<label for="@Model.PostedModel.MaxCountOfProject">@UILocalizationFormater.Format("Max count of projects(0 if not restrictions)"):</label>
+			<input required name="MaxCountOfProject" type="number" min="0" max="@int.MaxValue" step="1" />
 		</div>
 		<input id="@bufferForSkillsInputName" name="@bufferForSkillsInputName" type="hidden" value="{}" />
 		<input id="@bufferForAccessRulesInputName" name="@bufferForAccessRulesInputName" type="hidden" value="{}" />
@@ -43,19 +44,19 @@
 	<tbody>
 		<tr>
 			<td>
-				<label for="@skillTypeInputId">Skills:</label>
+				<label for="@skillTypeInputId">@UILocalizationFormater.Format("Skills"):</label>
 				<input id="@skillTypeInputId" type="text" oninput="loadSkills(this.value)" />
 				<select id="@skillTypeSelectorId" onchange="loadSkillView(this.value)">
-					<option hidden disabled selected>Skills</option>
+					<option hidden disabled selected>@UILocalizationFormater.Format("Skills")</option>
 				</select>
 				<div class="d-flex flex-column list-unstyled" id="@skillFormsId" />
 			</td>
 		</tr>
 		<tr>
 			<td>
-				<label for="@accessRulesTypeSelectorId">Access Rules/Filters</label>
+				<label for="@accessRulesTypeSelectorId">@UILocalizationFormater.Format("Access Rules(Filters)"):</label>
 				<select id="@accessRulesTypeSelectorId" onchange="loadAccessRuleForm(this.value)">
-					<option hidden disabled selected>Rules</option>
+					<option hidden disabled selected>@UILocalizationFormater.Format("Rules")</option>
 				</select>
 				<div class="d-flex flex-column list-unstyled" id="@accessRulesFormsId" />
 			</td>
@@ -63,10 +64,10 @@
 		<tr>
 			<td>
 				<div class="d-flex flex-row list-unstyled" id="@projectTagsRowId">
-					<label for="@projectTagsInputId">Project tags:</label>
+					<label for="@projectTagsInputId">@UILocalizationFormater.Format("Project tags"):</label>
 					<input id="@projectTagsInputId" type="text" oninput="onProjectTagsInputChange(this.value)" />
 					<select id="@projectTagsSelectorId" onchange="addProjectTag(this.value)">
-						<!option selected hidden disabled>Project tags</!option>
+						<!option selected hidden disabled>@UILocalizationFormater.Format("Project tags")</!option>
 					</select>
 				</div>
 			</td>
@@ -74,7 +75,7 @@
 	</tbody>
 </table>
 
-<button form="@mainFormId" id="@buttonForSubmitId" type="submit" disabled> Save</button>
+<button form="@mainFormId" id="@buttonForSubmitId" type="submit" disabled>@UILocalizationFormater.Format("Save")</button>
 
 <script>
 	let bufferFoProjectTags = [];
@@ -103,7 +104,7 @@
 			}
 		}
 
-		select.innerHTML = '<option selected hidden disabled>Project tags</option>' + filteredData
+		select.innerHTML = '<option selected hidden disabled>@UILocalizationFormater.Format("Project tags")</option>' + filteredData
 		.map(item => `<option value="${item}">${item}</option>`)
 		.join('');
 	}
@@ -163,8 +164,9 @@
 		newDefaultOption.selected = true;
 		newDefaultOption.disabled = true;
 		newDefaultOption.hidden = true;
-		newDefaultOption.value = "Project tags";
-		newDefaultOption.text = "Project tags";
+		newDefaultOption.value = '@UILocalizationFormater.Format("Project tags")';
+		newDefaultOption.text = '@UILocalizationFormater.Format("Project tags")';
+		projectTagsSelector.appendChild(newDefaultOption);
 
 		bufferFoProjectTags.push(tagName);
 	}
@@ -206,7 +208,7 @@
 		for(rule of accessRules){
 			newInnerHTML += `<option value='${rule}'>${rule}</option>`;
 		}
-		newInnerHTML += '<option selected disabled hidden>Rule</option>';
+		newInnerHTML += '<option selected disabled hidden>@UILocalizationFormater.Format("Rule")</option>';
 		selector.innerHTML = newInnerHTML;
 	}
 
@@ -346,7 +348,7 @@
 	function RebuildSkillSelector(){
 		let selector = document.getElementById('@skillTypeSelectorId');
 		selector.innerHTML = '';
-		let newInnerHTML = '<option selected disabled hidden value="">Skill</option>';
+		let newInnerHTML = '<option selected disabled hidden value="">@UILocalizationFormater.Format("Skill")</option>';
 		for(let skill of curLoadSkills){
 			if(selectedSkills.indexOf(skill) === -1){
 				newInnerHTML += `<option value='${skill}'>${skill}</option>`;

@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
 
-namespace ITransitionProject.PagesDTOs.Candidate.Profile
+namespace ITransitionProject.PagesDTOs.Administrator.Candidates
 {
-    public class CandidateProfilePageDTO
+    public class CandidateProfileAdministratorPageDTO
     {
+        public Guid CandidateId { get; set; }
         public required string FirstName { get; set; }
         public required string LastName { get; set; } 
         public required DateOnly BirthDay { get; set; }

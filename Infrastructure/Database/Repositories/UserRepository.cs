@@ -18,9 +18,27 @@ namespace Infrastructure.Database.Repositories
             users.Add(entity);
         }
 
+        void IUserRepository.Block(Guid id)
+        {
+            users.Where(x=>x.Id == id).First().Block();
+        }
+
+        void IUserRepository.BlockRange(IEnumerable<Guid> ids)
+        {
+            foreach(var user in users.Where(x => ids.Contains(x.Id)))
+            {
+                user.Block();
+            }
+        }
+
         void IRepository<User>.Delete(Guid id)
         {
             users.Remove(users.First(x => x.Id == id));
+        }
+
+        void IUserRepository.DeleteRange(IEnumerable<Guid> ids)
+        {
+            users.RemoveRange(users.Where(x => ids.Contains(x.Id)));
         }
 
         User? IUserRepository.FirstOrDefaultByEmail(string email)
@@ -39,9 +57,27 @@ namespace Infrastructure.Database.Repositories
             return users.First(x => x.Id == id);
         }
 
+        IEnumerable<User> IUserRepository.GetByIds(IEnumerable<Guid> ids)
+        {
+            return users.Where(x=>ids.Contains(x.Id));
+        }
+
         bool IRepository<User>.IsExists(User entity)
         {
             return users.FirstOrDefault(x=>x.Id == entity.Id) is not null; 
+        }
+
+        void IUserRepository.Unblock(Guid id)
+        {
+            users.Where(x=>x.Id == id).First().Unblock();
+        }
+
+        void IUserRepository.UnblockRange(IEnumerable<Guid> ids)
+        {
+            foreach (var user in users.Where(x => ids.Contains(x.Id)))
+            {
+                user.Unblock();
+            }
         }
 
         void IRepository<User>.Update(User entity)

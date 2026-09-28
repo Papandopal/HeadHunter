@@ -24,6 +24,8 @@ using UseCases.Services.Formaters;
 using UseCases.Services.Formaters.Interfaces;
 using UseCases.Services.ImageServices;
 using UseCases.Services.ImageServices.Interfaces;
+using UseCases.Services.LocalizationServices;
+using UseCases.Services.LocalizationServices.Interfaces;
 using UseCases.Services.PositionServices;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.ProjectServices;
@@ -92,10 +94,13 @@ namespace ITransitionProject
             builder.Services.AddTransient<ICVService, CVService>();
             builder.Services.AddTransient<IProjectService, ProjectService>();
             builder.Services.AddTransient<IImageService, ImageService>();
+            builder.Services.AddTransient<IUILocalizationService, UILocalizationService>();
 
             builder.Services.AddTransient<IMarkdownTextFormater, MarkdownTextFormater>();
             builder.Services.AddTransient<IOneOfManyFormater, OneOfManyFormater>();
             builder.Services.AddTransient<IDatePeriodFormater, DatePeriodFormater>();
+            builder.Services.AddTransient<IImageFormater, ImageFormater>();
+            builder.Services.AddTransient<IUILocalizationFormater, UILocalizationFormater>();
 
             builder.Services.AddTransient<IBeforeSaveTrigger<CandidateSkill>, ChangeCandidateSkillVersionTrigger>();
             builder.Services.AddTransient<IBeforeSaveTrigger<Position>, ChangePositionVersionTrigger>();

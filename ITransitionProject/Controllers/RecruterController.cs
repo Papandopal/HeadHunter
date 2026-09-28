@@ -45,7 +45,7 @@ namespace ITransitionProject.Controllers
         {
             try
             {
-                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
+                if (!authService.Validate()) throw new FailedAuthValidationException("User blocked");
                 if (Recruter() is null) throw new FailedAuthValidationException("Recruter not created");
                 return action.Invoke();
             }
@@ -70,7 +70,7 @@ namespace ITransitionProject.Controllers
         {
             try
             {
-                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
+                if (!authService.Validate()) throw new FailedAuthValidationException("User blocked");
                 if (Recruter() is null) throw new Exception("Recruter not created");
                 return await action.Invoke();
             }
@@ -94,6 +94,11 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IActionResult Home()
         {
+            if (!authService.Validate())
+            {
+                alertService.RaiseAlert("User blocked", AlertTypes.Danger);
+                return RedirectToAction("Login", "Auth");
+            }
             if (Recruter() is null)
             {
                 var createRecruterDTO = new CreateRecruterProfilePageDTO

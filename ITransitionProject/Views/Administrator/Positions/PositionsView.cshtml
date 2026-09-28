@@ -1,5 +1,6 @@
 ﻿@model ViewPositionsAdministratorPageDTO
 @inject IMarkdownTextFormater markdownTextFormater
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 
 }
@@ -18,9 +19,9 @@
 		<thead>
 			<tr>
 				<th><input type="checkbox" id="selectAll" /></th>
-				<th>@(nameof(Position.Title))</th>
-				<th>@(nameof(Position.Description))</th>
-				<th>@(nameof(Position.PositionSkills))</th>
+				<th>@(UILocalizationFormater.Format(nameof(Position.Title)))</th>
+				<th>@(UILocalizationFormater.Format(nameof(Position.Description)))</th>
+				<th>@(UILocalizationFormater.Format(nameof(Position.PositionSkills)))</th>
 			</tr>
 		</thead>
 		<tbody>

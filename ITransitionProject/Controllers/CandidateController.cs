@@ -14,6 +14,7 @@ using UseCases.Services.CandidateServices.DTOs;
 using UseCases.Services.CandidateServices.Interfaces;
 using UseCases.Services.CVServices.DTOs;
 using UseCases.Services.CVServices.Interfaces;
+using UseCases.Services.Entities.CandidateServices.DTOs;
 using UseCases.Services.Entities.CVServices.DTOs;
 using UseCases.Services.Exceptions;
 using UseCases.Services.ImageServices.Interfaces;
@@ -43,7 +44,7 @@ namespace ITransitionProject.Controllers
         {
             try
             {
-                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
+                if (!authService.Validate()) throw new FailedAuthValidationException("User blocked");
                 if (Candidate() is null) throw new FailedAuthValidationException("Candidate not created");
                 return action.Invoke();
             }
@@ -68,8 +69,8 @@ namespace ITransitionProject.Controllers
         {
             try
             {
-                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
-                if (Candidate() is null) throw new Exception("Candidate not created");
+                if (!authService.Validate()) throw new FailedAuthValidationException("User blocked");
+                if (Candidate() is null) throw new Exception("Candidate not found");
                 return await action.Invoke();
             }
             catch (NotEqualItemVersionException ex)
@@ -92,6 +93,11 @@ namespace ITransitionProject.Controllers
         [HttpGet]
         public IActionResult Home()
         {
+            if (!authService.Validate())
+            {
+                alertService.RaiseAlert("User blocked", AlertTypes.Danger);
+                return RedirectToAction("Login", "Auth");
+            }
             if (Candidate() is null)
             {
                 var createCandidateDTO = new CreateCandidateProfilePageDTO
@@ -119,7 +125,6 @@ namespace ITransitionProject.Controllers
             return RedirectToAction("Profile");
         }
 
-
         [HttpGet]
         public IActionResult Profile()
         {
@@ -127,16 +132,49 @@ namespace ITransitionProject.Controllers
             {
                 var candidate = Candidate();
                 var candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(candidate.Id);
-                var projects = projectService.GetByOwnerId(candidate.Id).ToList();
+                var projects = projectService.GetByOwnerId(candidate.Id);
                 var dto = new CandidateProfilePageDTO
                 {
                     FirstName = candidate.FirstName,
                     LastName = candidate.LastName,
+                    BirthDay = candidate.Birthday,
                     CandidateSkills = candidateSkills,
-                    Projects = projects
+                    Projects = projects,
+                    ActionForEditProfile = nameof(EditProfile),
+                    ControllerForEditProfile = ControllerContext.ActionDescriptor.ControllerName
                 };
                 return View("Profile/Profile", dto);
             }, nameof(Home));
+        }
+
+        [HttpGet]
+        public IActionResult EditProfile()
+        {
+            Candidate candidate = Candidate();
+            var dto = new EditCandidateProfilePageDTO
+            {
+                FirstName = candidate.FirstName,
+                LastName = candidate.LastName,
+                BirthDay = candidate.Birthday,
+                ActionForSubmit = nameof(EditProfile),
+                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
+            };
+            return View("Profile/EditProfile", dto);
+
+        }
+
+        [HttpPost]
+        public IActionResult EditProfile(EditCandidateProfileDTO dto)
+        {
+            return ValidationDecorator(() =>
+            {
+                var candidate = Candidate();
+                candidate.FirstName = dto.FirstName;
+                candidate.LastName = dto.LastName;
+                candidate.Birthday = dto.BirthDay;
+                candidateService.Update(candidate);
+                return RedirectToAction(nameof(Profile));
+            }, nameof(Profile));
         }
 
         [HttpGet]

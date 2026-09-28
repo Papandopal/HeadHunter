@@ -1,19 +1,20 @@
 ﻿@model AddSkillPageDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	string submitButtonId = "submitButtonId";
 }
 <form action="/@Model.ControllerToSubmit/@Model.ActionToSubmit" method="post">
 
-	<input id="Name" name="Name" onchange="addProperty('Name')" placeholder="Skill name"/>
+	<input id="Name" name="Name" onchange="addProperty('Name')" placeholder="@UILocalizationFormater.Format("Skill name")" />
 
 	<input name="PotencialValue" onchange="addProperty('PotencialValue')"
 		   data-bs-toggle="tooltip" data-bs-placement="top"
-		   data-bs-title='For OneOfMany potencial value is list of options(example: "first;second;...;last").
-		   For other types is placeholder.' 
-		   placeholder="Potencial value" />
+		   data-bs-title='@UILocalizationFormater.Format("For OneOfMany potencial value is list of options"+
+				"(example: \"first;second;...;last\").For other types is placeholder.")' 
+		   placeholder="@UILocalizationFormater.Format("Potencial value")" />
 
 	<select name="CategoryName" onchange="addProperty('Category')">
-		<!option disabled selected hidden>Category name</!option>
+		<!option disabled selected hidden>@UILocalizationFormater.Format("Category name")</!option>
 		@foreach (var category in Model.Categories)
 		{
 			<!option value="@category.Name">@category.Name</!option>
@@ -21,14 +22,14 @@
 	</select>
 
 	<select name="TypeName" onchange="addProperty('Type')">
-		<!option disabled selected hidden>Type name</!option>
+		<!option disabled selected hidden>@UILocalizationFormater.Format("Type name")</!option>
 		@foreach (var type in Enum.GetNames<SkillTypes>())
 		{
 			<!option value="@type">@type</!option>
 		}
 	</select>
 
-	<button id="@submitButtonId" type="submit" disabled>Add</button>
+	<button id="@submitButtonId" type="submit" disabled>@UILocalizationFormater.Format("Add")</button>
 </form>
 
 <script>

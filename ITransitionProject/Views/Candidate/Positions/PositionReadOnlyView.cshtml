@@ -1,11 +1,12 @@
 ﻿@model ViewReadOnlyPositionPageDTO
 @inject IMarkdownTextFormater markdownTextFormater
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 
 }
 <div class="row">
-	<label>Title: @Model.Position.Title</label>
-	<label>Description</label>
+	<label>@UILocalizationFormater.Format("Title"): @Model.Position.Title</label>
+	<label>@UILocalizationFormater.Format("Description")</label>
 	<div>
 		@Html.Raw(markdownTextFormater.Format(Model.Position.Description))
 	</div>
@@ -13,7 +14,7 @@
 		<tbody>
 			<tr>
 				<td>
-					<label>Skills:</label>
+					<label>@UILocalizationFormater.Format("Skills"):</label>
 					@foreach (var skill in Model.Position.PositionSkills)
 					{
 						<partial name="Skills/View/@skill.Skill.Type" model="new ViewSkillPartialDTO{ Skill = skill.Skill}" />
@@ -22,7 +23,7 @@
 			</tr>
 			<tr>
 				<td>
-					<label>Access Rules(Filters):</label>
+					<label>@UILocalizationFormater.Format("Access Rules(Filters)"):</label>
 					@foreach (var rule in Model.Position.AccessRules)
 					{
 						<partial name="AccessRules/View/@rule.Skill.Type" model="new ViewAccessRulePartialDTO{ AccessRule = rule}" />
@@ -32,9 +33,9 @@
 			<tr>
 				<td>
 					<div>
-						<label>Max count of projects: @Model.Position.MaxCountOfProject</label>
+						<label>@UILocalizationFormater.Format("Max count of projects"): @Model.Position.MaxCountOfProject</label>
 					</div>
-					<label>Project tags:</label>
+					<label>@UILocalizationFormater.Format("Project tags"):</label>
 					@foreach (var projectTag in Model.Position.ProjectTags)
 					{
 						<label>@projectTag.Name</label>
@@ -44,5 +45,5 @@
 		</tbody>
 
 	</table>
-	<a class="btn" type="submit" asp-controller="@Model.ControllerForGenerateCV" asp-action="@Model.ActionForGenerateCV" asp-route-positionId="@Model.Position.Id">Generate CV</a>
+	<a class="btn" type="submit" asp-controller="@Model.ControllerForGenerateCV" asp-action="@Model.ActionForGenerateCV" asp-route-positionId="@Model.Position.Id">@UILocalizationFormater.Format("Generate CV")</a>
 </div>

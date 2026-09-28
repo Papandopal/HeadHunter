@@ -1,0 +1,15 @@
+﻿@model CandidateProfileAdministratorPageDTO
+@inject IUILocalizationFormater UILocalizationFormater
+@{
+	var partialSkillDTO = new ViewCandidateSkillsAndProjectsPageDTO { CandidateSkills = Model.CandidateSkills, Projects = Model.Projects };
+}
+<div class="position-relative">
+	<h3>@Model.FirstName   @Model.LastName</h3>
+	<label>@Model.BirthDay</label>
+	<a asp-controller="@Model.ControllerForEditProfile" asp-action="@Model.ActionForEditProfile"
+	   asp-route-candidateId="@Model.CandidateId" class="btn btn-primary position-absolute top-0 end-0">
+		@UILocalizationFormater.Format("Edit")
+	</a>
+</div>
+<hr />
+<partial name="../Candidate/CandidateSkillsAndProjects/CandidateSkillsAndProjectsView" model="@partialSkillDTO" />

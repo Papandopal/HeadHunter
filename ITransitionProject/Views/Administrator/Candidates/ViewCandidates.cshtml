@@ -1,0 +1,90 @@
+﻿@model ViewCandidatesPageDTO
+@inject IMarkdownTextFormater markdownTextFormater
+@inject IUILocalizationFormater UILocalizationFormater
+@{
+
+}
+<form>
+	<menu class="d-flex flex-row list-unstyled">
+		<li class="ms-1">
+			<button type="submit" asp-controller="@Model.ControllerForDeleteCandidates" asp-action="@Model.ActionForDeleteCandidates"
+			data-bs-toggle="tooltip" data-bs-placement="top"
+			data-bs-title="@UILocalizationFormater.Format("Delete all selected candidates")"
+			class="btn btn-outline-danger">
+				<i class="bi bi-trash3"></i>
+			</button>
+			<button type="submit" asp-controller="@Model.ControllerForBlockCandidates" asp-action="@Model.ActionForBlockCandidates"
+			data-bs-toggle="tooltip" data-bs-placement="top"
+			data-bs-title="@UILocalizationFormater.Format("Block all selected candidates")"
+			class="btn btn-outline-warning">
+				<i class="bi bi-lock"></i>
+			</button>
+			<button type="submit" asp-controller="@Model.ControllerForUnblockCandidates" asp-action="@Model.ActionForUnblockCandidates"
+			data-bs-toggle="tooltip" data-bs-placement="top"
+			data-bs-title="@UILocalizationFormater.Format("Unblock all selected candidates")"
+			class="btn btn-outline-warning">
+				<i class="bi bi-unlock"></i>
+			</button>
+		</li>
+	</menu>
+	<table class="table">
+		<thead>
+			<tr>
+				<th><input type="checkbox" id="selectAll" /></th>
+				<th>@UILocalizationFormater.Format("Name")</th>
+				<th>@UILocalizationFormater.Format("Skills")</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var candidate in Model.Candidates)
+			{
+				<tr>
+					<td>
+						<input type="checkbox" class="item" name="candidatesIds" value="@candidate.Id" />
+					</td>
+					<td>
+						<div class="d-flex flex-column">
+							@if (Model.BlockedCandidates[candidate.Id])
+							{
+								<label class="text-decoration-line-through">@candidate.FirstName @candidate.LastName</label>
+							}
+							else
+							{
+								<a class="link-underline link-underline-opacity-0" asp-controller="@Model.ControllerForViewCandidateProfile"
+								   asp-action="@Model.ActionForViewCandidateProfile" asp-route-candidateId="@candidate.Id">
+									@candidate.FirstName @candidate.LastName
+								</a>
+							}
+							<label class="@(Model.BlockedCandidates[candidate.Id] ? "text-decoration-line-through" : "")">@candidate.Birthday</label>
+						</div>
+					</td>
+					<td>
+						<div class="row">
+							@foreach (var skill in candidate.Skills.Take(10))
+							{
+								<div class="col">
+									<label class="@(Model.BlockedCandidates[candidate.Id] ? "text-decoration-line-through" : "")">@skill.Skill.Name</label>
+								</div>
+							}
+						</div>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</form>
+<script>
+	const selectAll = document.getElementById('selectAll');
+	const items = document.querySelectorAll('.item');
+	selectAll.addEventListener('change', () => {
+		items.forEach(item => {
+			item.checked = selectAll.checked;
+		});
+	});
+	items.forEach(item => {
+	item.addEventListener('change', () => {
+		const allChecked = Array.from(items).every(el => el.checked);
+		selectAll.checked = allChecked;
+		});
+	});
+</script>

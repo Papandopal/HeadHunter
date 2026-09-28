@@ -6,6 +6,7 @@ using Domain.Enums;
 using UseCases.Services.AuthServices.DTOs;
 using UseCases.Services;
 using UseCases.Services.AuthServices.Interfaces;
+using UseCases.Services.LocalizationServices.Interfaces;
 
 namespace ITransitionProject.Controllers
 {
@@ -15,14 +16,22 @@ namespace ITransitionProject.Controllers
         private readonly IConfiguration _configuration;
         private readonly IAuthService _authService;
         private readonly AlertService _alertService;
+        private readonly IUILocalizationService _uiLocalizationService;
 
         public AuthController(ILogger<AuthController> logger, IConfiguration configuration, IAuthService authService,
-            AlertService alertService)
+            AlertService alertService, IUILocalizationService UILocalizationService)
         {
             _logger = logger;
             _configuration = configuration;
             _authService = authService;
             _alertService = alertService;
+            _uiLocalizationService = UILocalizationService;
+        }
+
+        [HttpPost]
+        public void ChangeUILanguage(string language)
+        {
+            _uiLocalizationService.ChangeUILanguage(language);
         }
 
         [HttpGet]

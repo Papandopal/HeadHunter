@@ -1,4 +1,4 @@
-﻿
+﻿@inject IUILocalizationFormater UILocalizationFormater
 @{
 }
-<label>Error Page</label>
+<label>@UILocalizationFormater.Format("Error Page")</label>

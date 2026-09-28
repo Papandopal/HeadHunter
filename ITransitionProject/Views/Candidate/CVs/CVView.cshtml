@@ -1,6 +1,7 @@
 ﻿@model ViewCVCandidatePageDTO
 @inject IDatePeriodFormater datePeriodFormater
 @inject IMarkdownTextFormater markdownTextFormater
+@inject IUILocalizationFormater UILocalizationFormater;
 @{
 	var skillsViewDTOs = Model.CandidateSkills.Select(x => 
 		new ViewValuedSkillPartialDTO { 
@@ -38,7 +39,7 @@
 	</div>
 	<div class="row">
 		<div class="col-12">
-			<a asp-controller="@Model.ControllerForEditCV" asp-action="@Model.ActionForEditCV" asp-route-cvId="@Model.CV.Id" class="btn btn-primary">Edit</a>
+			<a asp-controller="@Model.ControllerForEditCV" asp-action="@Model.ActionForEditCV" asp-route-cvId="@Model.CV.Id" class="btn btn-primary">@UILocalizationFormater.Format("Edit")</a>
 		</div>
 	</div>
 </div>

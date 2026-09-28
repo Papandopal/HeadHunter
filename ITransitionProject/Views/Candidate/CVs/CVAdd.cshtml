@@ -1,4 +1,5 @@
 ﻿@model AddCVPageDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	var NotValuedEventHandlers = new Dictionary<string, string> {
 		{ "onTextChanged2", "onTextChangedNotValuedSkill2" },
@@ -39,8 +40,8 @@
 <table>
 	<thead>
 		<tr>
-			<th>Profile Skills</th>
-			<th>Missed Skills</th>
+			<th>@UILocalizationFormater.Format("Profile Skills")</th>
+			<th>@UILocalizationFormater.Format("Missed Skills")</th>
 		</tr>
 	</thead>
 	<tbody>

@@ -12,5 +12,6 @@ namespace UseCases.Services.ImageServices.Interfaces
     {
         public Task<string> UploadImageAsync(IFormFile file);
         public Task<string?> ReplaceImageAsync(string name, IFormFile? newImage);
+        public string GetImageLink(string fileName);
     }
 }

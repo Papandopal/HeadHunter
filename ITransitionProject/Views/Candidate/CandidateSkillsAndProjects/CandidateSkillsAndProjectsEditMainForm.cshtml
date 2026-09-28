@@ -1,4 +1,5 @@
 ﻿@model EditCandidateSkillsAndProjectsPageDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	string bufferForUpdatingSkillsName = nameof(Model.PostedModel.BufferForUpdatingSkills);
 	string bufferForAddedSkillsName = nameof(Model.PostedModel.BufferForAddedSkills);
@@ -114,7 +115,7 @@
 		<div class="col">
 			<input type="text" oninput="loadSkills(this.value)" />
 			<select id="@CandidateSkillTypeSelectorId" onchange="loadForm(this.value)">
-				<option hidden disabled selected>Skills</option>
+				<option hidden disabled selected>@UILocalizationFormater.Format("Skills")</option>
 			</select>
 			@foreach (var partialDTO in partialSkillsDTOs)
 			{
@@ -139,7 +140,7 @@
 	<input id="@bufferForUpdatingSkillsName" type="hidden" name="@bufferForUpdatingSkillsName" />
 	<input id="@bufferForAddedProjectsName" type="hidden" name="@bufferForAddedProjectsName" />
 	<input id="@bufferForUpdatingProjectsName" type="hidden" name="@bufferForUpdatingProjectsName" />
-	<button id="@buttonForSubmitId" type="submit"> Save</button>
+	<button id="@buttonForSubmitId" type="submit">@UILocalizationFormater.Format("Save")</button>
 </form>
 
 <script>
@@ -428,7 +429,7 @@
 	function RebuildSkillSelector(){
 		let selector = document.getElementById('@CandidateSkillTypeSelectorId');
 		selector.innerHTML = '';
-		let newInnerHTML = '<option selected disabled hidden value="">Skill</option>';
+		let newInnerHTML = '<option selected disabled hidden value="">@UILocalizationFormater.Format("Skill")</option>';
 		for(let skill of curLoadSkills){
 			if(selectedSkills.indexOf(skill) === -1){
 				newInnerHTML += `<option value='${skill}'>${skill}</option>`;

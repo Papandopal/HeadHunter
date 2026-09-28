@@ -1,4 +1,5 @@
 ﻿@model EditCVPageDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	var ownerIdInputName = nameof(Model.PostedModel.OwnerId);
 	string bufferForUpdatingSkillsName = nameof(Model.PostedModel.BufferForUpdatingSkills);
@@ -107,7 +108,7 @@
 	<input type="hidden" name="@ownerIdInputName" value="@Model.CV.CandidateId" />
 	<input id="@bufferForUpdatingSkillsName" type="hidden" name="@bufferForUpdatingSkillsName" />
 	<input id="@bufferForUpdatingProjectsName" type="hidden" name="@bufferForUpdatingProjectsName" />
-	<button id="@buttonForSubmitId" type="submit"> Save</button>
+	<button id="@buttonForSubmitId" type="submit" class="btn">@UILocalizationFormater.Format("Save")</button>
 </form>
 
 <script>

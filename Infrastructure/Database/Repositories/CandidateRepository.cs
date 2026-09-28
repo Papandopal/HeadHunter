@@ -23,19 +23,29 @@ namespace Infrastructure.Database.Repositories
             candidates.Add(new Candidate { UserId = user.Id });
         }
 
+
+        
+
         void IRepository<Candidate>.Delete(Guid id)
         {
             candidates.Remove(candidates.First(x => x.Id == id));
         }
 
+     
+
         IQueryable<Candidate> IRepository<Candidate>.GetAll()
         {
-            return candidates.Include(x=>x.Skills);
+            return candidates.Include(x=>x.Skills).ThenInclude(x=>x.Skill);
         }
 
         Candidate IRepository<Candidate>.GetById(Guid id)
         {
             return candidates.Include(x => x.Skills).ThenInclude(x => x.Skill).First(x => x.Id == id);
+        }
+
+        IEnumerable<Candidate> ICandidateRepository.GetByIds(IEnumerable<Guid> ids)
+        {
+            return candidates.Where(x=>ids.Contains(x.Id));
         }
 
         Candidate ICandidateRepository.GetByOwnerId(Guid id)
@@ -48,9 +58,15 @@ namespace Infrastructure.Database.Repositories
             return candidates.FirstOrDefault(x=>x.Id == entity.Id) is not null;
         }
 
+       
         void IRepository<Candidate>.Update(Candidate entity)
         {
             candidates.Update(entity);
+        }
+
+        void ICandidateRepository.UpdateRange(IEnumerable<Candidate> candidates)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -30,6 +30,20 @@ namespace UseCases.Services.ImageServices
             client = new AmazonS3Client(options["AccessKey"], options["SecretKey"], config);
             bucketName = options["BucketName"];
         }
+
+        string IImageService.GetImageLink(string fileName)
+        {
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = bucketName,
+                Key = fileName,
+                Expires = DateTime.UtcNow.AddMinutes(10000),
+                Verb = HttpVerb.GET
+            };
+
+            return client.GetPreSignedURL(request);
+        }
+
         async Task<string?> IImageService.ReplaceImageAsync(string name, IFormFile? newImage)
         {
             await client.DeleteObjectAsync(bucketName, name);
@@ -52,15 +66,7 @@ namespace UseCases.Services.ImageServices
 
             await client.PutObjectAsync(uploadRequest);
 
-            var request = new GetPreSignedUrlRequest
-            {
-                BucketName = bucketName,
-                Key = fileName,
-                Expires = DateTime.UtcNow.AddMinutes(10000),
-                Verb = HttpVerb.GET
-            };
-
-            return client.GetPreSignedURL(request);
+            return fileName;
         }
     }
 }

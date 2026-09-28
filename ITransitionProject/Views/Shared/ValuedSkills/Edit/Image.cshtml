@@ -1,7 +1,9 @@
 ﻿@model EditValuedSkillPartialDTO
+@inject IImageFormater ImageFormater;
 @{
 	var imageRandomId = Guid.NewGuid().ToString();
+	var imageSrc = ImageFormater.Format(Model.ValuedSkill.Value);
 }
 <label for="@Model.ValuedSkill.Id">@Model.ValuedSkill.Skill.Name</label>
-<img width="300" id="@imageRandomId" src="@Model.ValuedSkill.Value" />
+<img width="300" id="@imageRandomId" src="@imageSrc" />
 <input type="file" onchange="@(Model.EventHandlers["uploadImage3"])('@Model.ValuedSkill.Id', document.getElementById('@imageRandomId').src, this.files[0])" placeholder="@Model.ValuedSkill.Value" />

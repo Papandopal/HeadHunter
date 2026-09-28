@@ -1,15 +1,20 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Database.Exceptions;
+using ITransitionProject.PagesDTOs.Administrator.Candidates;
 using ITransitionProject.PagesDTOs.Administrator.Positions;
 using ITransitionProject.PagesDTOs.Candidate.CVs;
+using ITransitionProject.PagesDTOs.Candidate.Profile;
 using ITransitionProject.PagesDTOs.Recruter.Positions;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.Services;
 using UseCases.Services.AuthServices.Interfaces;
+using UseCases.Services.CandidateServices.Interfaces;
 using UseCases.Services.CVServices.Interfaces;
+using UseCases.Services.Entities.CandidateServices.DTOs;
 using UseCases.Services.Entities.CVServices.DTOs;
 using UseCases.Services.Entities.PositionServices.DTOs;
 using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces;
@@ -29,13 +34,13 @@ namespace ITransitionProject.Controllers
     public class AdministratorController(ICVService cVService, IPositionService positionService, IProjectService projectService,
         ICandidateSkillService candidateSkillService, IConfiguration configuration, IImageService imageService, ISkillService skillService,
         IAuthService authService, IProjectTagService projectTagService, IAccessRuleService accessRuleService,
-        AlertService alertService) : Controller
+        AlertService alertService, ICandidateService candidateService) : Controller
     {
         private IActionResult ValidationDecorator(Func<IActionResult> action, string reconnectActionName)
         {
             try
             {
-                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
+                if (!authService.Validate()) throw new FailedAuthValidationException("User blocked");
                 return action.Invoke();
             }
             catch (NotEqualItemVersionException ex)
@@ -59,7 +64,7 @@ namespace ITransitionProject.Controllers
         {
             try
             {
-                if (!authService.Validate()) throw new FailedAuthValidationException("Auth validation failed");
+                if (!authService.Validate()) throw new FailedAuthValidationException("User blocked");
                 return await action.Invoke();
             }
             catch (NotEqualItemVersionException ex)
@@ -80,6 +85,11 @@ namespace ITransitionProject.Controllers
         }
         public IActionResult Home()
         {
+            if (!authService.Validate())
+            {
+                alertService.RaiseAlert("User blocked", AlertTypes.Danger);
+                return RedirectToAction("Login", "Auth");
+            }
             return View("Profile/Home");
         }
 
@@ -351,5 +361,114 @@ namespace ITransitionProject.Controllers
                 return RedirectToAction("ViewPosition", new { positionId = dto.Id });
             }, nameof(ViewPositions));
         }
+
+        [HttpGet]
+        public IActionResult ViewCandidates()
+        {
+            return ValidationDecorator(() =>
+            {
+                IEnumerable<Candidate> candidates = candidateService.GetAll();
+                IDictionary<Guid, bool> blockedCandidates = candidateService.IsBlockedRange(candidates);
+                var dto = new ViewCandidatesPageDTO
+                {
+                    Candidates = candidates,
+                    BlockedCandidates = blockedCandidates,
+                    ActionForBlockCandidates = nameof(BlockCandidates),
+                    ControllerForBlockCandidates = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForDeleteCandidates = nameof(DeleteCandidates),
+                    ControllerForDeleteCandidates = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForUnblockCandidates = nameof(UnblockCandidates),
+                    ControllerForUnblockCandidates = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForViewCandidateProfile = nameof(ViewCandidateProfile),
+                    ControllerForViewCandidateProfile = ControllerContext.ActionDescriptor.ControllerName
+                };
+                return View("Candidates/ViewCandidates", dto);
+            }, nameof(Home));
+        }
+
+        [HttpGet]
+        public IActionResult BlockCandidates(IEnumerable<Guid> candidatesIds)
+        {
+            return ValidationDecorator(() =>
+            {
+                candidateService.BlockRange(candidatesIds);
+                return RedirectToAction(nameof(ViewCandidates));
+            }, nameof(ViewCandidates));
+        }
+
+        [HttpGet]
+        public IActionResult UnblockCandidates(IEnumerable<Guid> candidatesIds)
+        {
+            return ValidationDecorator(() =>
+            {
+                candidateService.UnblockRange(candidatesIds);
+                return RedirectToAction(nameof(ViewCandidates));
+            }, nameof(ViewCandidates));
+        }
+
+        [HttpGet]
+        public IActionResult DeleteCandidates(IEnumerable<Guid> candidatesIds)
+        {
+            return ValidationDecorator(() =>
+            {
+                candidateService.DeleteRange(candidatesIds);
+                return RedirectToAction(nameof(ViewCandidates));
+            }, nameof(ViewCandidates));
+        }
+
+        [HttpGet]
+        public IActionResult ViewCandidateProfile(Guid candidateId)
+        {
+            return ValidationDecorator(() =>
+            {
+                Candidate candidate = candidateService.GetById(candidateId);
+                var candidateSkills = candidateSkillService.GetCandidateSkillsByOwnerId(candidate.Id);
+                var projects = projectService.GetByOwnerId(candidate.Id);
+                var dto = new CandidateProfileAdministratorPageDTO
+                {
+                    CandidateId = candidateId,
+                    FirstName = candidate.FirstName,
+                    LastName = candidate.LastName,
+                    BirthDay = candidate.Birthday,
+                    CandidateSkills = candidateSkills,
+                    Projects = projects,
+                    ActionForEditProfile = nameof(EditCandidateProfile),
+                    ControllerForEditProfile = ControllerContext.ActionDescriptor.ControllerName
+
+                };
+                return View("Candidates/ViewCandidateProfile", dto);
+            }, nameof(ViewCandidates));
+        }
+
+        [HttpGet]
+        public IActionResult EditCandidateProfile(Guid candidateId)
+        {
+            Candidate candidate = candidateService.GetById(candidateId);
+            var dto = new EditCandidateProfileAdministratorPageDTO
+            {
+                CandidateId = candidateId,
+                FirstName = candidate.FirstName,
+                LastName = candidate.LastName,
+                BirthDay = candidate.Birthday,
+                ActionForSubmit = ControllerContext.ActionDescriptor.ActionName,
+                ControllerForSubmit = ControllerContext.ActionDescriptor.ControllerName
+            };
+            return View("Candidates/EditCandidateProfile", dto);
+        }
+
+        [HttpPost]
+        public IActionResult EditCandidateProfile(Guid candidateId, EditCandidateProfileDTO dto)
+        {
+            return ValidationDecorator(() =>
+            {
+                Candidate candidate = candidateService.GetById(candidateId);
+                candidate.FirstName = dto.FirstName;
+                candidate.LastName = dto.LastName;
+                candidate.Birthday = dto.BirthDay;
+                candidateService.Update(candidate);
+                return RedirectToAction(nameof(ViewCandidateProfile), new { candidateId = candidateId });
+            }, nameof(ViewCandidates));
+        }
+
     }
 }

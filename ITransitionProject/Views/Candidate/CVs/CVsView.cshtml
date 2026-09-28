@@ -1,5 +1,6 @@
 ﻿@model ViewCVsCandidatePageDTO
 @inject IMarkdownTextFormater markdownTextFormater
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	var positions = Model.Positions.ToDictionary(x => x.Id);
 }
@@ -8,13 +9,13 @@
 	<thead>
 		<tr>
 			<th>
-				<label>Position Name</label>
+				<label>@UILocalizationFormater.Format("Position Name")</label>
 			</th>
 			<th>
-				<label>Skills</label>
+				<label>@UILocalizationFormater.Format("Skills")</label>
 			</th>
 			<th>
-				<label>Decription</label>
+				<label>@UILocalizationFormater.Format("Description")</label>
 			</th>
 		</tr>
 	</thead>

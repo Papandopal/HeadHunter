@@ -1,17 +1,28 @@
-﻿@{
+﻿@inject IUILocalizationFormater UILocalizationFormater
+@{
 }
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="Home">Home</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="Home">
+		@UILocalizationFormater.Format("Home")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="Profile">Profile</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="Profile">
+		@UILocalizationFormater.Format("Profile")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="EditSkillsAndProjects">Skills and Projects</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="EditSkillsAndProjects">
+		@UILocalizationFormater.Format("Skills and Projects")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="ViewPositions">Positions</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="ViewPositions">
+		@UILocalizationFormater.Format("Positions")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="ViewCVs">CVs</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="ViewCVs">
+		@UILocalizationFormater.Format("CVs")
+	</a>
 </li>

@@ -1,12 +1,13 @@
 ﻿@model ViewReadOnlyPositionsPageDTO
 @inject IMarkdownTextFormater markdownTextFormater
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	<table class="table">
 		<thead>
 			<tr>
-				<th>@(nameof(Position.Title))</th>
-				<th>@(nameof(Position.Description))</th>
-				<th>@(nameof(Position.PositionSkills))</th>
+				<th>@(UILocalizationFormater.Format(nameof(Position.Title)))</th>
+				<th>@(UILocalizationFormater.Format(nameof(Position.Description)))</th>
+				<th>@(UILocalizationFormater.Format(nameof(Position.PositionSkills)))</th>
 			</tr>
 		</thead>
 		<tbody>

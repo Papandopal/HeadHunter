@@ -1,23 +1,38 @@
-﻿@{
+﻿@inject IUILocalizationFormater UILocalizationFormater
+@{
 }
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="Home">Home</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="Home">
+		@UILocalizationFormater.Format("Home")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="Profile">Profile</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="Profile">
+		@UILocalizationFormater.Format("Profile")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="EditSkill">Edit Skills</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="EditSkill">
+		@UILocalizationFormater.Format("Edit Skills")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="AddSkill">Add Skill</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="AddSkill">
+		@UILocalizationFormater.Format("Add Skill")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="AddCategory">Add Category</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="AddCategory">
+		@UILocalizationFormater.Format("Add Category")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="ViewCVs">CVs</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="ViewCVs">
+		@UILocalizationFormater.Format("CVs")
+	</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="ViewPositions">Positions</a>
+	<a class="nav-link text-dark" asp-area="" asp-controller="Recruter" asp-action="ViewPositions">
+		@UILocalizationFormater.Format("Positions")
+	</a>
 </li>

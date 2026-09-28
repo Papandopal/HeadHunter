@@ -1,6 +1,7 @@
 ﻿@model ViewCVRecruterPageDTO
 @inject IDatePeriodFormater datePeriodFormater
 @inject IMarkdownTextFormater markdownTextFormater
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	var likeButtonId = Guid.NewGuid();
 	var likesLabelId = Guid.NewGuid();
@@ -46,7 +47,7 @@
 			<label id="@likesLabelId">@Model.CV.Likes</label>
 		</div>
 		<div class="col-4">
-			<button id="@likeButtonId">Like</button> 
+			<button id="@likeButtonId">@UILocalizationFormater.Format("Like")</button>
 		</div>
 	</div>
 </div>
@@ -61,6 +62,11 @@
 			button.classList.remove(...button.classList);
 			button.classList.add('btn');
 			button.classList.add('btn-primary');
+
+			heartIcon.classList.remove(...heartIcon.classList);
+			heartIcon.classList.add('bi');
+			heartIcon.classList.add('bi-suit-heart-fill');
+
 			button.onclick = function(){sendUnlike()};
 		}
 
@@ -78,6 +84,11 @@
 			button.classList.remove(...button.classList);
 			button.classList.add('btn');
 			button.classList.add('btn-outline-secondary');
+
+			heartIcon.classList.remove(...heartIcon.classList);
+			heartIcon.classList.add('bi');
+			heartIcon.classList.add('bi-suit-heart');
+
 			button.onclick = function(){sendLike()};
 		}
 

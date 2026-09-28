@@ -1,4 +1,5 @@
 ﻿@model AddProjectPartialDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	var titleInputId = Guid.NewGuid();
 	var firstDateId = Guid.NewGuid();
@@ -11,19 +12,19 @@
 	var countOfPopularProjects = 10;
 }
 <div>
-	<label for="@titleInputId">Title:</label>
+	<label for="@titleInputId">@UILocalizationFormater.Format("Title"):</label>
 	<input id="@titleInputId" required />
 	<div class="d-flex flex-row">
-		<label>Date Period</label>
+		<label>@UILocalizationFormater.Format("Date Period")</label>
 		<input id="@firstDateId" type="date"/>
 		<input id="@secondDateId" type="date" />
 	</div>
 	<div class="d-flex flex-column">
-		<label>Description:</label>
+		<label>@UILocalizationFormater.Format("Description"):</label>
 		<textarea id="@descriptionId" required></textarea>
 	</div>
-	<input id="@projectTagsInputId" placeholder="Project Tags" />
-	<button id="@addingProjectTagButtonId">Add</button>
+	<input id="@projectTagsInputId" placeholder="@UILocalizationFormater.Format("Project Tags")" />
+	<button id="@addingProjectTagButtonId">@UILocalizationFormater.Format("Add")</button>
 	<select id="@projectTagsSelectorId">
 	</select>
 	<div id="@projectTagsTableId" />

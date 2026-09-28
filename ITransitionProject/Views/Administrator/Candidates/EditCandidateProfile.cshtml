@@ -1,0 +1,17 @@
+﻿@model EditCandidateProfileAdministratorPageDTO
+@inject IUILocalizationFormater UILocalizationFormater
+@{
+
+}
+<form asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" asp-route-candidateId="@Model.CandidateId"
+	  method="post">
+	<div class="d-flex flex-column justify-content-center w-25" style="min-width: 300px">
+		<label for="firstName">@UILocalizationFormater.Format("First Name"):</label>
+		<input required asp-for="FirstName" />
+		<label for="lastName">@UILocalizationFormater.Format("Last Name"):</label>
+		<input required asp-for="LastName" />
+		<label for="birthDay">@UILocalizationFormater.Format("Birth Day"):</label>
+		<input required type="date" asp-for="BirthDay" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+		<button id="submitButtonId" type="submit">@UILocalizationFormater.Format("Save")</button>
+	</div>
+</form>

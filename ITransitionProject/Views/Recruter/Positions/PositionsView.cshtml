@@ -1,5 +1,6 @@
 ﻿@model ViewPositionsRecruterPageDTO
 @inject IMarkdownTextFormater markdownTextFormater
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 
 }
@@ -8,13 +9,13 @@
 		<li class="ms-1">
 			<button type="submit" asp-controller="@Model.ControllerForDeletePositions" asp-action="@Model.ActionForDeletePositions"
 					data-bs-toggle="tooltip" data-bs-placement="top"
-					data-bs-title="Delete all selected positions"
+					data-bs-title="@UILocalizationFormater.Format("Delete all selected positions")"
 					class="btn btn-outline-danger">
 				<i class="bi bi-trash3"></i>
 			</button>
 			<button type="submit" asp-controller="@Model.ControllerForAddPosition" asp-action="@Model.ActionForAddPosition"
 					data-bs-toggle="tooltip" data-bs-placement="top"
-					data-bs-title="Add new position"
+					data-bs-title="@UILocalizationFormater.Format("Add new position")"
 					class="btn btn-outline-success">
 				+
 			</button>
@@ -24,9 +25,9 @@
 		<thead>
 			<tr>
 				<th><input type="checkbox" id="selectAll" /></th>
-				<th>@(nameof(Position.Title))</th>
-				<th>@(nameof(Position.Description))</th>
-				<th>@(nameof(Position.PositionSkills))</th>
+				<th>@UILocalizationFormater.Format(nameof(Position.Title))</th>
+				<th>@UILocalizationFormater.Format(nameof(Position.Description))</th>
+				<th>@UILocalizationFormater.Format(nameof(Position.PositionSkills))</th>
 			</tr>
 		</thead>
 		<tbody>
