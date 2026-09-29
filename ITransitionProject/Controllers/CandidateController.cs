@@ -60,7 +60,7 @@ namespace ITransitionProject.Controllers
             }
             catch (Exception ex)
             {
-                alertService.RaiseAlert(ex.Message, AlertTypes.Warning);
+                alertService.RaiseAlert("Something wrong", AlertTypes.Warning);
                 return RedirectToAction("Logout", "Auth");
             }
         }
@@ -96,7 +96,7 @@ namespace ITransitionProject.Controllers
             if (!authService.Validate())
             {
                 alertService.RaiseAlert("User blocked", AlertTypes.Danger);
-                return RedirectToAction("Login", "Auth");
+                return RedirectToAction("Logout", "Auth");
             }
             if (Candidate() is null)
             {
@@ -107,7 +107,24 @@ namespace ITransitionProject.Controllers
                 };
                 return View("Profile/CreateProfile", createCandidateDTO);
             }
-            var homeDTO = new CandidateHomePageDTO { Candidate = Candidate() };
+
+            IEnumerable<CV> cvs = cVService.GetByOwnerId(Candidate().Id);
+            IEnumerable<Position> positions = positionService.GetByIds(cvs.Select(x => x.PositionId).Distinct());
+            var viewCVsDTO = new ViewCVsCandidatePageDTO
+            {
+                CVs = cvs,
+                Positions = positions,
+                ActionForViewCV = "ViewCV",
+                ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName,
+                ActionForDeleteCVs = nameof(DeleteCVs),
+                ControllerForDeleteCVs = ControllerContext.ActionDescriptor.ControllerName
+
+            };
+
+            var homeDTO = new CandidateHomePageDTO
+            {
+                CVsCandidatePageDTO = viewCVsDTO
+            };
             return View("Profile/Home", homeDTO);
         }
 
@@ -141,7 +158,9 @@ namespace ITransitionProject.Controllers
                     CandidateSkills = candidateSkills,
                     Projects = projects,
                     ActionForEditProfile = nameof(EditProfile),
-                    ControllerForEditProfile = ControllerContext.ActionDescriptor.ControllerName
+                    ControllerForEditProfile = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForEditSkillsAndProjects = nameof(EditSkillsAndProjects),
+                    ControllerForEditSkillsAndProjects = ControllerContext.ActionDescriptor.ControllerName
                 };
                 return View("Profile/Profile", dto);
             }, nameof(Home));
@@ -413,7 +432,10 @@ namespace ITransitionProject.Controllers
                     CVs = cvs,
                     Positions = positions,
                     ActionForViewCV = "ViewCV",
-                    ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName
+                    ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForDeleteCVs = nameof(DeleteCVs),
+                    ControllerForDeleteCVs = ControllerContext.ActionDescriptor.ControllerName
+
                 };
                 return View("CVs/CVsView", dto);
             }, nameof(Home));
@@ -474,6 +496,16 @@ namespace ITransitionProject.Controllers
             {
                 await TryUpdateItems(dto.BufferForUpdatingSkills, dto.BufferForUpdatingProjects);
                 return RedirectToAction("Profile");
+            }, nameof(ViewCVs));
+        }
+
+        [HttpGet]
+        public IActionResult DeleteCVs(IEnumerable<Guid> cvIds)
+        {
+            return ValidationDecorator(() =>
+            {
+                cVService.DeleteRange(cvIds);
+                return RedirectToAction(nameof(ViewCVs));
             }, nameof(ViewCVs));
         }
     }

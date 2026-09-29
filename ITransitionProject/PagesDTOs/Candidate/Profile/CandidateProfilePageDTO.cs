@@ -16,5 +16,7 @@ namespace ITransitionProject.PagesDTOs.Candidate.Profile
         public required IEnumerable<Project> Projects { get; set; }
         public required string ActionForEditProfile { get; set; }
         public required string ControllerForEditProfile { get; set; }
+        public required string ActionForEditSkillsAndProjects { get; set; }
+        public required string ControllerForEditSkillsAndProjects { get; set; }
     }
 }

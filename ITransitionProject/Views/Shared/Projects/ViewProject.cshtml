@@ -4,12 +4,14 @@
 @{
 
 }
-<label>@Model.Project.Title</label>
-<label>@Html.Raw(markdownTextFormater.Format(Model.Project.Description))</label>
-<label>@datePeriodFormater.Format(Model.Project.DatePeriod)</label>
-<div class="d-flex flex-column">
-	@foreach(var tag in Model.Project.ProjectTags)
-	{
-		<label>@tag.Name</label>
-	}
+<div class="py-4">
+	<label>@Model.Project.Title</label>
+	<label>@Html.Raw(markdownTextFormater.Format(Model.Project.Description))</label>
+	<label>@datePeriodFormater.Format(Model.Project.DatePeriod)</label>
+	<div class="d-flex flex-column">
+		@foreach (var tag in Model.Project.ProjectTags)
+		{
+			<label>@tag.Name</label>
+		}
+	</div>
 </div>

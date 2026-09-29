@@ -172,16 +172,17 @@
 
 		let newProjectTag = document.createElement('div');
 		newProjectTag.id = tagName;
+		newProjectTag.classList.add("px-2");
 
 		let newProjectTagName = document.createElement('label')
-		newProjectTagName.textContent = tagName;
+		newProjectTagName.textContent = '#' + tagName;
 
 		let newProjectTagRemoveButton = document.createElement('button');
 		newProjectTagRemoveButton.onclick = function(){ removeProjectTag(newProjectTag.id, tagName) };
 		newProjectTagRemoveButton.innerText = "-";
 		newProjectTagRemoveButton.classList.add("btn");
+		newProjectTagRemoveButton.classList.add("btn-sm");
 		newProjectTagRemoveButton.classList.add("btn-outline-danger");
-
 
 		newProjectTag.appendChild(newProjectTagName);
 		newProjectTag.appendChild(newProjectTagRemoveButton);

@@ -4,8 +4,8 @@
 	string submitButtonId = "submitButtonId";
 	var formId = "formId";
 }
-<form id="@formId" asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" method="post">
-	<div class="d-flex flex-column">
+<form asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" method="post">
+	<div id="@formId" class="d-flex flex-column">
 		<label for="Name">@UILocalizationFormater.Format("Name"):</label>
 		<input id="Name" asp-for="Name" onchange="addProperty('Name')" />
 		<button id="@submitButtonId" disabled type="submit">@UILocalizationFormater.Format("Save")</button>

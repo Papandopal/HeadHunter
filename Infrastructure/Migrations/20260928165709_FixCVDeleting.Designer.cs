@@ -4,6 +4,7 @@ using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260928165709_FixCVDeleting")]
+    partial class FixCVDeleting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("LikedRecrutersId");
 
-                    b.ToTable("CVRecruter", (string)null);
+                    b.ToTable("CVRecruter");
                 });
 
             modelBuilder.Entity("Domain.Entities.AccessRule", b =>
@@ -65,7 +68,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("SkillId");
 
-                    b.ToTable("AccessRule", (string)null);
+                    b.ToTable("AccessRule");
                 });
 
             modelBuilder.Entity("Domain.Entities.CV", b =>
@@ -92,7 +95,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PositionId");
 
-                    b.ToTable("CV", (string)null);
+                    b.ToTable("CV");
                 });
 
             modelBuilder.Entity("Domain.Entities.Candidate", b =>
@@ -127,7 +130,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Candidate", (string)null);
+                    b.ToTable("Candidate");
                 });
 
             modelBuilder.Entity("Domain.Entities.CandidateSkill", b =>
@@ -160,7 +163,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("SkillId1");
 
-                    b.ToTable("CandidateSkill", (string)null);
+                    b.ToTable("CandidateSkill");
                 });
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
@@ -178,7 +181,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category", (string)null);
+                    b.ToTable("Category");
                 });
 
             modelBuilder.Entity("Domain.Entities.Position", b =>
@@ -206,7 +209,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Position", (string)null);
+                    b.ToTable("Position");
                 });
 
             modelBuilder.Entity("Domain.Entities.PositionSkill", b =>
@@ -227,7 +230,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("SkillId");
 
-                    b.ToTable("PositionSkill", (string)null);
+                    b.ToTable("PositionSkill");
                 });
 
             modelBuilder.Entity("Domain.Entities.Project", b =>
@@ -261,7 +264,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CandidateId");
 
-                    b.ToTable("Project", (string)null);
+                    b.ToTable("Project");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProjectTag", b =>
@@ -282,7 +285,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectTag", (string)null);
+                    b.ToTable("ProjectTag");
                 });
 
             modelBuilder.Entity("Domain.Entities.Recruter", b =>
@@ -306,7 +309,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("OwnerId")
                         .IsUnique();
 
-                    b.ToTable("Recruter", (string)null);
+                    b.ToTable("Recruter");
                 });
 
             modelBuilder.Entity("Domain.Entities.Skill", b =>
@@ -339,7 +342,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Skill", (string)null);
+                    b.ToTable("Skill");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -371,7 +374,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("PositionProjectTag", b =>
@@ -386,7 +389,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ProjectTagsId");
 
-                    b.ToTable("PositionProjectTag", (string)null);
+                    b.ToTable("PositionProjectTag");
                 });
 
             modelBuilder.Entity("ProjectProjectTag", b =>
@@ -401,7 +404,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ProjectsId");
 
-                    b.ToTable("ProjectProjectTag", (string)null);
+                    b.ToTable("ProjectProjectTag");
                 });
 
             modelBuilder.Entity("CVRecruter", b =>
@@ -470,7 +473,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Candidate", null)
                         .WithMany("Skills")
                         .HasForeignKey("CandidateId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Skill", null)
@@ -510,8 +513,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Candidate", null)
                         .WithMany("Projects")
-                        .HasForeignKey("CandidateId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CandidateId");
                 });
 
             modelBuilder.Entity("Domain.Entities.Recruter", b =>

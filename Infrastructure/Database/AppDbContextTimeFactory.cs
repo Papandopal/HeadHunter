@@ -11,6 +11,7 @@ namespace Infrastructure.Database
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("PrivateMSSQLConnection.json", optional: false, reloadOnChange: true)
                 .Build();
 
             var connectionString = configuration.GetConnectionString("MSSQLConnection");

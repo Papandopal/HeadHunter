@@ -17,7 +17,6 @@ namespace Infrastructure.Database.EntityConfiguration
             builder.Property(x => x.Id)
                   .HasValueGenerator<Microsoft.EntityFrameworkCore.ValueGeneration.SequentialGuidValueGenerator>();
             builder.HasOne(x => x.Position).WithMany();
-            builder.HasOne(x => x.Candidate).WithMany();
         }
     }
 }

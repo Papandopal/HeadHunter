@@ -1,7 +1,9 @@
-﻿namespace ITransitionProject.PagesDTOs.Candidate.Profile
+﻿using ITransitionProject.PagesDTOs.Candidate.CVs;
+
+namespace ITransitionProject.PagesDTOs.Candidate.Profile
 {
     public class CandidateHomePageDTO
     {
-        public required Domain.Entities.Candidate Candidate { get; set; }
+        public required ViewCVsCandidatePageDTO CVsCandidatePageDTO { get; set; }
     }
 }

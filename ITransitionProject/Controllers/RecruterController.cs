@@ -97,7 +97,7 @@ namespace ITransitionProject.Controllers
             if (!authService.Validate())
             {
                 alertService.RaiseAlert("User blocked", AlertTypes.Danger);
-                return RedirectToAction("Login", "Auth");
+                return RedirectToAction("Logout", "Auth");
             }
             if (Recruter() is null)
             {

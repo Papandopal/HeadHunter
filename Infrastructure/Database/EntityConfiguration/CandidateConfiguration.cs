@@ -16,8 +16,9 @@ namespace Infrastructure.Database.EntityConfiguration
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id)
                   .HasValueGenerator<Microsoft.EntityFrameworkCore.ValueGeneration.SequentialGuidValueGenerator>();
-            builder.HasMany(x => x.Skills).WithOne().HasForeignKey(x=>x.CandidateId).OnDelete(DeleteBehavior.NoAction);
-            builder.HasMany(x => x.Projects).WithOne();
+            builder.HasMany(x => x.Skills).WithOne().HasForeignKey(x=>x.CandidateId).OnDelete(DeleteBehavior.Cascade);
+            //builder.HasMany<CV>().WithOne().HasForeignKey(x=>x.CandidateId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(x => x.Projects).WithOne().OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -10,7 +10,7 @@
 				ControllerForGetPopularProjectTags = Model.ControllerForGetPopularProjectTags
 			};
 }
-<div id="@Model.ProjectIndex" class="border position-relative">
+<div id="@Model.ProjectIndex" class="position-relative">
 	<partial name="Projects/AddProject" model="@dto" />
 	<button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0" onclick="@(Model.EventsHandlers["removeProject1"])('@Model.ProjectIndex')">-</button>
 </div>

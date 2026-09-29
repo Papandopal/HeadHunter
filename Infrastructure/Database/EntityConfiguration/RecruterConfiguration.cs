@@ -13,7 +13,7 @@ namespace Infrastructure.Database.EntityConfiguration
                   .HasValueGenerator<Microsoft.EntityFrameworkCore.ValueGeneration.SequentialGuidValueGenerator>();
             builder.HasMany(x => x.LikedCVs).WithMany(x=>x.LikedRecruters).UsingEntity<Dictionary<string, object>>(
                    "CVRecruter",
-                   j => j.HasOne<CV>().WithMany().HasForeignKey("LikedCVsId").OnDelete(DeleteBehavior.NoAction),
+                   j => j.HasOne<CV>().WithMany().HasForeignKey("LikedCVsId").OnDelete(DeleteBehavior.Cascade),
                    j => j.HasOne<Recruter>().WithMany().HasForeignKey("LikedRecrutersId").OnDelete(DeleteBehavior.NoAction)
                );
         }   

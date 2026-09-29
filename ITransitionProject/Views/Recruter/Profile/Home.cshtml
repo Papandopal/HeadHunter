@@ -1,4 +1,5 @@
 ﻿@model RecruterHomePageDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	var partialModel = new ViewPositionsRecruterPageDTO
 			{
@@ -11,4 +12,5 @@
 				ControllerForViewPosition = Model.ControllerForViewPosition
 			};
 }
+<label>@UILocalizationFormater.Format("Positions"):</label>
 <partial name="Positions/PositionsView" model="@partialModel" />

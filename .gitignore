@@ -26,6 +26,7 @@ bld/
 .vs/
 cso.dat
 *.bat
+PrivateMSSQLConnection.json
 
 # .NET Core
 project.lock.json

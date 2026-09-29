@@ -26,6 +26,20 @@ namespace UseCases.Services.CVServices
             unitOfWork.Commit();
         }
 
+        void ICVService.Delete(Guid id)
+        {
+            unitOfWork.StartTransaction();
+            unitOfWork.CVRepository.Delete(id);
+            unitOfWork.Commit();
+        }
+
+        void ICVService.DeleteRange(IEnumerable<Guid> ids)
+        {
+            unitOfWork.StartTransaction();
+            unitOfWork.CVRepository.DeleteRange(ids);
+            unitOfWork.Commit();
+        }
+
         IEnumerable<CV> ICVService.GetAll()
         {
             return unitOfWork.CVRepository.GetAll();

@@ -5,11 +5,11 @@
 	var formId = "formId";
 }
 
-<form itemid="@formId" asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" method="post">
-	<div class="d-flex flex-column w-25 justify-content-center" style="min-width: 300px">
-		<label for="firstName">@UILocalizationFormater.Format("First Name"):</label>
+<form asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" method="post">
+	<div id="@formId" class="d-flex flex-column w-25 justify-content-center" style="min-width: 300px">
+		<label for="firstName">@UILocalizationFormater.Format("First Name"):</label> 
 		<input id="firstName" asp-for="FirstName" onchange="addProperty('FirstName')"/>
-		<label for="lastName">@UILocalizationFormater.Format("Last Name"):</label>
+		<label for="lastName">@UILocalizationFormater.Format("Last Name"):</label> 
 		<input id="lastName" asp-for="LastName" onchange="addProperty('LastName')" />
 		<label for="birthDay">@UILocalizationFormater.Format("Birth Day"):</label>
 		<input id="birthDay" type="date" asp-for="BirthDay" value="@DateTime.Today.ToString("yyyy-MM-dd")" max="@DateTime.Today.ToString("yyyy-MM-dd")" onchange="addProperty('BirthDay')" />
@@ -18,7 +18,7 @@
 </form>
 
 <script>
-	let propsCount = document.getElementById('@formId').querySelectorAll('input').length;
+	let propsCount = document.getElementById('@formId').querySelectorAll('label').length;
 	if(propsCount==0) activateSubmitButton();
 	let data = [];
 

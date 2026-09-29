@@ -1,6 +1,7 @@
 ﻿@model CandidateHomePageDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 
 }
-<label>@Model.Candidate.FirstName   @Model.Candidate.LastName</label>
-<label>@Model.Candidate.Birthday</label>
+<h2>@UILocalizationFormater.Format("CVs"):</h2>
+<partial name="CVs/CVsView" model="@Model.CVsCandidatePageDTO"/>

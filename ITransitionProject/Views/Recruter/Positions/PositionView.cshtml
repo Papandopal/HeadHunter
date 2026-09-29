@@ -28,7 +28,9 @@
 						<label>@UILocalizationFormater.Format("Access Rules(Filters)"):</label>
 						@foreach (var rule in Model.Position.AccessRules)
 						{
-							<partial name="AccessRules/View/@rule.Skill.Type" model="new ViewAccessRulePartialDTO{ AccessRule = rule }" />
+							<div class="border">
+								<partial name="AccessRules/View/@rule.Skill.Type" model="new ViewAccessRulePartialDTO{ AccessRule = rule }" />
+							</div>
 						}
 					</td>
 				</tr>
@@ -42,7 +44,7 @@
 						<label>@UILocalizationFormater.Format("Project tags"):</label>
 						@foreach (var projectTag in Model.Position.ProjectTags)
 						{
-							<label>@projectTag.Name</label>
+							<label>#@projectTag.Name</label>
 						}
 					</td>
 				</tr>

@@ -1,9 +1,10 @@
 ﻿@model ViewCandidateSkillsAndProjectsPageDTO
+@inject IUILocalizationFormater UILocalizationFormater
 @{
 	IEnumerable<ViewValuedSkillPartialDTO> partialSkillsDTOs = Model.CandidateSkills
 	.Select(x => new ViewValuedSkillPartialDTO
 			{//mapper
-				ValuedSkill = new ValuedSkillDTO{ Id = x.Id, Skill = x.Skill, Value = x.Value}
+				ValuedSkill = new ValuedSkillDTO { Id = x.Id, Skill = x.Skill, Value = x.Value }
 			});
 	IEnumerable<ViewProjectPartialDTO> partialProjectsDTOs = Model.Projects
 	.Select(x => new ViewProjectPartialDTO
@@ -14,19 +15,21 @@
 <div class="container">
 	<div class="row">
 		<div class="col-3">
+			<div>
+				<lable>@UILocalizationFormater.Format("Skills"):</lable>
+			</div>
 			@foreach (var partialDTO in partialSkillsDTOs)
 			{
-				<div class="border">
-					<partial name="ValuedSkills/View/@partialDTO.ValuedSkill.Skill.Type" model="@partialDTO" />
-				</div>
+				<partial name="ValuedSkills/View/@partialDTO.ValuedSkill.Skill.Type" model="@partialDTO" />
 			}
 		</div>
 		<div class="col-9">
+			<div>
+				<lable>@UILocalizationFormater.Format("Projects"):</lable>
+			</div>
 			@foreach (var projectDTO in partialProjectsDTOs)
 			{
-				<div class="border">
-					<partial name="Projects/ViewProject" model="@projectDTO" />
-				</div>
+				<partial name="Projects/ViewProject" model="@projectDTO" />
 			}
 		</div>
 	</div>

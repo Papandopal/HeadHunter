@@ -23,15 +23,10 @@ namespace Infrastructure.Database.Repositories
             candidates.Add(new Candidate { UserId = user.Id });
         }
 
-
-        
-
         void IRepository<Candidate>.Delete(Guid id)
         {
             candidates.Remove(candidates.First(x => x.Id == id));
         }
-
-     
 
         IQueryable<Candidate> IRepository<Candidate>.GetAll()
         {

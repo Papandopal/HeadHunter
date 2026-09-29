@@ -79,7 +79,7 @@ namespace ITransitionProject.Controllers
             }
             catch (Exception ex)
             {
-                alertService.RaiseAlert(ex.Message, AlertTypes.Warning);
+                alertService.RaiseAlert("Something wrong...", AlertTypes.Warning);
                 return RedirectToAction(nameof(Home));
             }
         }
@@ -105,7 +105,9 @@ namespace ITransitionProject.Controllers
                     CVs = cvs,
                     Positions = positions,
                     ActionForViewCV = "ViewCV",
-                    ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName
+                    ControllerForViewCV = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForDeleteCVs = nameof(DeleteCVs),
+                    ControllerForDeleteCVs = ControllerContext.ActionDescriptor.ControllerName
                 };
                 return View("../Candidate/CVs/CVsView", dto);
             }, nameof(Home));
@@ -157,6 +159,16 @@ namespace ITransitionProject.Controllers
                 };
 
                 return View("../Candidate/CVs/CVEditMainForm", dto);
+            }, nameof(ViewCVs));
+        }
+
+        [HttpGet]
+        public IActionResult DeleteCVs(IEnumerable<Guid> cvIds)
+        {
+            return ValidationDecorator(() =>
+            {
+                cVService.DeleteRange(cvIds);
+                return RedirectToAction(nameof(ViewCVs));
             }, nameof(ViewCVs));
         }
 

@@ -4,49 +4,81 @@
 @{
 	var positions = Model.Positions.ToDictionary(x => x.Id);
 }
-
-<table class="table">
-	<thead>
-		<tr>
-			<th>
-				<label>@UILocalizationFormater.Format("Position Name")</label>
-			</th>
-			<th>
-				<label>@UILocalizationFormater.Format("Skills")</label>
-			</th>
-			<th>
-				<label>@UILocalizationFormater.Format("Description")</label>
-			</th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var cv in Model.CVs)
-		{
+<form>
+	<menu class="d-flex flex-row list-unstyled">
+		<li class="ms-1">
+			<button type="submit" asp-controller="@Model.ControllerForDeleteCVs" asp-action="@Model.ActionForDeleteCVs"
+					data-bs-toggle="tooltip" data-bs-placement="top"
+					data-bs-title="@UILocalizationFormater.Format("Delete all selected positions")"
+					class="btn btn-outline-danger">
+				<i class="bi bi-trash3"></i>
+			</button>
+		</li>
+	</menu>
+	<table class="table">
+		<thead>
 			<tr>
-				<td>
-					<a class="link-underline link-underline-opacity-0" asp-controller="@Model.ControllerForViewCV" asp-action="@Model.ActionForViewCV" asp-route-cvId="@cv.Id">@positions[cv.PositionId].Title</a>
-				</td>
-				<td>
-					<div class="d-flex flex-column">
-						<div>
-							@foreach (var skill in positions[cv.PositionId].PositionSkills.Where(x => cv.Candidate.Skills.Select(y => y.SkillId).Contains(x.SkillId)).Take(10))
-							{
-								<label>@skill.Skill.Name</label>
-							}
-						</div>
-						<div>
-							@foreach (var potentialEmptySkill in positions[cv.PositionId].PositionSkills.Select(x => x.Skill).Except(cv.Candidate.Skills.Select(x => x.Skill)))
-							{
-								<label style="color:red;">@potentialEmptySkill.Name</label>
-							}
-						</div>
-					</div>
-				</td>
-				<td>
-					@Html.Raw(markdownTextFormater.Format(positions[cv.PositionId].Description))
-				</td>
+				<th>
+					<input type="checkbox" id="selectAll" />
+				</th>
+				<th>
+					<label>@UILocalizationFormater.Format("Position Name")</label>
+				</th>
+				<th>
+					<label>@UILocalizationFormater.Format("Skills")</label>
+				</th>
+				<th>
+					<label>@UILocalizationFormater.Format("Description")</label>
+				</th>
 			</tr>
-		}
-	</tbody>
-</table>
+		</thead>
+		<tbody>
+			@foreach (var cv in Model.CVs)
+			{
+				<tr>
+					<td>
+						<input type="checkbox" class="item" name="cvIds" value="@cv.Id" />
+					</td>
+					<td>
+						<a class="link-underline link-underline-opacity-0" asp-controller="@Model.ControllerForViewCV" asp-action="@Model.ActionForViewCV" asp-route-cvId="@cv.Id">@positions[cv.PositionId].Title</a>
+					</td>
+					<td>
+						<div class="d-flex flex-column">
+							<div>
+								@foreach (var skill in positions[cv.PositionId].PositionSkills.Where(x => cv.Candidate.Skills.Select(y => y.SkillId).Contains(x.SkillId)).Take(10))
+								{
+									<label>@skill.Skill.Name</label>
+								}
+							</div>
+							<div>
+								@foreach (var potentialEmptySkill in positions[cv.PositionId].PositionSkills.Select(x => x.Skill).Except(cv.Candidate.Skills.Select(x => x.Skill)))
+								{
+									<label style="color:red;">@potentialEmptySkill.Name</label>
+								}
+							</div>
+						</div>
+					</td>
+					<td>
+						@Html.Raw(markdownTextFormater.Format(positions[cv.PositionId].Description))
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</form>
+<script>
+	const selectAll = document.getElementById('selectAll');
+	const items = document.querySelectorAll('.item');
+	selectAll.addEventListener('change', () => {
+		items.forEach(item => {
+			item.checked = selectAll.checked;
+		});
+	});
+	items.forEach(item => {
+	item.addEventListener('change', () => {
+		const allChecked = Array.from(items).every(el => el.checked);
+		selectAll.checked = allChecked;
+		});
+	});
+</script>
 

@@ -23,6 +23,11 @@ namespace Infrastructure.Database.Repositories
             cvs.Remove(cv);
         }
 
+        void ICVRepository.DeleteRange(IEnumerable<Guid> ids)
+        {
+            cvs.RemoveRange(cvs.Where(x=>ids.Contains(x.Id)));
+        }
+
         IQueryable<CV> IRepository<CV>.GetAll()
         {
             return cvs.Include(x=>x.Candidate).ThenInclude(x=>x.Skills);

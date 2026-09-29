@@ -11,6 +11,7 @@ namespace UseCases.Database.Repositories
     {
         public void Like(Guid cvId, Recruter user);
         public void Unlike(Guid cvId, Recruter user);
+        public void DeleteRange(IEnumerable<Guid> ids);
         public bool IsCVLikedBy(Guid cvId, Recruter user);
         public IEnumerable<CV> GetByOwnerId(Guid ownerId);
         public IEnumerable<CV> GetByPositionId(Guid positionId);
