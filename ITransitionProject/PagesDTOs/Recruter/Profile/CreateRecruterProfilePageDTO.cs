@@ -8,7 +8,8 @@ namespace ITransitionProject.PagesDTOs.Recruter.Profile
 {
     public class CreateRecruterProfilePageDTO
     {
-        public string Name { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
         public string ActionForSubmit { get; set; } = string.Empty;
         public string ControllerForSubmit { get; set; } = string.Empty;
     }

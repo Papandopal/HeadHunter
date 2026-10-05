@@ -1,0 +1,37 @@
+﻿@model EditCandidateAccountFormPageDTO
+@inject IUILocalizationFormater UILocalizationFormater
+@{
+	var accountIdIdAndName = nameof(Model.PostedModel.AccountId);
+	var contactIdIdAndName = nameof(Model.PostedModel.ContactId);
+	var genderIdAndName = nameof(Model.PostedModel.Gender);
+	var phoneIdAndName = nameof(Model.PostedModel.Phone);
+}
+<div class="d-flex flex-row">
+	<input disabled type="text" value="@Model.Candidate.FirstName" />
+	<input disabled type="text" value="@Model.Candidate.LastName" />
+</div>
+<input disabled type="date" value="@Model.Candidate.Birthday.ToString("yyyy-MM-dd")" />
+<input disabled type="email" value="@Model.User.Email" />
+
+<form asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" onsubmit="validation(event)">
+	<div class="d-flex flex-row align-items-center">
+		<label for="@genderIdAndName">@UILocalizationFormater.Format("Gender"):</label>
+		<select id="@genderIdAndName" name="@genderIdAndName" class="form-select w-auto">
+			@foreach (var gender in Enum.GetNames<Gender>())
+			{
+				<!option @(gender == Model.Records.Gender.ToString() ? "selected" : "") value="@gender">@gender</!option>
+			}
+		</select>
+	</div>
+
+	<div class="w-100">
+		<label for="@phoneIdAndName">@UILocalizationFormater.Format("Phone"):</label>
+		<input id="@phoneIdAndName" name="@phoneIdAndName" type="tel"
+			   oninput="addProperty('@phoneIdAndName')" value="@Model.Records.Phone" />
+	</div>
+
+	<input type="hidden" name="@accountIdIdAndName" value="@Model.Records.AccountId"/>
+	<input type="hidden" name="@contactIdIdAndName" value="@Model.Records.ContactId" />
+
+	<button type="submit">@UILocalizationFormater.Format("Save")</button>
+</form>

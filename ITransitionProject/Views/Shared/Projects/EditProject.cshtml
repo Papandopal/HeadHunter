@@ -11,7 +11,7 @@
 	var projectTagsTableId = Guid.NewGuid();
 	var countOfPopularProjects = 10;
 }
-<div class="py-4">
+<div class="pb-4">
 	<label for="@titleInputId">@UILocalizationFormater.Format("Title"):</label>
 	<input id="@titleInputId" required value="@Model.Project.Title"/>
 	<div class="d-flex flex-row">
@@ -32,7 +32,7 @@
 	</div>
 </div>
 
-<script>
+<script charset="utf-8">
 	{
 		let partsOfDatePeriod = ['', ''];
 
@@ -92,7 +92,7 @@
 				}
 			}
 
-			select.innerHTML = '<option selected hidden disabled>Project tags</option>' + filteredData
+			select.innerHTML = '<option selected hidden disabled>@UILocalizationFormater.Format("Project Tags")</option>' + filteredData
 			.map(item => `<option value="${item}">${item}</option>`)
 			.join('');
 		}
@@ -153,10 +153,20 @@
 			document.getElementById('@projectTagsTableId').append(newDiv);
 		}
 
+		function tagSelectorSetNull(){
+			let newOption = document.createElement('option');
+			newOption.text = '@Html.Raw(UILocalizationFormater.Format("Project tags"))';
+			newOption.disabled = true;
+			newOption.hidden = true;
+			newOption.selected = true;
+			document.getElementById('@projectTagsSelectorId').append(newOption);
+		}
+
 		function addTagBySelector(tag){
 			addTag(tag);
 			@(Model.EventsHandlers["addProjectTag2"])('@Model.ProjectIndex', tag);
 			document.getElementById('@projectTagsSelectorId').querySelector(`option:checked`).remove();
+			tagSelectorSetNull();
 		}
 
 		function addTagByButton(tag){

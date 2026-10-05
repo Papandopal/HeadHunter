@@ -1,5 +1,4 @@
-﻿using AspNetCoreGeneratedDocument;
-using Domain.Enums;
+﻿using Domain.Enums;
 
 namespace ITransitionProject
 {

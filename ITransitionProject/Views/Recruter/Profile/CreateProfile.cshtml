@@ -6,8 +6,10 @@
 }
 <form asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" method="post">
 	<div id="@formId" class="d-flex flex-column">
-		<label for="Name">@UILocalizationFormater.Format("Name"):</label>
-		<input id="Name" asp-for="Name" onchange="addProperty('Name')" />
+		<label for="Name">@UILocalizationFormater.Format("First Name"):</label>
+		<input asp-for="FirstName" onchange="addProperty('First Name')" />
+		<label for="Name">@UILocalizationFormater.Format("Last Name"):</label>
+		<input asp-for="LastName" onchange="addProperty('Last Name')" />
 		<button id="@submitButtonId" disabled type="submit">@UILocalizationFormater.Format("Save")</button>
 	</div>
 </form>

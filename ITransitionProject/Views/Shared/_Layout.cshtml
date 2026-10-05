@@ -1,91 +1,107 @@
-﻿@inject IUILocalizationFormater UILocalizationFormater;
-@inject IConfiguration configuration;
+﻿@using ITransitionProject.Controllers
+@inject IUILocalizationFormater UILocalizationFormater;
+@inject SupportedUserRolesForSalesforce supportedUserRolesForSalesforce;
 @{
-    var selectorId = Guid.NewGuid();
+	var selectorId = Guid.NewGuid();
 }
 <!DOCTYPE html>
-<html>
+<html style="overflow: hidden;">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ITransitionProject</title>
-    <script type="importmap"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ITransitionProject.styles.css" asp-append-version="true" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - ITransitionProject</title>
+	<script type="importmap"></script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/ITransitionProject.styles.css" asp-append-version="true" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Auth" asp-action="Login">ITransitionProject</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        @if (User.Identity?.IsAuthenticated ?? false)
-                        {
-                            <partial name="Role/NavMenus/GeneralAuthorizedNavMenu" />
-                            @foreach (var role in Enum.GetNames<UserRoles>())
-                            {
-                                if (User.IsInRole(role))
-                                {
-                                    var menuName = role + "NavMenu";
-                                    <partial name="Role/NavMenus/@menuName" />
-                                }
-                            }
-                        }
-                        else
-                        {
-                            <partial name="Role/NavMenus/UnauthorizedNavMenu" />
-                        }
-                    </ul>
-                    <ul class="navbar-nav flex-grow-1 flex-row-reverse">
-                        <li class="nav-item">
-                            <select id="@selectorId" class="form-select border-0">
-                                @foreach (var language in UILocalizationFormater.GetSupportedLanguages())
-                                {
-                                    <!option @(UILocalizationFormater.UILanguage() == language ? "selected" : "") value="@language" >@language</!option>
-                                }
-                            </select>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
-    <script>
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-    </script>
-    <script>
-        {
-            let selector = document.getElementById('@selectorId');
-            selector.onchange = function(){changeUILanguage(this.value)};
+<body class="d-flex flex-column min-vh-100" style="overflow: hidden;">
+	<header>
+		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+			<div class="container-fluid">
+				<a class="navbar-brand" asp-area="" asp-controller="Auth" asp-action="Login">ITransitionProject</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+						aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+					<ul class="navbar-nav flex-grow-1">
+						@if (User.Identity?.IsAuthenticated ?? false)
+						{
+							<partial name="Role/NavMenus/GeneralAuthorizedNavMenu" />
+							@foreach (var role in Enum.GetNames<UserRoles>())
+							{
+								if (User.IsInRole(role))
+								{
+									var menuName = role + "NavMenu";
+									<partial name="Role/NavMenus/@menuName" />
+								}
+							}
+						}
+						else
+						{
+							<partial name="Role/NavMenus/UnauthorizedNavMenu" />
+						}
+					</ul>
+					<ul class="navbar-nav flex-grow-1 flex-row-reverse">
+						<li class="nav-item">
+							<select id="@selectorId" class="form-select border-0">
+								@foreach (var language in UILocalizationFormater.GetSupportedLanguages())
+								{
+									<!option @(UILocalizationFormater.UILanguage() == language ? "selected" : "") value="@language" >@language</!option>
+								}
+							</select>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+	<div class="container flex-grow-1 pb-1">
+		<main role="main" class="pb-3">
+			@RenderBody()
+		</main>
+	</div>
+	<hr />
+	<footer class="pb-1">
+		<div class="d-flex justify-content-end">
+			@if ((User.Identity?.IsAuthenticated ?? false)
+					&& supportedUserRolesForSalesforce.Roles().Any(x => User.IsInRole(x.ToString())))
+			{
+				<a asp-controller="@nameof(SalesforceController).Replace("Controller", "")" asp-action="@nameof(SalesforceController.AccountForm)"
+				   class="btn btn-info">
+					@UILocalizationFormater.Format("General account for our services")
+				</a>
+			}
+		</div>
+	</footer>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+	<script>
+		const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+		const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+	</script>
+	<script>
+		{
+			let selector = document.getElementById('@selectorId');
+			selector.onchange = function(){changeUILanguage(this.value)};
 
-            function changeUILanguage(language){
-                fetch(`/Auth/ChangeUILanguage?language=${language}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                }).then(()=>
-                {
-                    location.href = location.href;
-                });
-            }
-        }
-    </script>
-    <partial name="General/_AlertPartialScript" />
-    @await RenderSectionAsync("Scripts", required: false)
+			function changeUILanguage(language){
+				fetch(`/Auth/ChangeUILanguage?language=${language}`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' }
+				}).then(()=>
+				{
+					location.href = location.href;
+				});
+			}
+		}
+	</script>
+	<partial name="General/_AlertPartialScript" />
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

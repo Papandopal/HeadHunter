@@ -3,6 +3,7 @@
 @{
 	var partialSkillDTO = new ViewCandidateSkillsAndProjectsPageDTO { CandidateSkills = Model.CandidateSkills, Projects = Model.Projects };
 }
+
 <div class="position-relative">
 	<h3>@Model.FirstName   @Model.LastName</h3>
 	<label>@Model.BirthDay</label>
@@ -12,7 +13,7 @@
 	</a>
 </div>
 <hr />
-<div class="position-relative">
+<div class="position-relative h-100">
 	<partial name="CandidateSkillsAndProjects/CandidateSkillsAndProjectsView" model="@partialSkillDTO" />
 	<a asp-controller="@Model.ControllerForEditSkillsAndProjects" asp-action="@Model.ActionForEditSkillsAndProjects"
 	   class="btn btn-primary position-absolute top-0 end-0">

@@ -51,11 +51,11 @@ namespace ITransitionProject.Controllers
             catch (FailedAuthValidationException ex)
             {
                 alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
-                return RedirectToAction(nameof(Home));
+                return RedirectToAction("Logout", "Auth");
             }
-            catch (Exception ex)
+            catch 
             {
-                alertService.RaiseAlert(ex.Message, AlertTypes.Warning);
+                alertService.RaiseAlert("Something wrong...", AlertTypes.Warning);
                 return RedirectToAction("Logout", "Auth");
             }
         }
@@ -77,10 +77,10 @@ namespace ITransitionProject.Controllers
                 alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
                 return RedirectToAction("Logout", "Auth");
             }
-            catch (Exception ex)
+            catch 
             {
                 alertService.RaiseAlert("Something wrong...", AlertTypes.Warning);
-                return RedirectToAction(nameof(Home));
+                return RedirectToAction("Logout", "Auth");
             }
         }
         public IActionResult Home()

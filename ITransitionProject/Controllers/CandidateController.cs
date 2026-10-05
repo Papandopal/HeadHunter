@@ -56,11 +56,11 @@ namespace ITransitionProject.Controllers
             catch (FailedAuthValidationException ex)
             {
                 alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
-                return RedirectToAction(nameof(Home));
+                return RedirectToAction("Logout", "Auth");
             }
-            catch (Exception ex)
+            catch 
             {
-                alertService.RaiseAlert("Something wrong", AlertTypes.Warning);
+                alertService.RaiseAlert("Something wrong...", AlertTypes.Warning);
                 return RedirectToAction("Logout", "Auth");
             }
         }
@@ -83,10 +83,10 @@ namespace ITransitionProject.Controllers
                 alertService.RaiseAlert(ex.Message, AlertTypes.Danger);
                 return RedirectToAction("Logout", "Auth");
             }
-            catch (Exception ex)
+            catch
             {
-                alertService.RaiseAlert(ex.Message, AlertTypes.Warning);
-                return RedirectToAction(nameof(Home));
+                alertService.RaiseAlert("Something wrong...", AlertTypes.Warning);
+                return RedirectToAction("Logout", "Auth");
             }
         }
 
@@ -160,7 +160,9 @@ namespace ITransitionProject.Controllers
                     ActionForEditProfile = nameof(EditProfile),
                     ControllerForEditProfile = ControllerContext.ActionDescriptor.ControllerName,
                     ActionForEditSkillsAndProjects = nameof(EditSkillsAndProjects),
-                    ControllerForEditSkillsAndProjects = ControllerContext.ActionDescriptor.ControllerName
+                    ControllerForEditSkillsAndProjects = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionForGetSalesforceForm = nameof(SalesforceController.AccountForm),
+                    ControllerForGetSalesforceForm = nameof(SalesforceController).Replace("Controller", "")
                 };
                 return View("Profile/Profile", dto);
             }, nameof(Home));

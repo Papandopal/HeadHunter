@@ -1,0 +1,60 @@
+﻿@model AddRecruterAccountFormPageDTO
+@inject IUILocalizationFormater UILocalizationFormater
+@{
+	var formId = "formId";
+	var birthdayIdAndName = nameof(Model.PostedModel.Birthday);
+	var genderIdAndName = nameof(Model.PostedModel.Gender);
+	var phoneIdAndName = nameof(Model.PostedModel.Phone);
+	var submitButtonId = "buttonId";
+}
+<div class="d-flex flex-row">
+	<input disabled type="text" value="@Model.Recruter.FirstName" />
+	<input disabled type="text" value="@Model.Recruter.LastName" />
+</div>
+<input disabled type="email" value="@Model.User.Email" />
+
+<form id="@formId" asp-controller="@Model.ControllerForSubmit" asp-action="@Model.ActionForSubmit" onsubmit="validation(event)">
+	<div class="justify-content-between">
+		<div class="d-flex flex-row align-items-center">
+			<label for="@genderIdAndName">@UILocalizationFormater.Format("Gender"):</label>
+			<select id="@genderIdAndName" name="@genderIdAndName" class="form-select w-auto" onchange="addProperty('@genderIdAndName')">
+				<option selected disabled hidden> </option>
+				@foreach (var gender in Enum.GetNames<Gender>())
+				{
+					<option value="@gender">@gender</option>
+				}
+			</select>
+		</div>
+		<div class="d-flex flex-row">
+			<label>@UILocalizationFormater.Format("Birth Day"):</label>
+			<input id="@birthdayIdAndName" name="@birthdayIdAndName" type="date" onchange="addProperty('@birthdayIdAndName')"
+				   max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+		</div>
+	</div>
+
+	<div>
+		<label for="@phoneIdAndName">@UILocalizationFormater.Format("Phone"):</label>
+		<input id="@phoneIdAndName" name="@phoneIdAndName" type="tel" oninput="addProperty('@phoneIdAndName')" />
+	</div>
+
+	<button id="@submitButtonId" disabled type="submit">@UILocalizationFormater.Format("Save")</button>
+</form>
+
+<script>
+	let propsCount = document.getElementById('@formId').querySelectorAll('label').length;
+	if(propsCount==0) activateSubmitButton();
+	let data = [];
+
+	function activateSubmitButton(){
+		document.getElementById("@submitButtonId").disabled = false;
+	}
+
+	function addProperty(propName) {
+		let item = data.find(item => item === propName);
+		if (typeof item === 'undefined') {
+			propsCount--;
+			data.push(propName);
+		}
+		if(propsCount==0) activateSubmitButton();
+	}
+</script>

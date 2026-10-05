@@ -68,7 +68,10 @@ namespace Domain
                 {"Block all selected candidates", "Block all selected candidates" },
                 {"Unblock all selected candidates", "Unblock all selected candidates" },
                 {"Rule", "Rule" },
-                {"Projects", "Projects" }
+                {"Projects", "Projects" },
+                {"Gender", "Gender" },
+                {"Phone", "Phone" },
+                {"General account for our services", "General account for our services" }
                 }
             },
             {"Русский", new Dictionary<string, string>
@@ -129,7 +132,11 @@ namespace Domain
                 {"Block all selected candidates", "Заблокировать всех выделенных кандидатов" },
                 {"Unblock all selected candidates", "Разблокировать всех выделенных кандидатов" },
                 {"Rule", "Правило" },
-                {"Projects", "Проекты" }
+                {"Projects", "Проекты" },
+                {"Gender", "Пол" },
+                {"Phone", "Телефон" },
+                {"General account for our services", "Общий аккаунт для наших сервисов" }
+
 
                 }
             }

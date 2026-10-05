@@ -34,6 +34,8 @@ using UseCases.Services.ProjectTagServices;
 using UseCases.Services.ProjectTagServices.Interfaces;
 using UseCases.Services.RecruterServices;
 using UseCases.Services.RecruterServices.Interfaces;
+using UseCases.Services.SalesforceServices;
+using UseCases.Services.SalesforceServices.Interfaces;
 using UseCases.Services.SkillServices;
 using UseCases.Services.SkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices;
@@ -95,6 +97,7 @@ namespace ITransitionProject
             builder.Services.AddTransient<IProjectService, ProjectService>();
             builder.Services.AddTransient<IImageService, ImageService>();
             builder.Services.AddTransient<IUILocalizationService, UILocalizationService>();
+            builder.Services.AddTransient<ISalesforceService, SalesforceService>();
 
             builder.Services.AddTransient<IMarkdownTextFormater, MarkdownTextFormater>();
             builder.Services.AddTransient<IOneOfManyFormater, OneOfManyFormater>();
@@ -111,6 +114,7 @@ namespace ITransitionProject
             builder.Services.AddTransient<CryptService>();
             builder.Services.AddTransient<AlertService>();
             builder.Services.AddTransient<SupportedAccessRuleSkillTypes>();
+            builder.Services.AddTransient<SupportedUserRolesForSalesforce>();
 
             builder.Services.AddProblemDetails();
 
