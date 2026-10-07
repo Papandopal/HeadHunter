@@ -30,7 +30,7 @@ namespace ITransitionProject.Controllers
                 {
                     Name = y.Skill.Name,
                     Type = y.Skill.Type.ToString(),
-                    Value = candidateSkillService.AggregatedValueBySkill(y.Skill)
+                    AverageValue = candidateSkillService.AggregatedValueBySkill(y.Skill)
                 }).ToList()
             });
             return result;
