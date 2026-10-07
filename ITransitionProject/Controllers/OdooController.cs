@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
+using UseCases.OdooServices.DTOs;
 using UseCases.Services.PositionServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
 
@@ -7,20 +8,6 @@ namespace ITransitionProject.Controllers
 {
     public class OdooController(IPositionService positionService, ICandidateSkillService candidateSkillService) : Controller
     {
-        public class AggregatedPositionDTO
-        {
-            public string PositionId { get; set; } = string.Empty;
-            public string Title { get; set; } = string.Empty;
-            public List<AggregatedSkillDTO> Skills { get; set; } = new();
-        }
-
-        public class AggregatedSkillDTO
-        {
-            public string Name { get; set; } = string.Empty;
-            public string Type { get; set; } = string.Empty;
-            public string Value { get; set; } = string.Empty;
-        }
-
         public IEnumerable<AggregatedPositionDTO> Aggregate([FromQuery] string? positionIds = null)
         {
             if (string.IsNullOrWhiteSpace(positionIds))
