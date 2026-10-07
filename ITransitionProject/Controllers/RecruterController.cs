@@ -381,6 +381,7 @@ namespace ITransitionProject.Controllers
                 var position = positionService.GetById(positionId);
                 var dto = new ViewPositionPageDTO
                 {
+                    UserOdooId = authService.User().Id,
                     Position = position,
                     ActionForEditPosition = "EditPosition",
                     ControllerForEditPosition = ControllerContext.ActionDescriptor.ControllerName,

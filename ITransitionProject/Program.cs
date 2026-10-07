@@ -22,6 +22,8 @@ using UseCases.Services.Entities.PositionSkillsServices;
 using UseCases.Services.Entities.PositionSkillsServices.Interfaces;
 using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices;
 using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices.Interfaces;
+using UseCases.Services.Entities.ValuedSkillServices.CandidateSkillServices;
+using UseCases.Services.Entities.ValuedSkillServices.CandidateSkillServices.Interfaces;
 using UseCases.Services.Formaters;
 using UseCases.Services.Formaters.Interfaces;
 using UseCases.Services.ImageServices;
@@ -104,6 +106,9 @@ namespace ITransitionProject
             builder.Services.AddTransient<IUILocalizationService, UILocalizationService>();
             builder.Services.AddTransient<ISalesforceService, SalesforceService>();
             builder.Services.AddTransient<ISupportService, SupportService>();
+            
+            builder.Services.AddTransient<INumberAggregater, NumberAggregater>();
+            builder.Services.AddTransient<IOneOfManyAggregater, OneOfManyAggregater>();
 
             builder.Services.AddTransient<IMarkdownTextFormater, MarkdownTextFormater>();
             builder.Services.AddTransient<IOneOfManyFormater, OneOfManyFormater>();

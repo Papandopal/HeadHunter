@@ -16,6 +16,7 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interface
         public void UpdateRange(IEnumerable<EditValuedSkillDTO> skillDTOs);
         public Task ChangeCurrentSkillsAsync(IEnumerable<EditValuedSkillDTO> skillDTOs, Guid ownerId);
         public CandidateSkill GetByName(string name, Guid ownerId);
+        public string AggregatedValueBySkill(Skill skill);
         public IEnumerable<CandidateSkill> GetCandidateSkillsByOwnerId(Guid ownerId);
         public IEnumerable<CandidateSkill> GetCandidateSkillsByOwnerIdWithPrefix(Guid ownerId, string prefix);
     }

@@ -74,7 +74,8 @@ namespace Domain
                 {"General account for our services", "General account for our services" },
                 {"Inspector email", "Inspector email" },
                 {"Priority", "Priority" },
-                {"Support ticket", "Support ticket" }
+                {"Support ticket", "Support ticket" },
+                {"Ours Odoo", "Ours Odoo"}
                 }
             },
             {"Русский", new Dictionary<string, string>
@@ -141,7 +142,8 @@ namespace Domain
                 {"General account for our services", "Общий аккаунт для наших сервисов" },
                 {"Inspector email", "Почта проверяющего" },
                 {"Priority", "Приоритет" },
-                {"Support ticket", "Книга жалоб" }
+                {"Support ticket", "Книга жалоб" },
+                {"Ours Odoo", "Наш Odoo"}
 
 
                 }

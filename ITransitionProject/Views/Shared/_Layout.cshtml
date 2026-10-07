@@ -78,7 +78,14 @@
 					</a>
 				}
 			</div>
-			<div></div>
+			<div>
+				@if ((User.Identity?.IsAuthenticated ?? false) && User.IsInRole(UserRoles.Recruter.ToString()))
+				{
+					<a href="https://odoo-integration.skysize.io/web/login" class="link-underline-opacity-0">
+						@UILocalizationFormater.Format("Ours Odoo")
+					</a>
+				}
+			</div>
 			<div>
 				@if ((User.Identity?.IsAuthenticated ?? false)
 									&& supportedUserRolesForSalesforce.Roles().Any(x => User.IsInRole(x.ToString())))

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Domain;
 using Domain.Entities;
 using UseCases.Database;
+using UseCases.Services.Entities.ValuedSkillServices.CandidateSkillServices.Interfaces;
 using UseCases.Services.SkillServices;
 using UseCases.Services.SkillServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
@@ -14,7 +15,8 @@ using UseCases.Services.ValuedSkillServices.General.DTOs;
 
 namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
 {
-    public class CandidateSkillService(IUnitOfWork unitOfWork, ISkillService skillService) : ICandidateSkillService
+    public class CandidateSkillService(IUnitOfWork unitOfWork, ISkillService skillService, INumberAggregater numberAggregater,
+        IOneOfManyAggregater oneOfManyAggregater) : ICandidateSkillService
     {
         void ICandidateSkillService.Add(AddValuedSkillDTO skillDTO, Guid candidateId)
         {
@@ -118,6 +120,21 @@ namespace UseCases.Services.ValuedSkillServices.CandidateSkillServices
         IEnumerable<CandidateSkill> ICandidateSkillService.GetCandidateSkillsByOwnerIdWithPrefix(Guid ownerId, string prefix)
         {
             return unitOfWork.CandidateSkillRepository.GetByOwnerId(ownerId).Where(x => x.Skill.Name.StartsWith(prefix));
+        }
+
+        string ICandidateSkillService.AggregatedValueBySkill(Skill skill)
+        {
+            var candidatesSkillsValues = unitOfWork.CandidateSkillRepository
+                .GetAll()
+                .Where(x => x.SkillId == skill.Id)
+                .Select(x=>x.Value).ToList();
+
+            if(skill.Type == Domain.Enums.SkillTypes.Numeric) 
+                return numberAggregater.Aggreagate(candidatesSkillsValues.Select(x=>long.Parse(x))).ToString();
+            if (skill.Type == Domain.Enums.SkillTypes.OneOfMany)
+                return oneOfManyAggregater.Aggregate(candidatesSkillsValues);
+            else 
+                return string.Empty;
         }
     }
 }
