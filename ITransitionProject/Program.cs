@@ -16,6 +16,8 @@ using UseCases.Services.CategoryServices;
 using UseCases.Services.CategoryServices.Interfaces;
 using UseCases.Services.CVServices;
 using UseCases.Services.CVServices.Interfaces;
+using UseCases.Services.Entities.AdministratorServices;
+using UseCases.Services.Entities.AdministratorServices.Interfaces;
 using UseCases.Services.Entities.PositionSkillsServices;
 using UseCases.Services.Entities.PositionSkillsServices.Interfaces;
 using UseCases.Services.Entities.ValuedSkillServices.AccessRuleServices;
@@ -38,6 +40,8 @@ using UseCases.Services.SalesforceServices;
 using UseCases.Services.SalesforceServices.Interfaces;
 using UseCases.Services.SkillServices;
 using UseCases.Services.SkillServices.Interfaces;
+using UseCases.Services.SupportServices;
+using UseCases.Services.SupportServices.Interfaces;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices;
 using UseCases.Services.ValuedSkillServices.CandidateSkillServices.Interfaces;
 
@@ -86,6 +90,7 @@ namespace ITransitionProject
             builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
             builder.Services.AddTransient<ICandidateService, CandidateService>();
             builder.Services.AddTransient<IRecruterService, RecruterService>();
+            builder.Services.AddTransient<IAdministratorService, AdministratorService>();
             builder.Services.AddTransient<ICandidateSkillService, CandidateSkillService>();
             builder.Services.AddTransient<ISkillService, SkillService>();
             builder.Services.AddTransient<ICategoryService, CategoryService>();
@@ -98,6 +103,7 @@ namespace ITransitionProject
             builder.Services.AddTransient<IImageService, ImageService>();
             builder.Services.AddTransient<IUILocalizationService, UILocalizationService>();
             builder.Services.AddTransient<ISalesforceService, SalesforceService>();
+            builder.Services.AddTransient<ISupportService, SupportService>();
 
             builder.Services.AddTransient<IMarkdownTextFormater, MarkdownTextFormater>();
             builder.Services.AddTransient<IOneOfManyFormater, OneOfManyFormater>();
@@ -115,6 +121,7 @@ namespace ITransitionProject
             builder.Services.AddTransient<AlertService>();
             builder.Services.AddTransient<SupportedAccessRuleSkillTypes>();
             builder.Services.AddTransient<SupportedUserRolesForSalesforce>();
+            builder.Services.AddTransient<SupportedUserRolesForSupportTickets>();
 
             builder.Services.AddProblemDetails();
 

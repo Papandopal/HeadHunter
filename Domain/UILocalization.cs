@@ -44,7 +44,7 @@ namespace Domain
                 {"Rules", "Rules"},
                 {"Add new position", "Add new position"},
                 {"Potencial value", "Potencial value" },
-                {"For OneOfMany potencial value is list of options(example: \"first;second;...;last\").For other types is placeholder.", 
+                {"For OneOfMany potencial value is list of options(example: \"first;second;...;last\").For other types is placeholder.",
                     "For OneOfMany potencial value is list of options(example: \"first;second;...;last\").For other types is placeholder."},
                 {"Category name", "Category name"},
                 {"Date Period", "Date Period"},
@@ -71,7 +71,10 @@ namespace Domain
                 {"Projects", "Projects" },
                 {"Gender", "Gender" },
                 {"Phone", "Phone" },
-                {"General account for our services", "General account for our services" }
+                {"General account for our services", "General account for our services" },
+                {"Inspector email", "Inspector email" },
+                {"Priority", "Priority" },
+                {"Support ticket", "Support ticket" }
                 }
             },
             {"Русский", new Dictionary<string, string>
@@ -135,7 +138,10 @@ namespace Domain
                 {"Projects", "Проекты" },
                 {"Gender", "Пол" },
                 {"Phone", "Телефон" },
-                {"General account for our services", "Общий аккаунт для наших сервисов" }
+                {"General account for our services", "Общий аккаунт для наших сервисов" },
+                {"Inspector email", "Почта проверяющего" },
+                {"Priority", "Приоритет" },
+                {"Support ticket", "Книга жалоб" }
 
 
                 }

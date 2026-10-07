@@ -1,6 +1,7 @@
 ﻿@using ITransitionProject.Controllers
 @inject IUILocalizationFormater UILocalizationFormater;
 @inject SupportedUserRolesForSalesforce supportedUserRolesForSalesforce;
+@inject SupportedUserRolesForSupportTickets supportedUserRolesForSupportTickets;
 @{
 	var selectorId = Guid.NewGuid();
 }
@@ -59,22 +60,35 @@
 			</div>
 		</nav>
 	</header>
-	<div class="container flex-grow-1 pb-1">
-		<main role="main" class="pb-3">
+	<div class="container flex-grow-1 mb-1">
+		<main role="main" class="mb-3">
 			@RenderBody()
 		</main>
 	</div>
-	<hr />
-	<footer class="pb-1">
-		<div class="d-flex justify-content-end">
-			@if ((User.Identity?.IsAuthenticated ?? false)
-					&& supportedUserRolesForSalesforce.Roles().Any(x => User.IsInRole(x.ToString())))
-			{
-				<a asp-controller="@nameof(SalesforceController).Replace("Controller", "")" asp-action="@nameof(SalesforceController.AccountForm)"
-				   class="btn btn-info">
-					@UILocalizationFormater.Format("General account for our services")
-				</a>
-			}
+	<hr class="m-1" />
+	<footer class="mb-1">
+		<div class="d-flex justify-content-around align-items-center">
+			<div>
+				@if ((User.Identity?.IsAuthenticated ?? false)
+									&& supportedUserRolesForSupportTickets.Roles().Any(x => User.IsInRole(x.ToString())))
+				{
+					<a asp-controller="@nameof(SupportController).Replace("Controller", "")"
+					   asp-action="@nameof(SupportController.GetSupportTicketForm)" class="link-underline-opacity-0">
+						@UILocalizationFormater.Format("Support ticket")
+					</a>
+				}
+			</div>
+			<div></div>
+			<div>
+				@if ((User.Identity?.IsAuthenticated ?? false)
+									&& supportedUserRolesForSalesforce.Roles().Any(x => User.IsInRole(x.ToString())))
+				{
+					<a asp-controller="@nameof(SalesforceController).Replace("Controller", "")"
+					   asp-action="@nameof(SalesforceController.AccountForm)" class="btn btn-info">
+						@UILocalizationFormater.Format("General account for our services")
+					</a>
+				}
+			</div>
 		</div>
 	</footer>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

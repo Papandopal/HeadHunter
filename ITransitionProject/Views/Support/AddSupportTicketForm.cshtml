@@ -1,0 +1,133 @@
+﻿@model AddSupportTicketPageDTO
+@inject IUILocalizationFormater UILocalizationFormater;
+@{
+	var mainFormId = "mainFormId";
+	var firstNameIdAndName = nameof(Model.PostedModel.FirstName);
+	var lastNameIdAndName = nameof(Model.PostedModel.LastName);
+	var roleIdAndName = nameof(Model.PostedModel.Role);
+	var linkIdAndName = nameof(Model.PostedModel.Link);
+	var priorityIdAndName = nameof(Model.PostedModel.Priority);
+	var adminEmailIdAndName = nameof(Model.PostedModel.AdministratorEmail);
+	var descriptionIdAndName = nameof(Model.PostedModel.Description);
+	var submitButtonId = "submitButtonId";
+
+}
+<input id="@roleIdAndName" name="@roleIdAndName" type="hidden" value="@Model.User.Role.Name" />
+<input id="@linkIdAndName" name="@linkIdAndName" type="hidden" />
+<div id="@mainFormId" class="container mt-5">
+	<div class="row">
+		<div class="col-2"></div>
+		<div class="col-4">
+			<input id="@firstNameIdAndName" name="@firstNameIdAndName" disabled type="text" value="@Model.FirstName"
+				   placeholder="@UILocalizationFormater.Format("First Name")" class="w-75" />
+		</div>
+		<div class="col-4">
+			<input id="@lastNameIdAndName" name="@lastNameIdAndName" disabled type="text" value="@Model.LastName"
+				   placeholder="@UILocalizationFormater.Format("Last Name")" class="w-75" />
+		</div>
+		<div class="col-2"></div>
+	</div>
+	<div class="row">
+		<div class="col-2"></div>
+		<div class="col-4">
+			<label>@UILocalizationFormater.Format("Priority"):</label>
+			<select id="@priorityIdAndName" name="@priorityIdAndName" onchange="addProperty('@priorityIdAndName')">
+				<option disabled hidden selected>@UILocalizationFormater.Format("Priority")</option>
+				@foreach (var priority in Enum.GetNames<SupportTicketPriority>())
+				{
+					<option value="@priority">@priority</option>
+				}
+			</select>
+		</div>
+		<div class="col-4">
+			<label>@UILocalizationFormater.Format("Inspector email"):</label>
+			<select id="@adminEmailIdAndName" name="@adminEmailIdAndName" onchange="addProperty('@adminEmailIdAndName')">
+				<option disabled hidden selected>@UILocalizationFormater.Format("Inspector email")</option>
+				@foreach (var email in Model.AdministratorsEmails)
+				{
+					<option value="@email">@email</option>
+				}
+			</select>
+		</div>
+		<div class="col-2"></div>
+	</div>
+	<div class="row justify-content-center">
+		<div class="col-8">
+			<label>@UILocalizationFormater.Format("Description"):</label>
+			<textarea id="@descriptionIdAndName" name="@descriptionIdAndName" oninput="addProperty('@descriptionIdAndName')"
+					  class="w-100"></textarea>
+		</div>
+	</div>
+	<div class="row justify-content-center">
+		<div class="col-2">
+			<button id="@submitButtonId" disabled class="btn w-100 d-flex justify-content-center align-items-center" onclick="sendSupportTicket()">@UILocalizationFormater.Format("Save")</button>
+		</div>
+	</div>
+</div>
+
+<script>
+
+	class AddSupportTicket{
+		FirstName;
+		LastName;
+		Role;
+		Link;
+		Priority;
+		AdministratorEmail;
+		Description;
+
+		constructor(firstName, lastName, role, link, priority, administratorEmail, description){
+			this.FirstName = firstName;
+			this.LastName = lastName;
+			this.Role = role;
+			this.Link = link;
+			this.Priority = priority;
+			this.AdministratorEmail = administratorEmail;
+			this.Description = description;
+		}
+	}
+
+	document.getElementById('@linkIdAndName').value = document.referrer;
+
+	let propsCount = document.getElementById('@mainFormId').querySelectorAll('label').length;
+	if(propsCount==0) activateSubmitButton();
+	let data = [];
+
+	function activateSubmitButton(){
+		document.getElementById("@submitButtonId").disabled = false;
+	}
+
+	function addProperty(propName) {
+		let item = data.find(item => item === propName);
+		if (typeof item === 'undefined') {
+			propsCount--;
+			data.push(propName);
+		}
+		if(propsCount==0) activateSubmitButton();
+	}
+
+	function sendSupportTicket(){
+		let firstName = document.getElementById('@firstNameIdAndName').value;
+		let lastName = document.getElementById('@lastNameIdAndName').value;
+		let role = document.getElementById('@roleIdAndName').value;
+		let link = document.getElementById('@linkIdAndName').value;
+		let priority = document.getElementById('@priorityIdAndName').value;
+		let adminEmail = document.getElementById('@adminEmailIdAndName').value;
+		let description = document.getElementById('@descriptionIdAndName').value;
+
+		let data = new AddSupportTicket(firstName, lastName, role, link, priority, adminEmail, description);
+
+		fetch(`/@Model.ControllerForSubmit/@Model.ActionForSubmit?json=${encodeURIComponent(JSON.stringify(data))}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		}).catch(error => {
+			console.error('Error:', error);
+		}).then(responce=>{
+			location.reload();
+		});
+	}
+</script>
+
+
